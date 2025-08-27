@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Hijaiyah – Bab 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #007bff;
+            --soft-blue: #e8f5ff;
+            --dark-text: #333;
+            --light-text: #666;
+            --border-color: #ddd;
+            --bg-color: #f8f9fa;
+            --card-bg: #fff;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            background-color: var(--bg-color);
+            color: var(--dark-text);
+            padding: 2rem;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+        }
+
+        h1 {
+            color: var(--primary-blue);
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .question-section {
+            margin-bottom: 2rem;
+        }
+
+        h3 {
+            border-bottom: 2px solid var(--soft-blue);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-blue);
+        }
+
+        .question-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .question-item p {
+            margin: 0 0 0.5rem 0;
+            font-weight: 500;
+        }
+
+        input[type="text"], input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-blue);
+            outline: none;
+        }
+
+        label {
+            cursor: pointer;
+            margin-right: 1.5rem;
+            color: var(--light-text);
+        }
+
+        button[type="submit"] {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Quiz Huruf Hijaiyah – Bab 1 (Level Tinggi)</h1>
+
+    <form method="post" action="URL_VERCEL_ANDA/api/index/submit">
+        
+        <div class="question-section">
+            <h3>Bagian A – Tebak Huruf</h3>
+            <div class="question-item">
+                <p>1) Huruf ini mirip خ tapi tanpa titik. Apa itu?</p>
+                <label><input type="radio" name="q1" value="ج"> ج</label>
+                <label><input type="radio" name="q1" value="ح"> ح</label>
+                <label><input type="radio" name="q1" value="خ"> خ</label>
+            </div>
+            <div class="question-item">
+                <p>2) Huruf mirip و tapi ada titik di atas?</p>
+                <label><input type="radio" name="q2" value="ر"> ر</label>
+                <label><input type="radio" name="q2" value="ز"> ز</label>
+                <label><input type="radio" name="q2" value="ذ"> ذ</label>
+            </div>
+        </div>
+
+        <div class="question-section">
+            <h3>Bagian B – Urutkan Huruf</h3>
+            <div class="question-item">
+                <p>3) Susun urutan yang benar: (ت – ا – ث – ب)</p>
+                <input type="text" name="q3" placeholder="contoh: ا ب ت ث">
+            </div>
+            <div class="question-item">
+                <p>4) Urutkan huruf ini: (ض – ص – ط – ظ)</p>
+                <input type="text" name="q4" placeholder="contoh: ص ض ط ظ">
+            </div>
+        </div>
+
+        <div class="question-section">
+            <h3>Bagian C – Pasangan Mirip</h3>
+            <div class="question-item">
+                <p>5) Huruf yang mirip ط tapi ada titik di atas?</p>
+                <input type="text" name="q5" placeholder="Jawab huruf">
+            </div>
+            <div class="question-item">
+                <p>6) Pasangkan kelompok mirip: (ب ت ث), (ج ح خ), (d ذ), (س ش)</p>
+                <input type="text" name="q6" placeholder="Tuliskan semua pasangan">
+            </div>
+        </div>
+        
+        <div class="question-section">
+            <h3>Bagian D – Tebak Kata</h3>
+            <div class="question-item">
+                <p>7) Gabungkan huruf ini: ب + ا + ب = ?</p>
+                <input type="text" name="q7">
+            </div>
+            <div class="question-item">
+                <p>8) Sebutkan huruf penyusun kata قَلَم</p>
+                <input type="text" name="q8" placeholder="contoh: ق ل م">
+            </div>
+        </div>
+
+        <div class="question-section">
+            <h3>Bagian E – Tantangan</h3>
+            <div class="question-item">
+                <p>9) Sebutkan 5 huruf tanpa titik</p>
+                <input type="text" name="q9">
+            </div>
+            <div class="question-item">
+                <p>10) Ada berapa huruf dengan titik di bawah? Sebutkan!</p>
+                <input type="text" name="q10">
+            </div>
+        </div>
+        
+        <button type="submit">Kumpulkan Jawaban</button>
+    </form>
+</div>
+
+</body>
+</html>
