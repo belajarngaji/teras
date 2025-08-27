@@ -1,1 +1,71 @@
-waiting
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelas 1 - Kuis Huruf Hijaiyah</title>
+  <script>
+    function cekJawaban() {
+      let skor = 0;
+
+      // daftar jawaban benar
+      const jawabanBenar = {
+        q1: "alif",
+        q2: "ba",
+        q3: "ta",
+        q4: "tsa"
+      };
+
+      // periksa tiap jawaban
+      for (let id in jawabanBenar) {
+        let input = document.getElementById(id).value.trim().toLowerCase();
+        let feedback = document.getElementById(id + "-feedback");
+
+        if (input === jawabanBenar[id]) {
+          skor++;
+          feedback.textContent = "✅ Benar";
+          feedback.style.color = "green";
+        } else {
+          feedback.textContent = "❌ Salah (jawaban: " + jawabanBenar[id] + ")";
+          feedback.style.color = "red";
+        }
+      }
+
+      document.getElementById("skor").textContent = 
+        "Skor kamu: " + skor + "/" + Object.keys(jawabanBenar).length;
+    }
+  </script>
+</head>
+<body>
+  <h1>Kelas 1 - Kuis Dasar Huruf Hijaiyah</h1>
+  <p>Ketik nama huruf dengan huruf latin (contoh: alif, ba, ta)</p>
+
+  <form onsubmit="event.preventDefault(); cekJawaban();">
+    <div>
+      <label>1. Huruf pertama (ا): </label>
+      <input type="text" id="q1">
+      <span id="q1-feedback"></span>
+    </div>
+    <div>
+      <label>2. Huruf kedua (ب): </label>
+      <input type="text" id="q2">
+      <span id="q2-feedback"></span>
+    </div>
+    <div>
+      <label>3. Huruf ketiga (ت): </label>
+      <input type="text" id="q3">
+      <span id="q3-feedback"></span>
+    </div>
+    <div>
+      <label>4. Huruf keempat (ث): </label>
+      <input type="text" id="q4">
+      <span id="q4-feedback"></span>
+    </div>
+
+    <br>
+    <button type="submit">Cek Jawaban</button>
+  </form>
+
+  <h3 id="skor"></h3>
+</body>
+</html>
