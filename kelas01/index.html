@@ -37,105 +37,11 @@
   <!-- Grid Fitur -->
   <div class="container mx-auto px-4 py-10 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 
-<script>
-  const questions = [
-    { huruf: "ا", correct: "Alif", options: ["Alif", "Ba", "Ta"] },
-    { huruf: "ب", correct: "Ba", options: ["Alif", "Ba", "Ta"] },
-    { huruf: "ت", correct: "Ta", options: ["Ta", "Tsa", "Jim"] },
-    { huruf: "ث", correct: "Tsa", options: ["Ta", "Tsa", "Kha"] },
-    { huruf: "ج", correct: "Jim", options: ["Ha", "Jim", "Kha"] },
-    { huruf: "ح", correct: "Ha", options: ["Ha", "Kha", "Dal"] },
-    { huruf: "خ", correct: "Kha", options: ["Kha", "Ha", "Ra"] },
-    { huruf: "د", correct: "Dal", options: ["Dal", "Dzal", "Ra"] },
-    { huruf: "ذ", correct: "Dzal", options: ["Dal", "Dzal", "Zai"] },
-    { huruf: "ر", correct: "Ra", options: ["Ra", "Zai", "Sin"] },
-    { huruf: "ز", correct: "Zai", options: ["Ra", "Zai", "Sin"] },
-    { huruf: "س", correct: "Sin", options: ["Sin", "Syin", "Shad"] },
-    { huruf: "ش", correct: "Syin", options: ["Sin", "Syin", "Shad"] },
-    { huruf: "ص", correct: "Shad", options: ["Shad", "Dhad", "Tha"] },
-    { huruf: "ض", correct: "Dhad", options: ["Shad", "Dhad", "Zha"] },
-    { huruf: "ط", correct: "Tha", options: ["Tha", "Zha", "Ain"] },
-    { huruf: "ظ", correct: "Zha", options: ["Zha", "Tha", "Ghain"] },
-    { huruf: "ع", correct: "Ain", options: ["Ain", "Ghain", "Fa"] },
-    { huruf: "غ", correct: "Ghain", options: ["Ain", "Ghain", "Fa"] },
-    { huruf: "ف", correct: "Fa", options: ["Fa", "Qaf", "Kaf"] },
-    { huruf: "ق", correct: "Qaf", options: ["Fa", "Qaf", "Kaf"] },
-    { huruf: "ك", correct: "Kaf", options: ["Kaf", "Qaf", "Lam"] },
-    { huruf: "ل", correct: "Lam", options: ["Mim", "Lam", "Nun"] },
-    { huruf: "م", correct: "Mim", options: ["Lam", "Mim", "Nun"] },
-    { huruf: "ن", correct: "Nun", options: ["Mim", "Nun", "Wau"] },
-    { huruf: "و", correct: "Wau", options: ["Wau", "Ya", "Ha"] },
-    { huruf: "هـ", correct: "Ha", options: ["Ha", "Wau", "Ya"] },
-    { huruf: "ي", correct: "Ya", options: ["Ya", "Ha", "Alif"] }
-  ];
-
-  let currentQuestion = 0;
-  let score = 0;
-
-  function showQuestion() {
-    const q = questions[currentQuestion];
-    const container = document.getElementById("quiz-container");
-
-    let html = `
-      <h3 class="text-lg font-medium mb-3">Huruf ini adalah: <span class="text-3xl">${q.huruf}</span></h3>
-      <div class="space-y-2">
-    `;
-
-    q.options.forEach(opt => {
-      html += `
-        <button onclick="checkAnswer('${opt}')" 
-          class="w-full text-left px-4 py-2 border rounded-lg hover:bg-blue-100">
-          ${opt}
-        </button>
-      `;
-    });
-
-    html += `</div>`;
-    container.innerHTML = html;
-
-    document.getElementById("nextBtn").style.display = "none";
-  }
-
-  function checkAnswer(answer) {
-    const q = questions[currentQuestion];
-    if (answer === q.correct) {
-      score++;
-      alert("✅ Benar!");
-    } else {
-      alert("❌ Salah! Jawaban benar: " + q.correct);
-    }
-
-    currentQuestion++;
-    if (currentQuestion < questions.length) {
-      document.getElementById("nextBtn").style.display = "inline-block";
-      document.getElementById("nextBtn").innerText = "Lanjut Soal";
-    } else {
-      document.getElementById("quiz-container").innerHTML = "<h3>Kuis selesai!</h3>";
-      document.getElementById("nextBtn").style.display = "none";
-      document.getElementById("score").innerText = "Skor kamu: " + score + "/" + questions.length;
-    }
-  }
-
-  function nextQuestion() {
-    showQuestion();
-  }
-</script>
-    
-<!-- KELAS 1 -->
-<div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
-  <h2 class="text-xl font-semibold mb-4">Kelas 1 - Kuis Huruf Hijaiyah</h2>
-  
-  <div id="quiz-container" class="text-left space-y-6">
-    <!-- Soal akan tampil di sini -->
-  </div>
-
-  <button onclick="startQuiz()" id="nextBtn" 
-          class="mt-6 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-    Mulai Kuis
-  </button>
-
-  <p id="score" class="mt-4 font-semibold text-lg"></p>
-</div>
+    <!-- KELAS 1 -->
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Bab 1 - Pengenalan huruf Hijaiyah</h2>
+      <a href="quizbab1/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
+    </div>
 
     <!-- Chat AI -->
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
