@@ -3,69 +3,181 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kelas 1 - Kuis Huruf Hijaiyah</title>
+  <title>Altar | Belajar Ngaji</title>
+  <meta name="description" content="Jelajahi semua fitur seru Terminal Gabut seperti Puisi, Chat AI, Spin Wheel, Quiz, dan lainnya.">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; transition: background 0.3s, color 0.3s; }
+    .dark-mode { background: #1e293b; color: #f1f5f9; }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- NAVBAR -->
+  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+  <!-- Brand / Logo -->
+  <div>
+    <a href="..">
+      <img src="..png" alt="Belajar Ngaji" class="h-7 w-auto">
+    </a>
+  </div>
+
+  <!-- Tombol Dark Mode -->
+  <button id="darkToggle" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
+    🌙
+  </button>
+</nav>
+
+  <!-- Grid Fitur -->
+  <div class="container mx-auto px-4 py-10 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+
+<script>
+  const questions = [
+    { huruf: "ا", correct: "Alif", options: ["Alif", "Ba", "Ta"] },
+    { huruf: "ب", correct: "Ba", options: ["Alif", "Ba", "Ta"] },
+    { huruf: "ت", correct: "Ta", options: ["Ta", "Tsa", "Jim"] },
+    { huruf: "ث", correct: "Tsa", options: ["Ta", "Tsa", "Kha"] },
+    { huruf: "ج", correct: "Jim", options: ["Ha", "Jim", "Kha"] },
+    { huruf: "ح", correct: "Ha", options: ["Ha", "Kha", "Dal"] },
+    { huruf: "خ", correct: "Kha", options: ["Kha", "Ha", "Ra"] },
+    { huruf: "د", correct: "Dal", options: ["Dal", "Dzal", "Ra"] },
+    { huruf: "ذ", correct: "Dzal", options: ["Dal", "Dzal", "Zai"] },
+    { huruf: "ر", correct: "Ra", options: ["Ra", "Zai", "Sin"] },
+    { huruf: "ز", correct: "Zai", options: ["Ra", "Zai", "Sin"] },
+    { huruf: "س", correct: "Sin", options: ["Sin", "Syin", "Shad"] },
+    { huruf: "ش", correct: "Syin", options: ["Sin", "Syin", "Shad"] },
+    { huruf: "ص", correct: "Shad", options: ["Shad", "Dhad", "Tha"] },
+    { huruf: "ض", correct: "Dhad", options: ["Shad", "Dhad", "Zha"] },
+    { huruf: "ط", correct: "Tha", options: ["Tha", "Zha", "Ain"] },
+    { huruf: "ظ", correct: "Zha", options: ["Zha", "Tha", "Ghain"] },
+    { huruf: "ع", correct: "Ain", options: ["Ain", "Ghain", "Fa"] },
+    { huruf: "غ", correct: "Ghain", options: ["Ain", "Ghain", "Fa"] },
+    { huruf: "ف", correct: "Fa", options: ["Fa", "Qaf", "Kaf"] },
+    { huruf: "ق", correct: "Qaf", options: ["Fa", "Qaf", "Kaf"] },
+    { huruf: "ك", correct: "Kaf", options: ["Kaf", "Qaf", "Lam"] },
+    { huruf: "ل", correct: "Lam", options: ["Mim", "Lam", "Nun"] },
+    { huruf: "م", correct: "Mim", options: ["Lam", "Mim", "Nun"] },
+    { huruf: "ن", correct: "Nun", options: ["Mim", "Nun", "Wau"] },
+    { huruf: "و", correct: "Wau", options: ["Wau", "Ya", "Ha"] },
+    { huruf: "هـ", correct: "Ha", options: ["Ha", "Wau", "Ya"] },
+    { huruf: "ي", correct: "Ya", options: ["Ya", "Ha", "Alif"] }
+  ];
+
+  let currentQuestion = 0;
+  let score = 0;
+
+  function showQuestion() {
+    const q = questions[currentQuestion];
+    const container = document.getElementById("quiz-container");
+
+    let html = `
+      <h3 class="text-lg font-medium mb-3">Huruf ini adalah: <span class="text-3xl">${q.huruf}</span></h3>
+      <div class="space-y-2">
+    `;
+
+    q.options.forEach(opt => {
+      html += `
+        <button onclick="checkAnswer('${opt}')" 
+          class="w-full text-left px-4 py-2 border rounded-lg hover:bg-blue-100">
+          ${opt}
+        </button>
+      `;
+    });
+
+    html += `</div>`;
+    container.innerHTML = html;
+
+    document.getElementById("nextBtn").style.display = "none";
+  }
+
+  function checkAnswer(answer) {
+    const q = questions[currentQuestion];
+    if (answer === q.correct) {
+      score++;
+      alert("✅ Benar!");
+    } else {
+      alert("❌ Salah! Jawaban benar: " + q.correct);
+    }
+
+    currentQuestion++;
+    if (currentQuestion < questions.length) {
+      document.getElementById("nextBtn").style.display = "inline-block";
+      document.getElementById("nextBtn").innerText = "Lanjut Soal";
+    } else {
+      document.getElementById("quiz-container").innerHTML = "<h3>Kuis selesai!</h3>";
+      document.getElementById("nextBtn").style.display = "none";
+      document.getElementById("score").innerText = "Skor kamu: " + score + "/" + questions.length;
+    }
+  }
+
+  function nextQuestion() {
+    showQuestion();
+  }
+</script>
+    
+<!-- KELAS 1 -->
+<div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+  <h2 class="text-xl font-semibold mb-4">Kelas 1 - Kuis Huruf Hijaiyah</h2>
+  
+  <div id="quiz-container" class="text-left space-y-6">
+    <!-- Soal akan tampil di sini -->
+  </div>
+
+  <button onclick="startQuiz()" id="nextBtn" 
+          class="mt-6 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+    Mulai Kuis
+  </button>
+
+  <p id="score" class="mt-4 font-semibold text-lg"></p>
+</div>
+
+    <!-- Chat AI -->
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <i class="fas fa-robot text-blue-600 text-3xl mb-4"></i>
+      <h2 class="text-xl font-semibold mb-2">Chat AI DinoBot</h2>
+      <p class="text-gray-600 mb-4">Ngobrol seru dengan AI kreatif!</p>
+      <a href="tg-chat/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Chat</a>
+    </div>
+
+    <!-- Game Retro -->
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <i class="fas fa-save text-blue-600 text-3xl mb-4"></i>
+      <h2 class="text-xl font-semibold mb-2">Game Retro</h2>
+      <p class="text-gray-600 mb-4">Mainkan Game Retro kesukaan mu</p>
+      <a href="tg-retrogame/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Menu</a>
+    </div>
+
+    <!-- Quiz -->
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <i class="fas fa-question-circle text-blue-600 text-3xl mb-4"></i>
+      <h2 class="text-xl font-semibold mb-2">Trivia Quiz</h2>
+      <p class="text-gray-600 mb-4">Uji pengetahuanmu dengan kuis seru!</p>
+      <a href="tg-quiz/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 text-center py-6">
+    <p>© 2025 Terminal Gabut - Semua Hak Dilindungi</p>
+  </footer>
+
+  <!-- Dark Mode Script -->
   <script>
-    function cekJawaban() {
-      let skor = 0;
-
-      // daftar jawaban benar
-      const jawabanBenar = {
-        q1: "alif",
-        q2: "ba",
-        q3: "ta",
-        q4: "tsa"
-      };
-
-      // periksa tiap jawaban
-      for (let id in jawabanBenar) {
-        let input = document.getElementById(id).value.trim().toLowerCase();
-        let feedback = document.getElementById(id + "-feedback");
-
-        if (input === jawabanBenar[id]) {
-          skor++;
-          feedback.textContent = "✅ Benar";
-          feedback.style.color = "green";
-        } else {
-          feedback.textContent = "❌ Salah (jawaban: " + jawabanBenar[id] + ")";
-          feedback.style.color = "red";
-        }
-      }
-
-      document.getElementById("skor").textContent = 
-        "Skor kamu: " + skor + "/" + Object.keys(jawabanBenar).length;
+    const toggleBtn = document.getElementById("darkToggle");
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+      localStorage.setItem("dark-mode", document.body.classList.contains("dark-mode"));
+    });
+    if(localStorage.getItem("dark-mode") === "true") {
+      document.body.classList.add("dark-mode");
     }
   </script>
-</head>
-<body>
-  <h1>Kelas 1 - Kuis Dasar Huruf Hijaiyah</h1>
-  <p>Ketik nama huruf dengan huruf latin (contoh: alif, ba, ta)</p>
-
-  <form onsubmit="event.preventDefault(); cekJawaban();">
-    <div>
-      <label>1. Huruf pertama (ا): </label>
-      <input type="text" id="q1">
-      <span id="q1-feedback"></span>
-    </div>
-    <div>
-      <label>2. Huruf kedua (ب): </label>
-      <input type="text" id="q2">
-      <span id="q2-feedback"></span>
-    </div>
-    <div>
-      <label>3. Huruf ketiga (ت): </label>
-      <input type="text" id="q3">
-      <span id="q3-feedback"></span>
-    </div>
-    <div>
-      <label>4. Huruf keempat (ث): </label>
-      <input type="text" id="q4">
-      <span id="q4-feedback"></span>
-    </div>
-
-    <br>
-    <button type="submit">Cek Jawaban</button>
-  </form>
-
-  <h3 id="skor"></h3>
 </body>
 </html>
