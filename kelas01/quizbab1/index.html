@@ -1,189 +1,235 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Hijaiyah – Bab 1</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-blue: #007bff;
-            --soft-blue: #e8f5ff;
-            --dark-text: #333;
-            --light-text: #666;
-            --border-color: #ddd;
-            --bg-color: #f8f9fa;
-            --card-bg: #fff;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            line-height: 1.6;
-            background-color: var(--bg-color);
-            color: var(--dark-text);
-            padding: 2rem;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 900px;
-            width: 100%;
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 2.5rem;
-        }
-
-        h1 {
-            color: var(--primary-blue);
-            text-align: center;
-            font-weight: 700;
-            margin-bottom: 2rem;
-        }
-
-        .question-section {
-            margin-bottom: 2rem;
-        }
-
-        h3 {
-            border-bottom: 2px solid var(--soft-blue);
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
-            color: var(--primary-blue);
-        }
-
-        .question-item {
-            margin-bottom: 1.5rem;
-        }
-
-        .question-item p {
-            margin: 0 0 0.5rem 0;
-            font-weight: 500;
-        }
-
-        input[type="text"], input[type="radio"] {
-            margin-right: 5px;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            box-sizing: border-box;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus {
-            border-color: var(--primary-blue);
-            outline: none;
-        }
-
-        label {
-            cursor: pointer;
-            margin-right: 1.5rem;
-            color: var(--light-text);
-        }
-
-        button[type="submit"] {
-            display: block;
-            width: 100%;
-            padding: 1rem;
-            font-size: 1.1rem;
-            font-weight: 700;
-            background-color: var(--primary-blue);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuis Kelas 1 Bab 1</title>
+  <meta name="description" content="Kuis Hijaiyah untuk Belajar Ngaji.">
+  <link rel="icon" href="../../favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; transition: background 0.3s, color 0.3s; }
+    .dark-mode { background: #1e293b; color: #f1f5f9; }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    .option-item.selected {
+      background-color: #2a698a;
+      color: #fff;
+    }
+  </style>
 </head>
-<body>
+<body class="bg-gray-50 dark:bg-slate-800">
 
-<div class="container">
-    <h1>Quiz Huruf Hijaiyah – Bab 1</h1>
+  <!-- NAVBAR -->
+  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+    <!-- Brand / Logo -->
+    <div>
+      <a href="../..">
+        <img src="..png" alt="Belajar Ngaji" class="h-7 w-auto">
+      </a>
+    </div>
+    <!-- Tombol Profil -->
+    <a href="profil/" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
+      👤
+    </a>
+  </nav>
 
-    <form method="post" action="https://quiz-abata.vercel.app//api/index/submit">
+  <!-- KONTEN KUIS -->
+  <div class="mx-auto px-4 py-10 w-full md:w-2/3 lg:w-1/2">
+    <!-- KONTEN KUIS UTAMA -->
+    <div id="quiz-ui" class="card bg-white rounded-xl shadow-lg p-6 text-center dark:bg-slate-700 dark:text-gray-100">
+      <h2 id="question-text" class="text-xl font-semibold mb-4"></h2>
+      <ul id="options-list" class="flex flex-col gap-3"></ul>
+      <button id="next-button" class="mt-6 w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition">Selanjutnya</button>
+    </div>
+
+    <!-- HASIL KUIS (HIDDEN SECARA DEFAULT) -->
+    <div id="results-ui" class="card bg-white rounded-xl shadow-lg p-6 mt-8 text-center dark:bg-slate-700 dark:text-gray-100" style="display: none;">
+      <h2 class="text-2xl font-bold text-green-600 mb-4">Hasil Kuis</h2>
+      <p class="text-lg">Skor Anda: <span id="final-score" class="font-bold text-3xl">0</span></p>
+      <p id="score-message" class="mt-2 text-md"></p>
+      <a href="../.." class="mt-6 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">Kembali ke Beranda</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 text-center py-6 dark:bg-slate-900 dark:text-gray-400">
+    <p>© 2025 Belajar Ngaji- Semua Hak Dilindungi</p>
+  </footer>
+
+  <script>
+    // --- 1. DATA KUIS ---
+    const quizData = [
+      {
+        question: "Huruf apakah yang memiliki titik satu di bawahnya?",
+        options: ["ب", "ن", "ي", "ت"],
+        answer: "ب"
+      },
+      {
+        question: "Huruf hijaiyah berikut yang memiliki tiga titik di atasnya adalah...",
+        options: ["ف", "ث", "خ", "ج"],
+        answer: "ث"
+      },
+      {
+        question: "Huruf apakah yang bentuknya mirip ب namun memiliki dua titik di atas?",
+        options: ["ت", "ث", "ن", "ي"],
+        answer: "ت"
+      },
+      {
+        question: "Urutan huruf hijaiyah yang benar antara lain...",
+        options: ["ي، ك، ل، م", "ش، ص، ض، ط", "ع، غ، ف، ق"],
+        answer: "ع، غ، ف، ق"
+      },
+      {
+        question: "Huruf apakah yang disebut 'Ain' (ع) dalam posisi awal kata memiliki bentuk yang…",
+        options: ["Terbuka di atas", "Melengkung seperti angka 3 terbalik", "Garis lurus dengan ekor", "Lingkaran penuh"],
+        answer: "Melengkung seperti angka 3 terbalik"
+      },
+      {
+        question: "Di antara huruf berikut, yang tidak memiliki titik adalah...",
+        options: ["خ", "ص", "ط", "ق"],
+        answer: "ص"
+      },
+      {
+        question: "Huruf apakah yang memiliki titik di atas dan di bawah sekaligus dalam satu bentuk?",
+        options: ["ش", "خ", "ق", "Tidak ada"],
+        answer: "Tidak ada"
+      },
+      {
+        question: "Bentuk akhir dari huruf 'س' di ujung kata adalah...",
+        options: ["س", "سـ", "ـس", "ـسـ"],
+        answer: "ـس"
+      },
+      {
+        question: "Huruf apakah yang disebut 'Kha' (خ) memiliki tanda khusus yaitu…",
+        options: ["Titik satu di atas", "Titik satu di bawah", "Dua titik di atas", "Tidak bertitik"],
+        answer: "Titik satu di atas"
+      },
+      {
+        question: "Huruf yang berbentuk seperti 'Waw' namun tanpa titik adalah...",
+        options: ["ع", "ل", "و", "ق"],
+        answer: "و"
+      }
+    ];
+
+    // --- 2. LOGIKA KUIS ---
+    const quizUI = document.getElementById('quiz-ui');
+    const resultsUI = document.getElementById('results-ui');
+    const questionText = document.getElementById('question-text');
+    const optionsList = document.getElementById('options-list');
+    const nextButton = document.getElementById('next-button');
+    const finalScoreSpan = document.getElementById('final-score');
+    const scoreMessage = document.getElementById('score-message');
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let selectedOption = null;
+
+    function loadQuestion() {
+      if (currentQuestionIndex < quizData.length) {
+        const currentQuestion = quizData[currentQuestionIndex];
+        questionText.textContent = `${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+        optionsList.innerHTML = '';
+        currentQuestion.options.forEach(option => {
+          const li = document.createElement('li');
+          li.textContent = option;
+          li.className = 'bg-blue-50 text-blue-800 font-semibold py-3 px-4 rounded-lg cursor-pointer transition hover:bg-blue-100 dark:bg-slate-600 dark:text-gray-100 dark:hover:bg-slate-500';
+          li.addEventListener('click', () => {
+            document.querySelectorAll('.option-item').forEach(item => {
+              item.classList.remove('bg-blue-700', 'text-white');
+              item.classList.add('bg-blue-50', 'text-blue-800');
+            });
+            li.classList.remove('bg-blue-50', 'text-blue-800');
+            li.classList.add('bg-blue-700', 'text-white', 'selected');
+            selectedOption = option;
+          });
+          li.classList.add('option-item');
+          optionsList.appendChild(li);
+        });
+        nextButton.textContent = currentQuestionIndex === quizData.length - 1 ? 'Selesai' : 'Selanjutnya';
+      } else {
+        showResults();
+      }
+    }
+
+    nextButton.addEventListener('click', () => {
+      if (selectedOption !== null) {
+        const currentQuestion = quizData[currentQuestionIndex];
+        if (selectedOption === currentQuestion.answer) {
+          score++;
+        }
+        currentQuestionIndex++;
+        selectedOption = null;
+        loadQuestion();
+      } else {
+        alert('Silakan pilih jawaban terlebih dahulu.');
+      }
+    });
+
+    function showResults() {
+      quizUI.style.display = 'none';
+      resultsUI.style.display = 'block';
+      finalScoreSpan.textContent = score;
+
+      if (score === quizData.length) {
+        scoreMessage.textContent = 'Hebat! Anda mendapatkan skor sempurna!';
+      } else if (score >= quizData.length / 2) {
+        scoreMessage.textContent = 'Kerja bagus! Anda berhasil melewati kuis ini.';
+      } else {
+        scoreMessage.textContent = 'Terus belajar ya! Anda bisa coba lagi.';
+      }
+
+      saveScoreToSupabase(score);
+    }
+    
+    document.addEventListener('DOMContentLoaded', loadQuestion);
+
+    // --- 3. INTEGRASI SUPABASE ---
+    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function saveScoreToSupabase(finalScore) {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        console.error('User belum login. Skor tidak dapat disimpan.');
+        return;
+      }
+      
+      const quiz_id = getQuizIdFromUrl();
+      const { data, error } = await supabase
+        .from('quiz_scores')
+        .insert([
+          {
+            user_id: user.id,
+            quiz_id: quiz_id,
+            score: finalScore
+          }
+        ]);
         
-        <div class="question-section">
-            <h3>Bagian A – Tebak Huruf</h3>
-            <div class="question-item">
-                <p>1) Huruf ini mirip خ tapi tanpa titik. Apa itu?</p>
-                <label><input type="radio" name="q1" value="ج"> ج</label>
-                <label><input type="radio" name="q1" value="ح"> ح</label>
-                <label><input type="radio" name="q1" value="خ"> خ</label>
-            </div>
-            <div class="question-item">
-                <p>2) Huruf mirip و tapi ada titik di atas?</p>
-                <label><input type="radio" name="q2" value="ر"> ر</label>
-                <label><input type="radio" name="q2" value="ز"> ز</label>
-                <label><input type="radio" name="q2" value="ذ"> ذ</label>
-            </div>
-        </div>
-
-        <div class="question-section">
-            <h3>Bagian B – Urutkan Huruf</h3>
-            <div class="question-item">
-                <p>3) Susun urutan yang benar: (ت – ا – ث – ب)</p>
-                <input type="text" name="q3" placeholder="contoh: ا ب ت ث">
-            </div>
-            <div class="question-item">
-                <p>4) Urutkan huruf ini: (ض – ص – ط – ظ)</p>
-                <input type="text" name="q4" placeholder="contoh: ص ض ط ظ">
-            </div>
-        </div>
-
-        <div class="question-section">
-            <h3>Bagian C – Pasangan Mirip</h3>
-            <div class="question-item">
-                <p>5) Huruf yang mirip ط tapi ada titik di atas?</p>
-                <input type="text" name="q5" placeholder="Jawab huruf">
-            </div>
-            <div class="question-item">
-                <p>6) Pasangkan kelompok mirip: (ب ت ث), (ج ح خ), (d ذ), (س ش)</p>
-                <input type="text" name="q6" placeholder="Tuliskan semua pasangan">
-            </div>
-        </div>
-        
-        <div class="question-section">
-            <h3>Bagian D – Tebak Kata</h3>
-            <div class="question-item">
-                <p>7) Gabungkan huruf ini: ب + ا + ب = ?</p>
-                <input type="text" name="q7">
-            </div>
-            <div class="question-item">
-                <p>8) Sebutkan huruf penyusun kata قَلَم</p>
-                <input type="text" name="q8" placeholder="contoh: ق ل م">
-            </div>
-        </div>
-
-        <div class="question-section">
-            <h3>Bagian E – Tantangan</h3>
-            <div class="question-item">
-                <p>9) Sebutkan 5 huruf tanpa titik</p>
-                <input type="text" name="q9">
-            </div>
-            <div class="question-item">
-                <p>10) Ada berapa huruf dengan titik di bawah? Sebutkan!</p>
-                <input type="text" name="q10">
-            </div>
-        </div>
-        
-        <button type="submit">Kumpulkan Jawaban</button>
-    </form>
-</div>
+      if (error) {
+        console.error('Gagal menyimpan skor ke Supabase:', error.message);
+      } else {
+        console.log('Skor berhasil disimpan!', data);
+      }
+    }
+    
+    function getQuizIdFromUrl() {
+      const path = window.location.pathname;
+      const pathParts = path.split('/');
+      // Path: /altar/kelas01/bab01/isikuis.html
+      // Index: 0       1       2         3
+      const kelas = pathParts[2];
+      const bab = pathParts[3];
+      return `${kelas}_${bab}_kuis1`; 
+    }
+  </script>
 
 </body>
 </html>
