@@ -1,1 +1,190 @@
-test
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Pengguna - Kuis Cerdas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      margin: 0;
+      padding: 20px;
+    }
+    .profile-container {
+      max-width: 800px;
+      margin: 40px auto;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .profile-header {
+      text-align: center;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    .profile-header h1 {
+      color: #333;
+      margin-bottom: 5px;
+    }
+    .profile-info {
+      width: 100%;
+      text-align: left;
+      margin-bottom: 30px;
+    }
+    .profile-info p {
+      margin: 5px 0;
+      color: #555;
+    }
+    .quiz-history {
+      width: 100%;
+    }
+    .quiz-history h2 {
+      color: #333;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .quiz-history table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    .quiz-history th, .quiz-history td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+    .quiz-history th {
+      background-color: #f0f0f0;
+    }
+    .total-score {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #2a698a;
+      margin-top: 20px;
+      text-align: center;
+    }
+    @media (max-width: 600px) {
+      .profile-container {
+        padding: 20px;
+      }
+      .quiz-history table, .quiz-history thead, .quiz-history tbody, .quiz-history th, .quiz-history td, .quiz-history tr {
+        display: block;
+      }
+      .quiz-history thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+      .quiz-history tr {
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+      }
+      .quiz-history td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 50%;
+        text-align: right;
+      }
+      .quiz-history td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="profile-container">
+    <div class="profile-header">
+      <h1>Profil Pengguna</h1>
+      <p id="profile-username">Nama Pengguna</p>
+    </div>
+
+    <div class="profile-info">
+      <p><strong>Email:</strong> <span id="profile-email">emailanda@example.com</span></p>
+      <div class="total-score">
+        Total Skor: <span id="profile-total-score">0</span>
+      </div>
+    </div>
+
+    <div class="quiz-history">
+      <h2>Riwayat Kuis</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Topik Kuis</th>
+            <th>Skor</th>
+            <th>Tanggal</th>
+          </tr>
+        </thead>
+        <tbody id="quiz-history-table-body">
+          </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Contoh data statis untuk demonstrasi
+    const userData = {
+      username: "AndiPranata",
+      email: "andi.pranata@gmail.com",
+      quizzes: [
+        { id: 1, topic: "Sejarah Dunia", score: 85, date: "2024-05-10" },
+        { id: 2, topic: "Sains Dasar", score: 92, date: "2024-05-12" },
+        { id: 3, topic: "Matematika", score: 78, date: "2024-05-15" }
+      ]
+    };
+
+    // Fungsi untuk memuat data ke dalam HTML
+    function loadUserData() {
+      const usernameSpan = document.getElementById('profile-username');
+      const emailSpan = document.getElementById('profile-email');
+      const totalScoreSpan = document.getElementById('profile-total-score');
+      const tableBody = document.getElementById('quiz-history-table-body');
+
+      // Memuat informasi dasar
+      usernameSpan.textContent = userData.username;
+      emailSpan.textContent = userData.email;
+
+      // Menghitung total skor
+      const totalScore = userData.quizzes.reduce((sum, quiz) => sum + quiz.score, 0);
+      totalScoreSpan.textContent = totalScore;
+
+      // Memuat riwayat kuis ke dalam tabel
+      tableBody.innerHTML = ''; // Mengosongkan tabel
+      userData.quizzes.forEach((quiz, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td data-label="No.">${index + 1}</td>
+          <td data-label="Topik">${quiz.topic}</td>
+          <td data-label="Skor">${quiz.score}</td>
+          <td data-label="Tanggal">${quiz.date}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Panggil fungsi saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', loadUserData);
+
+    // CATATAN:
+    // Pada implementasi nyata dengan Supabase, Anda akan mengganti kode
+    // di dalam fungsi loadUserData() dengan pemanggilan API ke Supabase
+    // untuk mengambil data pengguna yang sedang login dan riwayat kuisnya.
+  </script>
+
+</body>
+</html>
