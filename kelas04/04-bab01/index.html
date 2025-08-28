@@ -66,79 +66,104 @@
     // --- 1. DATA KUIS ---
     const quizData = [
       {
-        question: "Bacaan huruf ب pada بٌ adalah…",
-        options: ["ba", "bu", "bun", "bin"],
-        answer: "bun"
+        question: "Alif + Ba = ...",
+        options: ["أَ", "بَ", "اَبَ", "أَبَ"],
+        answer: "أَبَ"
       },
       {
-        question: "Tanwin yang berbunyi “in” ditulis dengan…",
-        options: ["Dua fathah di atas huruf", "Dua kasrah di bawah huruf", "Dua dhammah di atas huruf", "Sukun"],
-        answer: "Dua kasrah di bawah huruf"
+        question: "Jika Alif diberi tanwin fathah, maka akan ditulis أً dan dibaca...",
+        options: ["an", "un", "in", "a"],
+        answer: "an"
       },
       {
-        question: "Contoh kata yang mengandung tanwin fathah pada huruf terakhirnya adalah…",
-        options: ["كِتَابٌ", "كِتَابًا", "كِتَابٍ", "كتاب"],
-        answer: "كِتَابًا"
+        question: "Kombinasi huruf Ka + Sa + Ra + Tanwin Dhammah menghasilkan bacaan...",
+        options: ["Kasarun", "Kusrān", "Kasrun", "Kusrin"],
+        answer: "Kasrun"
       },
       {
-        question: "Manakah di bawah ini yang bukan contoh tanwin?",
-        options: ["كِتَابٌ", "مَكْتَبًا", "قَلَمٌ", "بَابُ"],
-        answer: "بَابُ"
+        question: "Semua huruf berikut memiliki titik kecuali...",
+        options: ["ب", "ن", "ت", "م"],
+        answer: "م"
       },
       {
-        question: "Tanda tanwin dan bunyinya adalah…",
-        options: ["ً (an), ٍ (in), ٌ (un)", "ً (an), ِ (i), ُ (u)", "ً (un), ٍ (an), ٌ (in)", "Semua salah"],
-        answer: "ً (an), ٍ (in), ٌ (un)"
+        question: "Gabungkan huruf ل + م + س + ج dan beri harakat dasar untuk membentuk kata lamasaja.",
+        options: ["لَمَسَجَ", "لَمَسِجَ", "لَمَسُجَ", "لَمَسَجُ"],
+        answer: "لَمَسَجَ"
       },
       {
-        question: "Bacaan yang benar untuk kata عِلْمًا adalah…",
-        options: ["'ilmā", "'ilma", "'ilmun", "'ilman"],
-        answer: "'ilman"
+        question: "Bacaan yang tepat untuk نَصَرَ adalah...",
+        options: ["Naṣara", "Nuṣiru", "Naṣiru", "Naṣarun"],
+        answer: "Naṣara"
       },
       {
-        question: "Kata berikut yang mengandung tanwin kasrah adalah…",
-        options: ["قَلَمٍ", "بَيْتًا", "كِتَابٌ", "مَسْجِدُ"],
-        answer: "قَلَمٍ"
+        question: "Dalam kata مَكْتَبٌ, huruf yang tidak memiliki titik adalah...",
+        options: ["م", "ك", "ب", "ت"],
+        answer: "م"
       },
       {
-        question: "Harakat manakah yang menghasilkan bunyi “a”?",
-        options: ["Fathah", "Kasrah", "Dhammah", "Sukun"],
-        answer: "Fathah"
+        question: "Huruf ي diberi tanwin kasrah menjadi يٍ dengan bacaan...",
+        options: ["yan", "yun", "yin", "yi"],
+        answer: "yin"
       },
       {
-        question: "Semua huruf berikut menggunakan dhammah kecuali…",
-        options: ["بُ", "مِ", "دُ", "فُ"],
-        answer: "مِ"
+        question: "Mana bacaan yang benar dari كُرْسِيٌّ?",
+        options: ["Kursiyun", "Kursiyin", "Kursiyān", "Kursiyan"],
+        answer: "Kursiyun"
       },
       {
-        question: "Tuliskan huruf ن dengan semua harakat dasar.",
-        options: ["نَ – نِ – نُ", "نَ – نُ – نِ", "نِ – نَ – نُ", "نُ – نِ – نَ"],
-        answer: "نَ – نِ – نُ"
+        question: "Kata yang mengandung dua huruf bertitik kecuali...",
+        options: ["بِنْتٌ", "كِتَابٌ", "فِيهِ", "قَلَمٌ"],
+        answer: "فِيهِ"
       },
       {
-        question: "Bacaan huruf pada كَ adalah…",
-        options: ["ka", "ku", "ki", "kan"],
-        answer: "ka"
+        question: "Gabungkan huruf Alif, Nun, dan Ba untuk membuat kata yang dibaca 'Anbun'.",
+        options: ["أَنْبٌ", "أَنْبَ", "أَنْبٍ", "أَنْبًا"],
+        answer: "أَنْبٌ"
       },
       {
-        question: "Manakah bacaan yang benar untuk مِفْتَاحٌ?",
-        options: ["Maftāh", "Mi'fātuh", "Mif'tāhun", "Miftāhun"],
-        answer: "Miftāhun"
+        question: "Bacaan yang benar dari صَدِيقًا adalah...",
+        options: ["Ṣadīqan", "Ṣadīqun", "Ṣidīqan", "Ṣudīqan"],
+        answer: "Ṣadīqan"
       },
       {
-        question: "Semua contoh berikut mengandung kasrah kecuali…",
-        options: ["كِتَابٌ", "بِنْتٌ", "مَدْرَسَةٌ", "كَاتِبٌ"],
-        answer: "مَدْرَسَةٌ"
+        question: "Semua huruf berikut memiliki bentuk sambung kecuali...",
+        options: ["و", "ف", "ع", "ب"],
+        answer: "و"
       },
       {
-        question: "Bacaan yang benar untuk huruf ي dengan dhammah dan kasrah adalah…",
-        options: ["يُ – يِ", "يِ – يُ", "يُ – يَ", "يَ – يِ"],
-        answer: "يُ – يِ"
+        question: "Huruf س dengan dhammah diikuti huruf ل dengan kasrah membentuk bacaan...",
+        options: ["سُلِ", "سَل", "سِل", "سُلُ"],
+        answer: "سُلِ"
       },
       {
-        question: "Bacaan yang benar untuk نَصِيحَةً adalah…",
-        options: ["Naṣīḥatun", "Naṣīḥatan", "Nuṣīḥatan", "Naṣīḥatun"],
-        answer: "Naṣīḥatan"
+        question: "Bacaan yang benar untuk رَحْمَةً adalah...",
+        options: ["Raḥmatun", "Ruḥmatan", "Raḥmatan", "Riḥmatan"],
+        answer: "Raḥmatan"
+      },
+      {
+        question: "Dalam kata مَسْجِدٍ, huruf dengan harakat kasrah adalah...",
+        options: ["م", "س", "ج", "د"],
+        answer: "ج"
+      },
+      {
+        question: "Gabungkan huruf ح + ك + م untuk menghasilkan kata dan beri harakat sehingga terbaca 'ḥakama'.",
+        options: ["حَكَمَ", "حَكَمُ", "حَكَمِ", "حَكَمْ"],
+        answer: "حَكَمَ"
+      },
+      {
+        question: "Bacaan yang tepat dari نُفُوسٌ adalah...",
+        options: ["Nufūsun", "Nufūsān", "Nifūsun", "Nufāsun"],
+        answer: "Nufūsun"
+      },
+      {
+        question: "Tulis kombinasi huruf yang membentuk bacaan qalban (jantung).",
+        options: ["قَلْبًا", "قَلْبٌ", "قَلْبٍ", "قَلْبَ"],
+        answer: "قَلْبًا"
+      },
+      {
+        question: "Semua kata berikut memiliki tanwin fathah kecuali...",
+        options: ["كِتَابًا", "مَكْتَبًا", "مَسْجِدٍ", "صَدِيقًا"],
+        answer: "مَسْجِدٍ"
       }
     ];
 
