@@ -21,11 +21,24 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      text-align: center;
     }
     .profile-header {
-      text-align: center;
       margin-bottom: 20px;
       width: 100%;
+    }
+    .profile-image-container {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .profile-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     .profile-header h1 {
       color: #333;
@@ -68,6 +81,22 @@
       margin-top: 20px;
       text-align: center;
     }
+    .action-link {
+      margin-top: 20px;
+    }
+    .action-link a {
+      text-decoration: none;
+      background-color: #2a698a;
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+      display: inline-block;
+    }
+    .action-link a:hover {
+      background-color: #1e4d66;
+    }
     @media (max-width: 600px) {
       .profile-container {
         padding: 20px;
@@ -108,12 +137,16 @@
 
   <div class="profile-container">
     <div class="profile-header">
+      <div class="profile-image-container">
+        <img src="https://via.placeholder.com/120" alt="Foto Profil">
+      </div>
+      <a href="daftar.html" class="action-link">Daftar Sekarang!</a>
       <h1>Profil Pengguna</h1>
       <p id="profile-username">Nama Pengguna</p>
     </div>
 
     <div class="profile-info">
-    <p> <a href="daftar/ <strong>Email:</strong> <span id="profile-email"daftar sekarang </span> </a> </p>
+      <p><strong>Email:</strong> <span id="profile-email">emailanda@example.com</span></p>
       <div class="total-score">
         Total Skor: <span id="profile-total-score">0</span>
       </div>
@@ -136,6 +169,10 @@
     </div>
   </div>
 
+  <div class="action-link" style="text-align: center;">
+    <a href="daftar.html">Daftar Sekarang!</a>
+  </div>
+
   <script>
     // Contoh data statis untuk demonstrasi
     const userData = {
@@ -148,23 +185,19 @@
       ]
     };
 
-    // Fungsi untuk memuat data ke dalam HTML
     function loadUserData() {
       const usernameSpan = document.getElementById('profile-username');
       const emailSpan = document.getElementById('profile-email');
       const totalScoreSpan = document.getElementById('profile-total-score');
       const tableBody = document.getElementById('quiz-history-table-body');
 
-      // Memuat informasi dasar
       usernameSpan.textContent = userData.username;
       emailSpan.textContent = userData.email;
 
-      // Menghitung total skor
       const totalScore = userData.quizzes.reduce((sum, quiz) => sum + quiz.score, 0);
       totalScoreSpan.textContent = totalScore;
 
-      // Memuat riwayat kuis ke dalam tabel
-      tableBody.innerHTML = ''; // Mengosongkan tabel
+      tableBody.innerHTML = '';
       userData.quizzes.forEach((quiz, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -177,13 +210,7 @@
       });
     }
 
-    // Panggil fungsi saat halaman dimuat
     document.addEventListener('DOMContentLoaded', loadUserData);
-
-    // CATATAN:
-    // Pada implementasi nyata dengan Supabase, Anda akan mengganti kode
-    // di dalam fungsi loadUserData() dengan pemanggilan API ke Supabase
-    // untuk mengambil data pengguna yang sedang login dan riwayat kuisnya.
   </script>
 
 </body>
