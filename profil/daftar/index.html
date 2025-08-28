@@ -1,129 +1,162 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Daftar Akun Baru</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Akun - Kuis Cerdas</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #e3f2fd 0%, #f8f9ff 100%);
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
     }
-    .signup-card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-      padding: 2rem;
+    .signup-container {
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
       max-width: 400px;
-      width: 100%;
       text-align: center;
-      animation: fadeIn 0.6s ease-in-out;
     }
-    .signup-title {
-      font-size: 1.8rem;
-      font-weight: 600;
-      color: #1565c0;
-      margin-bottom: 1.5rem;
+    .signup-container h1 {
+      color: #333;
+      margin-bottom: 20px;
     }
-    .form-input {
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+    }
+    .form-group input {
       width: 100%;
-      padding: 12px;
-      margin: 10px 0;
+      padding: 10px;
       border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: border-color 0.3s;
+      border-radius: 5px;
+      box-sizing: border-box; /* Agar padding tidak menambah lebar */
     }
-    .form-input:focus {
-      outline: none;
-      border-color: #42a5f5;
-    }
-    .signup-btn {
+    .signup-button {
       width: 100%;
       padding: 12px;
-      margin-top: 10px;
+      background-color: #2a698a;
+      color: #fff;
       border: none;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #42a5f5, #1e88e5);
-      color: white;
-      font-size: 1.1rem;
+      border-radius: 5px;
+      font-weight: bold;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: background-color 0.3s ease;
     }
-    .signup-btn:hover {
-      background: linear-gradient(135deg, #1e88e5, #42a5f5);
-      box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
+    .signup-button:hover {
+      background-color: #1e4d66;
     }
-    .error-message {
-      color: #e53935;
-      margin-top: 1rem;
-      display: none;
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+      color: red;
     }
-    .success-message {
-      color: #388e3c;
-      margin-top: 1rem;
-      display: none;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .message.success {
+      color: green;
     }
   </style>
 </head>
 <body>
-  <div class="signup-card">
-    <h2 class="signup-title">✨ Daftar Akun Baru</h2>
-    <form id="signupForm">
-      <input type="text" id="username" class="form-input" placeholder="Nama pengguna" required />
-      <input type="password" id="password" class="form-input" placeholder="Kata sandi" required />
-      <button type="submit" class="signup-btn">Daftar</button>
-<p style="margin-top: 1rem; font-size: 0.9rem;">
-  Sudah punya akun? <a href="profil/" style="color: #1e88e5; text-decoration: none;">Masuk</a>
-</p>
+
+  <div class="signup-container">
+    <h1>Daftar Akun Kuis</h1>
+    <form id="signup-form">
+      <div class="form-group">
+        <label for="username">Nama Pengguna</label>
+        <input type="text" id="username" name="username" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Kata Sandi</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <button type="submit" class="signup-button">Daftar</button>
+      <div id="message" class="message"></div>
     </form>
-    <div id="message" class="error-message"></div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const form = document.getElementById("signupForm");
-    const messageBox = document.getElementById("message");
+    // GANTI dengan URL dan kunci Anda dari dasbor Supabase!
+    // Contoh: const SUPABASE_URL = 'https://abcdefgh.supabase.co';
+    // Contoh: const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiI...';
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    
+    // Inisialisasi klien Supabase
+    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
+    // Ambil elemen HTML yang dibutuhkan
+    const signupForm = document.getElementById('signup-form');
+    const messageElement = document.getElementById('message');
 
-      const formData = new FormData();
-      formData.append("username", username);
-      formData.append("password", password);
+    // Fungsi untuk menampilkan pesan ke pengguna
+    function showMessage(text, isSuccess) {
+      messageElement.textContent = text;
+      messageElement.className = isSuccess ? 'message success' : 'message';
+    }
 
-      try {
-        const res = await fetch("/api/signup", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await res.json();
+    // Tangani saat formulir pendaftaran diserahkan
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault(); // Mencegah form untuk refresh halaman
 
-        if (!res.ok) {
-          throw new Error(data.detail || "Gagal mendaftar");
+      // Ambil nilai dari input
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const username = document.getElementById('username').value;
+
+      showMessage('Mendaftar...', false);
+
+      // Panggil fungsi pendaftaran dari Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            username: username // Simpan nama pengguna di metadata user
+          }
         }
+      });
 
-        messageBox.textContent = "Pendaftaran berhasil! Silakan login.";
-        messageBox.style.color = "#388e3c";
-        messageBox.style.display = "block";
-        form.reset(); // Reset form setelah pendaftaran berhasil
-
-      } catch (err) {
-        messageBox.textContent = err.message;
-        messageBox.style.color = "#e53935";
-        messageBox.style.display = "block";
+      if (error) {
+        // Jika ada kesalahan, tampilkan pesan kesalahan
+        showMessage(`Gagal mendaftar: ${error.message}`, false);
+      } else {
+        // Jika pendaftaran berhasil
+        showMessage('Pendaftaran berhasil! Mengalihkan ke halaman profil...', true);
+        
+        // Simpan username ke database terpisah (ini opsional tapi disarankan)
+        // karena Supabase Auth menyimpan metadata di `user_metadata`
+        const { data: userData, error: userError } = await supabase
+          .from('kuis_murid') // Ganti dengan nama tabel Anda
+          .insert([
+            {
+              user_id: data.user.id,
+              username: username,
+              email: email
+            }
+          ]);
+          
+        // Arahkan pengguna ke halaman profil setelah berhasil
+        window.location.href = 'profil.html'; // GANTI dengan URL halaman profil Anda
       }
     });
+
   </script>
+
 </body>
 </html>
