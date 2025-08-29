@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Quiz</title>
+  <meta name="description" content="Super Quiz Hijaiyah dan Pegon untuk Belajar Ngaji.">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; transition: background 0.3s, color 0.3s; }
+    .dark-mode { background: #1e293b; color: #f1f5f9; }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    .option-item.selected {
+      background-color: #2a698a;
+      color: #fff;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 dark:bg-slate-800">
+
+  <!-- NAVBAR -->
+  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+    <!-- Brand / Logo -->
+    <div>
+      <a href="../">
+        <img src="..png" alt="Belajar Ngaji" class="h-7 w-auto">
+      </a>
+    </div>
+    <!-- Tombol Profil -->
+    <a href="profil/" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
+      👤
+    </a>
+  </nav>
+
+  <!-- KONTEN KUIS -->
+  <div class="mx-auto px-4 py-10 w-full md:w-2/3 lg:w-1/2">
+    <!-- KONTEN KUIS UTAMA -->
+    <div id="quiz-ui" class="card bg-white rounded-xl shadow-lg p-6 text-center dark:bg-slate-700 dark:text-gray-100">
+      <h2 id="question-text" class="text-xl font-semibold mb-4"></h2>
+      <ul id="options-list" class="flex flex-col gap-3"></ul>
+      <button id="next-button" class="mt-6 w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition">Selanjutnya</button>
+    </div>
+
+    <!-- HASIL KUIS (HIDDEN SECARA DEFAULT) -->
+    <div id="results-ui" class="card bg-white rounded-xl shadow-lg p-6 mt-8 text-center dark:bg-slate-700 dark:text-gray-100" style="display: none;">
+      <h2 class="text-2xl font-bold text-green-600 mb-4">Hasil Kuis</h2>
+      <p class="text-lg">Skor Anda: <span id="final-score" class="font-bold text-3xl">0</span></p>
+      <p id="score-message" class="mt-2 text-md"></p>
+      <a href="../" class="mt-6 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">Kembali ke Beranda</a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 text-center py-6 dark:bg-slate-900 dark:text-gray-400">
+    <p>© 2025 Belajar Ngaji- Semua Hak Dilindungi</p>
+  </footer>
+
+  <script>
+    // --- 1. DATA KUIS ---
+    const quizData = [
+      {
+        question: "1. (Hijaiyah) Kombinasi huruf 'alif + ba + dal + alif' membentuk kata…",
+        options: ["ابدا", "ابدى", "ابدى", "ابدا"],
+        answer: "ابدا"
+      },
+      {
+        question: "2. (Hijaiyah) Huruf mana yang merupakan variasi dari huruf 'K'?",
+        options: ["ف", "ڤ", "ڬ", "ڠ"],
+        answer: "ڤ"
+      },
+      {
+        question: "3. (Hijaiyah) Manakah dari kata berikut yang pengucapannya sama dengan 'Qalb'?",
+        options: ["قلب", "كالب", "قلى", "قلب"],
+        answer: "قلب"
+      },
+      {
+        question: "4. (Hijaiyah) Apa arti dari kata 'باب'?",
+        options: ["Ibu", "Bapak", "Pintu", "Buku"],
+        answer: "Pintu"
+      },
+      {
+        question: "5. (Hijaiyah) Tuliskan kata 'Jalan' dalam bentuk Hijaiyah.",
+        options: ["جاالن", "جالون", "جالن", "جيالن"],
+        answer: "جالن"
+      },
+      {
+        question: "6. (Hijaiyah) Pasangan huruf yang benar untuk 'ba' adalah...",
+        options: ["ب", "با", "باء", "بَ"],
+        answer: "بَ"
+      },
+      {
+        question: "7. (Hijaiyah) Manakah dari kata berikut yang memiliki vokal 'i'?",
+        options: ["اىٓران", "ايبو", "اورا", "اىٓسا"],
+        answer: "ايبو"
+      },
+      {
+        question: "8. (Hijaiyah) Vokal yang diwakili oleh tanda harakat 'kasrah' adalah...",
+        options: ["a", "i", "u", "e"],
+        answer: "i"
+      },
+      {
+        question: "9. (Hijaiyah) Huruf mana yang memiliki titik di bawahnya?",
+        options: ["ج", "ح", "خ", "د"],
+        answer: "ج"
+      },
+      {
+        question: "10. (Hijaiyah) Kombinasi huruf yang benar untuk kata 'Masjid' adalah...",
+        options: ["م + س + ج + د", "م + ا + س + ج + د", "م + س + ج + ي + د", "م + س + ج + ا + د"],
+        answer: "م + س + ج + د"
+      },
+      {
+        question: "11. (Pegon) Tuliskan kata 'sore' dengan huruf Pegon.",
+        options: ["سوار", "سوارى", "سورى", "سورا"],
+        answer: "سورى"
+      },
+      {
+        question: "12. (Pegon) Apa arti dari اىٓجى?",
+        options: ["Aji", "Iji", "Eji", "Eje"],
+        answer: "Eji"
+      },
+      {
+        question: "13. (Pegon) Manakah yang merupakan cara penulisan kata 'dolan' yang benar dalam Pegon?",
+        options: ["دولان", "دولن", "دولان", "دولن"],
+        answer: "دولان"
+      },
+      {
+        question: "14. (Pegon) Tuliskan kata 'siji loro' (satu dua) dengan Pegon.",
+        options: ["سيجى لورو", "سىجى لورو", "سىجى لور", "سيجى لورو"],
+        answer: "سىجى لورو"
+      },
+      {
+        question: "15. (Pegon) Kata 'ngerti' (mengerti) dalam Pegon ditulis…",
+        options: ["ڠرتى", "ڠرتي", "ڠرطى", "ڠرطي"],
+        answer: "ڠرتى"
+      },
+      {
+        question: "16. (Pegon) Tuliskan kata 'kabeh' (semua) dengan Pegon.",
+        options: ["كابى", "كابيه", "كابيه", "كابه"],
+        answer: "كابى"
+      },
+      {
+        question: "17. (Pegon) Apa arti dari kalimat “Bapak mangan iwak”?",
+        options: ["Bapa mangan iwak", "Bapak makan iwak", "Bapak mangan iwak", "Bapa mangan iwak"],
+        answer: "Bapak mangan iwak"
+      },
+      {
+        question: "18. (Pegon) Kata “teko” (datang) dalam Pegon ditulis…",
+        options: ["تيكو", "تىكو", "تىكوا", "تيكو"],
+        answer: "تيكو"
+      },
+      {
+        question: "19. (Pegon) Manakah dari kata berikut yang memiliki huruf 'ng'?",
+        options: ["وڠ", "ورك", "وڠ", "وڠا"],
+        answer: "وڠ"
+      },
+      {
+        question: "20. (Pegon) Bacaan kata 'ora lali' (tidak lupa) dalam Pegon adalah...",
+        options: ["اورا لالى", "اورا لالى", "اورا لال", "اورا لالى"],
+        answer: "اورا لالى"
+      }
+    ];
+
+    // --- 2. LOGIKA KUIS ---
+    const quizUI = document.getElementById('quiz-ui');
+    const resultsUI = document.getElementById('results-ui');
+    const questionText = document.getElementById('question-text');
+    const optionsList = document.getElementById('options-list');
+    const nextButton = document.getElementById('next-button');
+    const finalScoreSpan = document.getElementById('final-score');
+    const scoreMessage = document.getElementById('score-message');
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let selectedOption = null;
+
+    function loadQuestion() {
+      if (currentQuestionIndex < quizData.length) {
+        const currentQuestion = quizData[currentQuestionIndex];
+        questionText.textContent = currentQuestion.question;
+        optionsList.innerHTML = '';
+        currentQuestion.options.forEach(option => {
+          const li = document.createElement('li');
+          li.textContent = option;
+          li.className = 'bg-blue-50 text-blue-800 font-semibold py-3 px-4 rounded-lg cursor-pointer transition hover:bg-blue-100 dark:bg-slate-600 dark:text-gray-100 dark:hover:bg-slate-500';
+          li.addEventListener('click', () => {
+            document.querySelectorAll('.option-item').forEach(item => {
+              item.classList.remove('bg-blue-700', 'text-white', 'selected');
+              item.classList.add('bg-blue-50', 'text-blue-800');
+            });
+            li.classList.remove('bg-blue-50', 'text-blue-800');
+            li.classList.add('bg-blue-700', 'text-white', 'selected');
+            selectedOption = option;
+          });
+          li.classList.add('option-item');
+          optionsList.appendChild(li);
+        });
+        nextButton.textContent = currentQuestionIndex === quizData.length - 1 ? 'Selesai' : 'Selanjutnya';
+      } else {
+        showResults();
+      }
+    }
+
+    nextButton.addEventListener('click', () => {
+      if (selectedOption !== null) {
+        const currentQuestion = quizData[currentQuestionIndex];
+        if (selectedOption === currentQuestion.answer) {
+          score++;
+        }
+        currentQuestionIndex++;
+        selectedOption = null;
+        loadQuestion();
+      } else {
+        alert('Silakan pilih jawaban terlebih dahulu.');
+      }
+    });
+
+    function showResults() {
+      quizUI.style.display = 'none';
+      resultsUI.style.display = 'block';
+      finalScoreSpan.textContent = score;
+
+      if (score === quizData.length) {
+        scoreMessage.textContent = 'Hebat! Anda mendapatkan skor sempurna!';
+      } else if (score >= quizData.length / 2) {
+        scoreMessage.textContent = 'Kerja bagus! Anda berhasil melewati kuis ini.';
+      } else {
+        scoreMessage.textContent = 'Terus belajar ya! Anda bisa coba lagi.';
+      }
+
+      saveScoreToSupabase(score);
+    }
+    
+    document.addEventListener('DOMContentLoaded', loadQuestion);
+
+    // --- 3. INTEGRASI SUPABASE ---
+    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function saveScoreToSupabase(finalScore) {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        console.error('User belum login. Skor tidak dapat disimpan.');
+        return;
+      }
+      
+      const quiz_id = getQuizIdFromUrl();
+      const { data, error } = await supabase
+        .from('quiz_scores')
+        .insert([
+          {
+            user_id: user.id,
+            quiz_id: quiz_id,
+            score: finalScore
+          }
+        ]);
+        
+      if (error) {
+        console.error('Gagal menyimpan skor ke Supabase:', error.message);
+      } else {
+        console.log('Skor berhasil disimpan!', data);
+      }
+    }
+    
+    function getQuizIdFromUrl() {
+      const path = window.location.pathname;
+      const pathParts = path.split('/');
+      // Path: /superquiz/index.html
+      // Index: 0       1
+      const folder = pathParts[1];
+      return `${folder}_kuis1`; 
+    }
+  </script>
+
+</body>
+</html>
