@@ -39,11 +39,13 @@
   <!-- NAVBAR -->
   <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md sticky top-0 z-10">
     <div>
-      <a href="#">
+      <!-- REVISI: Link diperbaiki -->
+      <a href="../../">
         <span class="text-xl font-bold">Belajar Ngaji</span>
       </a>
     </div>
-    <a href="#" class="bg-white text-blue-600 px-3 py-1.5 rounded-full hover:bg-gray-200 text-lg font-bold">
+    <!-- REVISI: Link diperbaiki -->
+    <a href="../../profil/" class="bg-white text-blue-600 px-3 py-1.5 rounded-full hover:bg-gray-200 text-lg font-bold">
       👤
     </a>
   </nav>
@@ -64,7 +66,8 @@
       <p id="final-score" class="font-bold text-6xl text-green-600 dark:text-green-400">0</p>
       <p id="score-message" class="mt-4 text-lg"></p>
       <div id="save-status-message" class="mt-4 p-3 rounded-lg text-sm font-semibold text-center hidden"></div>
-      <a href="#" class="mt-8 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">Kembali ke Profil</a>
+      <!-- REVISI: Link diperbaiki -->
+      <a href="../../profil/" class="mt-8 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">Kembali ke Profil</a>
     </div>
   </main>
 
@@ -74,7 +77,6 @@
   </footer>
 
   <script>
-    // Data Kuis (tidak ada perubahan)
     const quizData = [
       { question: "Huruf apakah yang memiliki titik satu di bawahnya?", options: ["ب", "ن", "ي", "ت"], answer: "ب" },
       { question: "Huruf hijaiyah berikut yang memiliki tiga titik di atasnya adalah...", options: ["ف", "ث", "خ", "ج"], answer: "ث" },
@@ -88,7 +90,6 @@
       { question: "Huruf 'Lam' (ل) jika disambung dengan 'Alif' (ا) akan membentuk...", options: ["ل", "ا", "لا", "ى"], answer: "لا" }
     ];
 
-    // Elemen UI (tidak ada perubahan)
     const quizUI = document.getElementById('quiz-ui');
     const resultsUI = document.getElementById('results-ui');
     const questionText = document.getElementById('question-text');
@@ -99,12 +100,10 @@
     const statusMessage = document.getElementById('status-message');
     const saveStatusMessage = document.getElementById('save-status-message');
 
-    // State Kuis (tidak ada perubahan)
     let currentQuestionIndex = 0;
     let score = 0;
     let selectedOption = null;
 
-    // --- LOGIKA KUIS (TIDAK ADA PERUBAHAN) ---
     function loadQuestion() {
       hideStatusMessage();
       if (currentQuestionIndex < quizData.length) {
@@ -136,46 +135,47 @@
       giveFeedback();
     });
 
+    // --- REVISI KUNCI: LOGIKA UMPAN BALIK ---
     function giveFeedback() {
       optionsList.classList.add('no-pointer-events');
       nextButton.disabled = true;
       const currentQuestion = quizData[currentQuestionIndex];
       const selectedLi = document.querySelector('.option-item.selected');
+      
       if (selectedOption === currentQuestion.answer) {
         score++;
         selectedLi.classList.add('correct');
         showStatusMessage('Jawaban Benar! Bagus sekali!', 'text-green-800 dark:text-green-300', 'bg-green-100 dark:bg-green-900/50');
       } else {
         selectedLi.classList.add('incorrect');
-        Array.from(optionsList.children).forEach(li => {
-          if (li.textContent === currentQuestion.answer) {
-            li.classList.add('correct');
-          }
-        });
-        showStatusMessage(`Jawaban kurang tepat. Yang benar adalah: ${currentQuestion.answer}`, 'text-orange-800 dark:text-orange-300', 'bg-orange-100 dark:bg-orange-900/50');
+        // REVISI: Tampilan jawaban benar dan teksnya dihilangkan
+        showStatusMessage('Jawaban kurang tepat.', 'text-orange-800 dark:text-orange-300', 'bg-orange-100 dark:bg-orange-900/50');
       }
+      
       setTimeout(() => {
         currentQuestionIndex++;
         selectedOption = null;
         loadQuestion();
         optionsList.classList.remove('no-pointer-events');
         nextButton.disabled = false;
-      }, 1800);
+      }, 1500); // Durasi umpan balik
     }
 
     function showResults() {
       quizUI.style.display = 'none';
       resultsUI.style.display = 'block';
-      const finalPercentage = (score / quizData.length) * 100;
-      finalScoreSpan.textContent = finalPercentage.toFixed(0);
-      if (finalPercentage === 100) {
+      // REVISI: Skor dihitung per 10 poin
+      const finalScore = score * 10;
+      finalScoreSpan.textContent = finalScore;
+
+      if (finalScore === 100) {
         scoreMessage.textContent = 'Masya Allah! Anda mendapatkan skor sempurna!';
-      } else if (finalPercentage >= 70) {
+      } else if (finalScore >= 70) {
         scoreMessage.textContent = 'Kerja bagus! Anda berhasil melewati kuis ini.';
       } else {
         scoreMessage.textContent = 'Terus semangat belajar, ya! Anda bisa coba lagi.';
       }
-      saveScoreToSupabase(score);
+      saveScoreToSupabase(finalScore);
     }
 
     function showStatusMessage(message, textColor, bgColor) {
@@ -185,10 +185,10 @@
     }
 
     function hideStatusMessage() { statusMessage.classList.add('hidden'); }
-    
+
     document.addEventListener('DOMContentLoaded', loadQuestion);
 
-    // --- INTEGRASI SUPABASE (DIREVISI) ---
+    // --- INTEGRASI SUPABASE ---
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
     const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -198,35 +198,25 @@
 
       if (!user) {
         console.error('User belum login. Skor tidak dapat disimpan.');
-        showSaveStatusMessage('Anda belum masuk. Silakan masuk untuk menyimpan skor.', 'text-orange-800 dark:text-orange-300', 'bg-orange-100 dark:bg-orange-900/50');
+        showSaveStatusMessage('Anda belum masuk untuk menyimpan skor.', 'text-orange-800 dark:text-orange-300', 'bg-orange-100 dark:bg-orange-900/50');
         return;
       }
 
-      const quiz_id = 'kelas01_bab01'; 
-      
-      // REVISI KUNCI:
-      // 1. Menggunakan .from('quiz_attempts') untuk menargetkan tabel yang benar.
-      // 2. Menggunakan .insert() untuk selalu membuat catatan baru untuk setiap percobaan.
-      // 3. Kolom 'submitted_at' akan diisi otomatis oleh Supabase sesuai pengaturan default Anda.
+      const quiz_id = 'kelas01_bab01_hijaiyah'; 
+
       const { error } = await supabase
         .from('quiz_attempts')
-        .insert([
-          {
-            user_id: user.id,
-            quiz_id: quiz_id,
-            score: finalScore
-          }
-        ]);
+        .insert([{ user_id: user.id, quiz_id: quiz_id, score: finalScore }]);
 
       if (error) {
-        console.error('Gagal menyimpan skor ke Supabase:', error.message);
-        showSaveStatusMessage('Terjadi kesalahan saat menyimpan skor Anda.', 'text-red-800 dark:text-red-300', 'bg-red-100 dark:bg-red-900/50');
+        console.error('Gagal menyimpan skor:', error.message);
+        showSaveStatusMessage('Gagal menyimpan skor Anda.', 'text-red-800 dark:text-red-300', 'bg-red-100 dark:bg-red-900/50');
       } else {
-        console.log('Skor percobaan berhasil disimpan!');
+        console.log('Skor berhasil disimpan!');
         showSaveStatusMessage('Skor Anda berhasil dicatat!', 'text-green-800 dark:text-green-300', 'bg-green-100 dark:bg-green-900/50');
       }
     }
-    
+
     function showSaveStatusMessage(message, textColor, bgColor) {
       saveStatusMessage.textContent = message;
       saveStatusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
