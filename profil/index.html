@@ -6,135 +6,30 @@
   <title>Profil Pengguna - Belajar Ngaji</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-    // --- KONEKSI SUPABASE ---
-    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // --- ELEMEN UI ---
-    const profileInitial = document.getElementById('profile-initial');
-    const usernameDisplay = document.getElementById('username-display');
-    const totalScoreDisplay = document.getElementById('total-score-display');
-    const historyTableBody = document.getElementById('history-table-body');
-    const authButtons = document.getElementById('auth-buttons');
-    const loadingContainer = document.getElementById('loading-container');
-
-    // --- FUNGSI UTAMA ---
-    document.addEventListener('DOMContentLoaded', async () => {
-      // 1. Cek siapa pengguna yang sedang aktif
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (user) {
-        // Jika ada pengguna yang login
-        await loadUserProfile(user.id);
-        await loadQuizHistory(user.id);
-        setupLogoutButton();
-      } else {
-        // Jika tidak ada yang login
-        showLoginPrompt();
-      }
-    });
-
-    async function loadUserProfile(userId) {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Gagal memuat profil:', error);
-        usernameDisplay.textContent = 'Gagal memuat';
-      } else if (profile) {
-        usernameDisplay.textContent = profile.username;
-        profileInitial.textContent = profile.username.charAt(0).toUpperCase();
-      }
-    }
-
-    async function loadQuizHistory(userId) {
-      const { data: history, error } = await supabase
-        .from('quiz_attempts')
-        .select('quiz_id, score, submitted_at')
-        .eq('user_id', userId)
-        .order('submitted_at', { ascending: false });
-
-      loadingContainer.style.display = 'none'; // Sembunyikan loading
-      
-      if (error) {
-        console.error('Gagal memuat riwayat kuis:', error);
-        historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-500">Gagal memuat riwayat</td></tr>`;
-      } else if (history && history.length > 0) {
-        let totalScore = 0;
-        historyTableBody.innerHTML = ''; // Kosongkan tabel
-        history.forEach((attempt, index) => {
-          totalScore += attempt.score;
-          const date = new Date(attempt.submitted_at).toLocaleDateString('id-ID');
-          const row = `
-            <tr class="border-b border-gray-200 dark:border-gray-700">
-              <td class="py-3 px-2 text-center">${index + 1}</td>
-              <td class="py-3 px-2">${attempt.quiz_id.replace(/_/g, ' ')}</td>
-              <td class="py-3 px-2 text-center font-semibold">${attempt.score}</td>
-              <td class="py-3 px-2 text-center">${date}</td>
-            </tr>
-          `;
-          historyTableBody.innerHTML += row;
-        });
-        totalScoreDisplay.textContent = totalScore;
-      } else {
-        historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">Belum ada riwayat kuis.</td></tr>`;
-      }
-    }
-
-    function setupLogoutButton() {
-      authButtons.innerHTML = `<button id="logout-button" class="w-full bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition">Keluar</button>`;
-      const logoutButton = document.getElementById('logout-button');
-      logoutButton.addEventListener('click', async () => {
-        logoutButton.textContent = 'Keluar...';
-        logoutButton.disabled = true;
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-          alert('Gagal keluar: ' + error.message);
-          logoutButton.textContent = 'Keluar';
-          logoutButton.disabled = false;
-        } else {
-          window.location.href = '../masuk/'; // Arahkan ke halaman login setelah keluar
-        }
-      });
-    }
-
-    function showLoginPrompt() {
-      loadingContainer.style.display = 'none';
-      usernameDisplay.textContent = 'Anda Belum Masuk';
-      profileInitial.textContent = '?';
-      historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">Masuk untuk melihat riwayat.</td></tr>`;
-      authButtons.innerHTML = `
-        <a href="../daftar/" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition text-center">Daftar</a>
-        <a href="../masuk/" class="w-full bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition text-center">Masuk</a>
-      `;
-    }
-  </script>
+  <!-- Menggunakan script Supabase modern (ES Module) -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: 'Poppins', sans-serif; }
   </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+<body class="bg-gray-100 dark:bg-slate-900 text-gray-800 dark:text-gray-200">
 
-  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+  <!-- NAVBAR -->
+  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md sticky top-0 z-10">
     <div>
-      <a href="../..">
+      <a href="../../">
         <span class="text-xl font-bold">Belajar Ngaji</span>
       </a>
     </div>
-    <a href="../profil/" class="bg-white text-blue-600 px-3 py-1.5 rounded-full hover:bg-gray-200 text-lg font-bold">
+    <a href="../../profil/" class="bg-white text-blue-600 px-3 py-1.5 rounded-full hover:bg-gray-200 text-lg font-bold">
       👤
     </a>
   </nav>
 
-  <main class="max-w-2xl mx-auto px-4 py-8">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+  <!-- KONTEN PROFIL -->
+  <main class="mx-auto px-4 py-10 w-full max-w-2xl">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 sm:p-8">
+      <!-- Header Profil -->
       <div class="flex flex-col items-center text-center border-b pb-6 dark:border-gray-700">
         <div id="profile-initial" class="w-24 h-24 bg-blue-500 text-white flex items-center justify-center rounded-full text-4xl font-bold mb-4">
           ?
@@ -143,6 +38,7 @@
         <p class="text-gray-500 dark:text-gray-400 mt-2">Total Skor: <span id="total-score-display" class="font-bold text-lg">0</span></p>
       </div>
 
+      <!-- Riwayat Kuis -->
       <div class="mt-6">
         <h3 class="text-xl font-semibold mb-4">Riwayat Kuis</h3>
         <div id="loading-container" class="text-center py-4 text-gray-500">
@@ -159,19 +55,131 @@
               </tr>
             </thead>
             <tbody id="history-table-body">
-              </tbody>
+              <!-- Data akan diisi oleh JavaScript -->
+            </tbody>
           </table>
         </div>
       </div>
 
+      <!-- Tombol Aksi -->
       <div id="auth-buttons" class="mt-8 flex flex-col sm:flex-row gap-4">
-        </div>
+        <!-- Tombol akan diisi oleh JavaScript -->
+      </div>
     </div>
   </main>
 
-  <footer class="bg-gray-200 dark:bg-gray-950 text-center py-6 mt-8">
-    <p class="text-gray-500 dark:text-gray-400">© 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
+  <!-- Footer -->
+  <footer class="bg-gray-200 text-center py-6 dark:bg-slate-950 dark:text-gray-500 mt-10">
+    <p>&copy; 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
   </footer>
 
+  <!-- SCRIPT UTAMA HALAMAN PROFIL -->
+  <script type="module">
+    // --- KONEKSI SUPABASE (CARA MODERN) ---
+    const { createClient } = supabase;
+
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+    
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // --- ELEMEN UI ---
+    const profileInitial = document.getElementById('profile-initial');
+    const usernameDisplay = document.getElementById('username-display');
+    const totalScoreDisplay = document.getElementById('total-score-display');
+    const historyTableBody = document.getElementById('history-table-body');
+    const authButtons = document.getElementById('auth-buttons');
+    const loadingContainer = document.getElementById('loading-container');
+
+    // --- FUNGSI UTAMA ---
+    async function initializeProfilePage() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+
+      if (user) {
+        // Jika ada pengguna yang login, muat datanya
+        loadingContainer.style.display = 'block';
+        historyTableBody.innerHTML = '';
+        await loadUserProfile(user.id);
+        await loadQuizHistory(user.id);
+        setupLogoutButton();
+      } else {
+        // Jika tidak ada yang login, tampilkan tombol untuk masuk/daftar
+        showLoginPrompt();
+      }
+    }
+
+    async function loadUserProfile(userId) {
+      const { data: profile, error } = await supabaseClient
+        .from('profiles')
+        .select('username')
+        .eq('id', userId)
+        .single();
+
+      if (profile) {
+        usernameDisplay.textContent = profile.username;
+        profileInitial.textContent = profile.username.charAt(0).toUpperCase();
+      } else {
+        console.error('Gagal memuat profil:', error);
+        usernameDisplay.textContent = 'Gagal Memuat';
+      }
+    }
+
+    async function loadQuizHistory(userId) {
+      const { data: history, error } = await supabaseClient
+        .from('quiz_attempts')
+        .select('quiz_id, score, submitted_at')
+        .eq('user_id', userId)
+        .order('submitted_at', { ascending: false });
+
+      loadingContainer.style.display = 'none'; // Sembunyikan pesan "Memuat..."
+      
+      if (history && history.length > 0) {
+        let totalScore = 0;
+        history.forEach((attempt, index) => {
+          totalScore += attempt.score;
+          const date = new Date(attempt.submitted_at).toLocaleDateString('id-ID');
+          const row = `
+            <tr class="border-b border-gray-200 dark:border-gray-700">
+              <td class="py-3 px-2 text-center">${index + 1}</td>
+              <td class="py-3 px-2 capitalize">${attempt.quiz_id.replace(/_/g, ' ')}</td>
+              <td class="py-3 px-2 text-center font-semibold">${attempt.score}</td>
+              <td class="py-3 px-2 text-center">${date}</td>
+            </tr>
+          `;
+          historyTableBody.innerHTML += row;
+        });
+        totalScoreDisplay.textContent = totalScore;
+      } else {
+        historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">Belum ada riwayat kuis.</td></tr>`;
+      }
+
+      if (error) {
+        console.error('Gagal memuat riwayat kuis:', error);
+        historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-500">Gagal memuat riwayat</td></tr>`;
+      }
+    }
+
+    function setupLogoutButton() {
+      authButtons.innerHTML = `<button id="logout-button" class="w-full bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition">Keluar</button>`;
+      document.getElementById('logout-button').addEventListener('click', async () => {
+        await supabaseClient.auth.signOut();
+        window.location.href = '../../masuk/'; // Arahkan ke halaman login
+      });
+    }
+
+    function showLoginPrompt() {
+      loadingContainer.style.display = 'none';
+      usernameDisplay.textContent = 'Anda Belum Masuk';
+      profileInitial.textContent = '?';
+      historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">Masuk untuk melihat riwayat.</td></tr>`;
+      authButtons.innerHTML = `
+        <a href="../../daftar/" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition text-center">Daftar</a>
+        <a href="../../masuk/" class="w-full bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition text-center">Masuk</a>
+      `;
+    }
+
+    // --- INISIALISASI HALAMAN ---
+    document.addEventListener('DOMContentLoaded', initializeProfilePage);
+  </script>
 </body>
 </html>
