@@ -23,7 +23,6 @@
   <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
     <div>
       <a href="../..">
-        <!-- Ganti dengan path logo yang benar jika perlu -->
         <span class="text-xl font-bold">Belajar Ngaji</span>
       </a>
     </div>
@@ -32,19 +31,17 @@
     </a>
   </nav>
 
-  <!-- KONTEN DAFTAR -->
+  <!-- KONTEN DAFTAR (DIREVISI) -->
   <div class="max-w-md mx-auto px-4 py-8">
     <div class="bg-white rounded-xl shadow-lg p-8">
       <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Buat Akun Baru</h1>
+      <!-- REVISI: FORMULIR TANPA EMAIL -->
       <form id="register-form" class="space-y-4">
         <div>
           <label for="username" class="block text-sm font-medium text-gray-700">Nama Pengguna</label>
           <input type="text" id="username" name="username" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
         </div>
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-          <input type="email" id="email" name="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-        </div>
+        <!-- Kolom Email Dihapus Dari Tampilan -->
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
           <input type="password" id="password" name="password" required minlength="6" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
@@ -63,7 +60,7 @@
     </div>
   </div>
 
-  <!-- Kotak Pesan (Sama seperti halaman login) -->
+  <!-- Kotak Pesan -->
   <div id="message-box" class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full">
     <h3 id="message-title" class="text-xl font-bold mb-2 text-center text-gray-800"></h3>
     <p id="message-text" class="text-gray-600 text-center"></p>
@@ -81,18 +78,16 @@
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzINiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Ambil elemen form
+    // REVISI: Elemen email dihapus
     const form = document.getElementById('register-form');
     const usernameInput = document.getElementById('username');
-    const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirm-password');
     const submitButton = document.getElementById('submit-button');
 
-    // Ambil elemen kotak pesan
     const messageBox = document.getElementById('message-box');
     const messageTitle = document.getElementById('message-title');
     const messageText = document.getElementById('message-text');
@@ -105,15 +100,24 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      submitButton.disabled = true; // Nonaktifkan tombol saat proses
+      submitButton.disabled = true;
       submitButton.textContent = 'Memproses...';
 
       const username = usernameInput.value.trim();
-      const email = emailInput.value.trim();
       const password = passwordInput.value;
       const confirmPassword = confirmPasswordInput.value;
 
+      // REVISI KUNCI: Membuat email palsu/otomatis untuk Supabase
+      // Ini tidak akan terlihat oleh pengguna.
+      const email = `${username.toLowerCase().replace(/\s+/g, '')}@belajarngaji.user`;
+
       // 1. Validasi Sisi Klien
+      if (!username) {
+        showMessage('Pendaftaran Gagal', 'Nama pengguna tidak boleh kosong.');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Daftar';
+        return;
+      }
       if (password !== confirmPassword) {
         showMessage('Pendaftaran Gagal', 'Konfirmasi password tidak cocok.');
         submitButton.disabled = false;
@@ -122,7 +126,7 @@
       }
       if (password.length < 6) {
         showMessage('Pendaftaran Gagal', 'Password minimal harus 6 karakter.');
-         submitButton.disabled = false;
+        submitButton.disabled = false;
         submitButton.textContent = 'Daftar';
         return;
       }
@@ -141,15 +145,20 @@
         return;
       }
 
-      // 3. Daftarkan pengguna baru ke Supabase Auth
+      // 3. Daftarkan pengguna baru ke Supabase Auth menggunakan email yang dibuat otomatis
       const { data, error } = await supabase.auth.signUp({
-        email: email,
+        email: email, // Menggunakan email yang dibuat otomatis
         password: password,
       });
 
       if (error) {
         console.error('Error signing up:', error);
-        showMessage('Pendaftaran Gagal', error.message);
+        // Menampilkan pesan error yang lebih ramah
+        if (error.message.includes("valid email")) {
+             showMessage('Pendaftaran Gagal', 'Nama pengguna mengandung karakter yang tidak valid.');
+        } else {
+             showMessage('Pendaftaran Gagal', 'Terjadi kesalahan. Coba lagi nanti.');
+        }
         submitButton.disabled = false;
         submitButton.textContent = 'Daftar';
         return;
@@ -160,21 +169,27 @@
         const { error: profileError } = await supabase
           .from('profiles')
           .insert([
+            // Simpan username dan email otomatis ke profil
             { id: data.user.id, username: username, email: email } 
           ]);
 
         if (profileError) {
           console.error('Error creating profile:', profileError);
-          // Idealnya, di sini ada logika untuk menghapus user auth yang baru dibuat jika profil gagal dibuat
           showMessage('Pendaftaran Gagal', 'Gagal membuat profil Anda setelah pendaftaran.');
         } else {
-          showMessage('Pendaftaran Berhasil!', 'Akun Anda berhasil dibuat. Silakan cek email untuk verifikasi sebelum masuk.');
-          form.reset(); // Kosongkan form setelah berhasil
+          // REVISI: Pesan keberhasilan disesuaikan karena tidak ada verifikasi email
+          showMessage('Pendaftaran Berhasil!', 'Akun Anda berhasil dibuat. Anda akan dialihkan ke halaman masuk...');
+          setTimeout(() => {
+            window.location.href = '../masuk/'; // Arahkan ke halaman login
+          }, 2000);
         }
       }
 
-      submitButton.disabled = false;
-      submitButton.textContent = 'Daftar';
+      // Jangan aktifkan tombol lagi jika berhasil & sedang redirect
+      if(!data.user) {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Daftar';
+      }
     });
   </script>
 </body>
