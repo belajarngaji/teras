@@ -20,8 +20,8 @@
   <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
     <!-- Brand / Logo -->
     <div>
-      <a href="..">
-        <img src="../..png" alt="Belajar Ngaji" class="h-7 w-auto">
+      <a href="../..">
+        <img src="../../logo.png" alt="Belajar Ngaji" class="h-7 w-auto">
       </a>
     </div>
     <!-- Tombol Profil -->
@@ -77,17 +77,16 @@
   </footer>
 
   <script>
-    // --- INTEGRASI SUPABASE (DENGAN KUNCI LANGSUNG) ---
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
     const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+    
     document.addEventListener('DOMContentLoaded', async () => {
       const authButton = document.getElementById('auth-button');
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
-        // User is NOT logged in
+        // Pengguna BELUM login
         document.getElementById('profile-username').textContent = 'Anda belum masuk.';
         document.getElementById('profile-email').textContent = 'Silakan daftar atau masuk untuk melihat profil Anda.';
         document.getElementById('profile-total-score').textContent = '0';
@@ -96,12 +95,12 @@
         authButton.textContent = 'Daftar / Masuk';
         authButton.classList.remove('bg-red-500', 'hover:bg-red-600');
         authButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
-        // LOGIKA PERBAIKAN: Tombol sekarang mengarah ke halaman pendaftaran
         authButton.addEventListener('click', () => {
           window.location.href = 'daftar/';
         });
+
       } else {
-        // User IS logged in
+        // Pengguna SUDAH login
         authButton.textContent = 'Keluar';
         authButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
         authButton.classList.add('bg-red-500', 'hover:bg-red-600');
@@ -114,7 +113,6 @@
           }
         });
 
-        // Fetch user profile data
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('username, email')
@@ -129,7 +127,6 @@
           document.getElementById('profile-email').textContent = profile.email || user.email;
         }
 
-        // Fetch user's quiz scores
         const { data: scores, error: scoresError } = await supabase
           .from('quiz_scores')
           .select('*')
@@ -139,7 +136,6 @@
         if (scoresError) {
           console.error('Error fetching scores:', scoresError.message);
         } else {
-          // Calculate total score and populate quiz history
           const totalScore = scores.reduce((sum, current) => sum + current.score, 0);
           document.getElementById('profile-total-score').textContent = totalScore;
 
@@ -147,6 +143,7 @@
           if (scores.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-gray-500">Belum ada riwayat kuis.</td></tr>';
           } else {
+            tableBody.innerHTML = '';
             scores.forEach((quiz, index) => {
               const row = document.createElement('tr');
               const quizName = quiz.quiz_id.replace('_', ' ').replace('kelas', 'Kelas').replace('bab', 'Bab').replace('kuis1', 'Kuis 1');
