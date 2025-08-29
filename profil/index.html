@@ -60,9 +60,8 @@
       </div>
 
       <div class="mt-8 flex justify-center space-x-4">
-        <!-- Tombol ini sekarang berdiri sendiri dan berfungsi dengan JS -->
         <button id="auth-button" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-            Daftar
+            Daftar / Masuk
         </button>
         <a href="../" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors">
             Kembali ke Beranda
@@ -97,74 +96,70 @@
         authButton.textContent = 'Daftar / Masuk';
         authButton.classList.remove('bg-red-500', 'hover:bg-red-600');
         authButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+        // LOGIKA PERBAIKAN: Tombol sekarang mengarah ke halaman pendaftaran
         authButton.addEventListener('click', () => {
-          window.location.href = 'daftar/'; // Redirect to sign up/in page
+          window.location.href = 'daftar/';
         });
-
-        return;
-      }
-
-      // User IS logged in
-      authButton.textContent = 'Keluar';
-      authButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-      authButton.classList.add('bg-red-500', 'hover:bg-red-600');
-      authButton.addEventListener('click', async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-          console.error('Error signing out:', error.message);
-        } else {
-          window.location.href = '../'; // Redirect to home page
-        }
-      });
-
-      // Fetch user profile data
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('username, email')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError) {
-        console.error('Error fetching profile:', profileError.message);
-        document.getElementById('profile-username').textContent = 'Error: Data profil tidak ditemukan.';
-        return;
-      }
-
-      // Populate profile info
-      document.getElementById('profile-username').textContent = profile.username || 'Pengguna Anonim';
-      document.getElementById('profile-email').textContent = profile.email || user.email;
-
-      // Fetch user's quiz scores
-      const { data: scores, error: scoresError } = await supabase
-        .from('quiz_scores')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (scoresError) {
-        console.error('Error fetching scores:', scoresError.message);
-        return;
-      }
-
-      // Calculate total score and populate quiz history
-      const totalScore = scores.reduce((sum, current) => sum + current.score, 0);
-      document.getElementById('profile-total-score').textContent = totalScore;
-
-      const tableBody = document.getElementById('quiz-history-table-body');
-      if (scores.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-gray-500">Belum ada riwayat kuis.</td></tr>';
       } else {
-        scores.forEach((quiz, index) => {
-          const row = document.createElement('tr');
-          const quizName = quiz.quiz_id.replace('_', ' ').replace('kelas', 'Kelas').replace('bab', 'Bab').replace('kuis1', 'Kuis 1');
-          row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${index + 1}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${quizName}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${quiz.score}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${new Date(quiz.created_at).toLocaleDateString()}</td>
-          `;
-          tableBody.appendChild(row);
+        // User IS logged in
+        authButton.textContent = 'Keluar';
+        authButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+        authButton.classList.add('bg-red-500', 'hover:bg-red-600');
+        authButton.addEventListener('click', async () => {
+          const { error } = await supabase.auth.signOut();
+          if (error) {
+            console.error('Error signing out:', error.message);
+          } else {
+            window.location.href = '../';
+          }
         });
+
+        // Fetch user profile data
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('username, email')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError.message);
+          document.getElementById('profile-username').textContent = 'Error: Data profil tidak ditemukan.';
+        } else {
+          document.getElementById('profile-username').textContent = profile.username || 'Pengguna Anonim';
+          document.getElementById('profile-email').textContent = profile.email || user.email;
+        }
+
+        // Fetch user's quiz scores
+        const { data: scores, error: scoresError } = await supabase
+          .from('quiz_scores')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (scoresError) {
+          console.error('Error fetching scores:', scoresError.message);
+        } else {
+          // Calculate total score and populate quiz history
+          const totalScore = scores.reduce((sum, current) => sum + current.score, 0);
+          document.getElementById('profile-total-score').textContent = totalScore;
+
+          const tableBody = document.getElementById('quiz-history-table-body');
+          if (scores.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-gray-500">Belum ada riwayat kuis.</td></tr>';
+          } else {
+            scores.forEach((quiz, index) => {
+              const row = document.createElement('tr');
+              const quizName = quiz.quiz_id.replace('_', ' ').replace('kelas', 'Kelas').replace('bab', 'Bab').replace('kuis1', 'Kuis 1');
+              row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">${index + 1}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${quizName}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${quiz.score}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${new Date(quiz.created_at).toLocaleDateString()}</td>
+              `;
+              tableBody.appendChild(row);
+            });
+          }
+        }
       }
     });
   </script>
