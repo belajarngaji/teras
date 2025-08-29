@@ -220,15 +220,15 @@
       }
     }
     
-    function getQuizIdFromUrl() {
-      const path = window.location.pathname;
-      const pathParts = path.split('/');
-      // Path: /altar/kelas01/bab02/isikuis.html
-      // Index: 0       1       2         3
-      const kelas = pathParts[2];
-      const bab = pathParts[3];
-      return `${kelas}_${bab}_kuis1`; 
-    }
+    // Kode baru yang harus Anda pakai
+function getQuizIdFromUrl() {
+  const path = window.location.pathname;
+  const pathParts = path.split('/');
+  const folderName = pathParts[pathParts.length - 2];
+  const kelas = pathParts[pathParts.length - 3];
+  const bab = folderName.split('-')[1];
+  return `${kelas}_${bab}_kuis1`;
+}
   </script>
 
 </body>
