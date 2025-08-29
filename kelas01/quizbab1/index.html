@@ -30,11 +30,11 @@
     <!-- Brand / Logo -->
     <div>
       <a href="../..">
-        <img src="..png" alt="Belajar Ngaji" class="h-7 w-auto">
+        <img src="../../logo.png" alt="Belajar Ngaji" class="h-7 w-auto">
       </a>
     </div>
     <!-- Tombol Profil -->
-    <a href="profil/" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
+    <a href="../../profil/" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
       👤
     </a>
   </nav>
@@ -45,6 +45,7 @@
     <div id="quiz-ui" class="card bg-white rounded-xl shadow-lg p-6 text-center dark:bg-slate-700 dark:text-gray-100">
       <h2 id="question-text" class="text-xl font-semibold mb-4"></h2>
       <ul id="options-list" class="flex flex-col gap-3"></ul>
+      <div id="status-message" class="mt-4 p-2 rounded-md text-sm text-center hidden"></div>
       <button id="next-button" class="mt-6 w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition">Selanjutnya</button>
     </div>
 
@@ -53,7 +54,7 @@
       <h2 class="text-2xl font-bold text-green-600 mb-4">Hasil Kuis</h2>
       <p class="text-lg">Skor Anda: <span id="final-score" class="font-bold text-3xl">0</span></p>
       <p id="score-message" class="mt-2 text-md"></p>
-      <a href="../" class="mt-6 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">Kembali ke Beranda</a>
+      <a href="../../profil/" class="mt-6 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">Kembali ke Profil</a>
     </div>
   </div>
 
@@ -77,13 +78,13 @@
       },
       {
         question: "Huruf apakah yang bentuknya mirip ب namun memiliki dua titik di atas?",
-        options: ["ت", "ث", "ن", "ي"],
+        options: ["ت", "ث", "n", "ي"],
         answer: "ت"
       },
       {
         question: "Urutan huruf hijaiyah yang benar antara lain...",
-        options: ["ي، ك، ل، م", "ش، ص، ض، ط", "ع، غ، ف، ق"],
-        answer: "ع، غ، ف، ق"
+        options: ["ي, ك, ل, م", "ش, ص, ض, ط", "ع, غ, ف, ق"],
+        answer: "ع, غ, ف, ق"
       },
       {
         question: "Huruf apakah yang disebut 'Ain' (ع) dalam posisi awal kata memiliki bentuk yang…",
@@ -97,7 +98,7 @@
       },
       {
         question: "Huruf apakah yang memiliki titik di atas dan di bawah sekaligus dalam satu bentuk?",
-        options: ["ش", "خ", "ق", "Tidak ada"],
+        options: ["ش", "خ", "q", "Tidak ada"],
         answer: "Tidak ada"
       },
       {
@@ -125,6 +126,7 @@
     const nextButton = document.getElementById('next-button');
     const finalScoreSpan = document.getElementById('final-score');
     const scoreMessage = document.getElementById('score-message');
+    const statusMessage = document.getElementById('status-message');
 
     let currentQuestionIndex = 0;
     let score = 0;
@@ -138,17 +140,14 @@
         currentQuestion.options.forEach(option => {
           const li = document.createElement('li');
           li.textContent = option;
-          li.className = 'bg-blue-50 text-blue-800 font-semibold py-3 px-4 rounded-lg cursor-pointer transition hover:bg-blue-100 dark:bg-slate-600 dark:text-gray-100 dark:hover:bg-slate-500';
+          li.className = 'option-item bg-blue-50 text-blue-800 font-semibold py-3 px-4 rounded-lg cursor-pointer transition hover:bg-blue-100 dark:bg-slate-600 dark:text-gray-100 dark:hover:bg-slate-500';
           li.addEventListener('click', () => {
             document.querySelectorAll('.option-item').forEach(item => {
-              item.classList.remove('bg-blue-700', 'text-white');
-              item.classList.add('bg-blue-50', 'text-blue-800');
+              item.classList.remove('selected');
             });
-            li.classList.remove('bg-blue-50', 'text-blue-800');
-            li.classList.add('bg-blue-700', 'text-white', 'selected');
+            li.classList.add('selected');
             selectedOption = option;
           });
-          li.classList.add('option-item');
           optionsList.appendChild(li);
         });
         nextButton.textContent = currentQuestionIndex === quizData.length - 1 ? 'Selesai' : 'Selanjutnya';
@@ -167,7 +166,7 @@
         selectedOption = null;
         loadQuestion();
       } else {
-        alert('Silakan pilih jawaban terlebih dahulu.');
+        showStatusMessage('Silakan pilih jawaban terlebih dahulu.', 'text-red-700', 'bg-red-100');
       }
     });
 
@@ -189,7 +188,7 @@
     
     document.addEventListener('DOMContentLoaded', loadQuestion);
 
-    // --- INTEGRASI SUPABASE (DENGAN KUNCI LANGSUNG) ---
+    // --- INTEGRASI SUPABASE ---
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
     const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -199,10 +198,11 @@
 
       if (!user) {
         console.error('User belum login. Skor tidak dapat disimpan.');
+        showStatusMessage('Anda belum masuk. Silakan masuk untuk menyimpan skor.', 'text-red-700', 'bg-red-100');
         return;
       }
       
-      const quiz_id = getQuizIdFromUrl();
+      const quiz_id = 'kelas01_bab01'; // ID kuis yang diperbaiki
       const { data, error } = await supabase
         .from('quiz_scores')
         .insert([
@@ -215,20 +215,18 @@
         
       if (error) {
         console.error('Gagal menyimpan skor ke Supabase:', error.message);
+        showStatusMessage('Terjadi kesalahan saat menyimpan skor Anda.', 'text-red-700', 'bg-red-100');
       } else {
         console.log('Skor berhasil disimpan!', data);
+        showStatusMessage('Skor Anda berhasil disimpan!', 'text-green-700', 'bg-green-100');
       }
     }
-    
-    // Kode baru yang harus Anda pakai
-function getQuizIdFromUrl() {
-  const path = window.location.pathname;
-  const pathParts = path.split('/');
-  const folderName = pathParts[pathParts.length - 2];
-  const kelas = pathParts[pathParts.length - 3];
-  const bab = folderName.split('-')[1];
-  return `${kelas}_${bab}_kuis1`;
-}
+
+    function showStatusMessage(message, textColor, bgColor) {
+      statusMessage.textContent = message;
+      statusMessage.className = `mt-4 p-2 rounded-md text-sm text-center ${textColor} ${bgColor}`;
+      statusMessage.classList.remove('hidden');
+    }
   </script>
 
 </body>
