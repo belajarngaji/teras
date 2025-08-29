@@ -31,17 +31,15 @@
     </a>
   </nav>
 
-  <!-- KONTEN DAFTAR (DIREVISI) -->
+  <!-- KONTEN DAFTAR -->
   <div class="max-w-md mx-auto px-4 py-8">
     <div class="bg-white rounded-xl shadow-lg p-8">
       <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Buat Akun Baru</h1>
-      <!-- REVISI: FORMULIR TANPA EMAIL -->
       <form id="register-form" class="space-y-4">
         <div>
           <label for="username" class="block text-sm font-medium text-gray-700">Nama Pengguna</label>
           <input type="text" id="username" name="username" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
         </div>
-        <!-- Kolom Email Dihapus Dari Tampilan -->
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
           <input type="password" id="password" name="password" required minlength="6" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
@@ -55,7 +53,7 @@
         </button>
       </form>
       <p class="mt-4 text-sm text-center text-gray-600">
-        Sudah punya akun? <a href="../masuk/" class="font-medium text-blue-600 hover:text-blue-500">Masuk di sini</a>
+        Sudah punya akun? <a href="../.." class="font-medium text-blue-600 hover:text-blue-500">Masuk di sini</a>
       </p>
     </div>
   </div>
@@ -78,10 +76,9 @@
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzINiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // REVISI: Elemen email dihapus
     const form = document.getElementById('register-form');
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
@@ -106,12 +103,9 @@
       const username = usernameInput.value.trim();
       const password = passwordInput.value;
       const confirmPassword = confirmPasswordInput.value;
-
-      // REVISI KUNCI: Membuat email palsu/otomatis untuk Supabase
-      // Ini tidak akan terlihat oleh pengguna.
       const email = `${username.toLowerCase().replace(/\s+/g, '')}@belajarngaji.user`;
 
-      // 1. Validasi Sisi Klien
+      // Validasi sisi klien
       if (!username) {
         showMessage('Pendaftaran Gagal', 'Nama pengguna tidak boleh kosong.');
         submitButton.disabled = false;
@@ -131,7 +125,7 @@
         return;
       }
 
-      // 2. Cek apakah username sudah ada di tabel 'profiles'
+      // Cek username
       const { data: existingProfile } = await supabase
         .from('profiles')
         .select('username')
@@ -139,53 +133,49 @@
         .single();
 
       if (existingProfile) {
-        showMessage('Pendaftaran Gagal', 'Nama pengguna ini sudah digunakan. Silakan pilih yang lain.');
+        showMessage('Pendaftaran Gagal', 'Nama pengguna ini sudah digunakan.');
         submitButton.disabled = false;
         submitButton.textContent = 'Daftar';
         return;
       }
-
-      // 3. Daftarkan pengguna baru ke Supabase Auth menggunakan email yang dibuat otomatis
+      
+      // Proses pendaftaran ke Supabase Auth
       const { data, error } = await supabase.auth.signUp({
-        email: email, // Menggunakan email yang dibuat otomatis
+        email: email,
         password: password,
       });
 
       if (error) {
         console.error('Error signing up:', error);
-        // Menampilkan pesan error yang lebih ramah
-        if (error.message.includes("valid email")) {
-             showMessage('Pendaftaran Gagal', 'Nama pengguna mengandung karakter yang tidak valid.');
-        } else {
-             showMessage('Pendaftaran Gagal', 'Terjadi kesalahan. Coba lagi nanti.');
-        }
+        
+        // --- REVISI KUNCI ---
+        // Tampilkan pesan error yang sebenarnya dari Supabase, bukan pesan generik lagi.
+        showMessage('Pendaftaran Gagal', error.message);
+        
         submitButton.disabled = false;
         submitButton.textContent = 'Daftar';
         return;
       }
-
-      // 4. Jika pendaftaran Auth berhasil, masukkan data ke tabel 'profiles'
+      
+      // Proses simpan profil
       if (data.user) {
         const { error: profileError } = await supabase
           .from('profiles')
           .insert([
-            // Simpan username dan email otomatis ke profil
             { id: data.user.id, username: username, email: email } 
           ]);
 
         if (profileError) {
           console.error('Error creating profile:', profileError);
-          showMessage('Pendaftaran Gagal', 'Gagal membuat profil Anda setelah pendaftaran.');
+          showMessage('Pendaftaran Gagal', profileError.message);
         } else {
-          // REVISI: Pesan keberhasilan disesuaikan karena tidak ada verifikasi email
-          showMessage('Pendaftaran Berhasil!', 'Akun Anda berhasil dibuat. Anda akan dialihkan ke halaman masuk...');
+          showMessage('Pendaftaran Berhasil!', 'Akun Anda berhasil dibuat. Anda akan dialihkan...');
           setTimeout(() => {
-            window.location.href = '../masuk/'; // Arahkan ke halaman login
+            window.location.href = '../masuk/';
           }, 2000);
         }
       }
 
-      // Jangan aktifkan tombol lagi jika berhasil & sedang redirect
       if(!data.user) {
         submitButton.disabled = false;
         submitButton.textContent = 'Daftar';
