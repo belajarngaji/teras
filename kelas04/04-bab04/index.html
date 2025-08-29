@@ -96,32 +96,33 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, orderBy, getDocs, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Data kuis langsung di dalam file
+    // --- Data Kuis Baru (Bab 3) ---
+    // Soal isian telah diubah menjadi pilihan ganda untuk kompatibilitas.
     const quizData = [
       {
-        question: "Dalam Pegon, kata 'omah anyar' ditulis…",
+        question: "Dalam Pegon, kata omah anyar ditulis…",
         options: ["اومه انيير", "اومه اىٓنيار", "اومه انيار", "اومه اىٓنيا"],
         answer: "اومه اىٓنيار",
       },
       {
-        question: "Semua kata berikut berarti 'pergi' kecuali…",
+        question: "Semua kata berikut berarti pergi kecuali …",
         options: ["lunga", "mlaku", "dolan", "mangan"],
         answer: "mangan",
       },
       {
         question: "Tulis kalimat “Bocah loro dolan neng kebon” (Dua anak bermain di kebun) dengan Pegon.",
-        options: ["بوچاه لورو دولن نيڠ كبون", "بُوعَاه لُورُو دُولَن نَينْ كِيبُون", "بوچاه لورو دولان نڠ كبون", "بوچاه لورو دولن نڠ كبون"],
+        options: ["بوچاه لورو دولان نڠ كبون", "بوچاه لورو دولن نيڠ كبون", "بوچاه لورو دولن نڠ كبون", "بُوعَاه لُورُو دُولَن نَينْ كِيبُون"],
         answer: "بوچاه لورو دولن نيڠ كبون",
       },
       {
-        question: "Bacaan kata اىٓريڤ iku artinya…",
+        question: "Bacaan kata اىٓريڤ iku artinya …",
         options: ["hidup", "pergi", "makan", "tidur"],
         answer: "hidup",
       },
       {
-        question: "Kata yang mengandung vokal e adalah…",
+        question: "Kata yang mengandung vokal e adalah …",
         options: ["اورا", "اىٓران", "ايبو", "مانݢا"],
         answer: "اىٓران",
       },
@@ -131,12 +132,12 @@
         answer: "اكو اىٓرڤ توكو روتى",
       },
       {
-        question: "Soal analisis: Kata اىٓسا memiliki huruf vokal…",
+        question: "Soal analisis: Kata اىٓسا memiliki huruf vokal …",
         options: ["i", "e", "o", "a"],
         answer: "e",
       },
       {
-        question: "Kalimat yang berarti “Hari ini mendung” adalah…",
+        question: "Kalimat yang berarti “Hari ini mendung” adalah …",
         options: ["دينا ايكى مندونڭ", "دينا ايكى مندوڭ", "دينا ايكى مندون", "دينا ايكى مندنگ"],
         answer: "دينا ايكى مندوڭ",
       },
@@ -146,27 +147,27 @@
         answer: "وڠ اىٓاكي مانݢان سيݢا",
       },
       {
-        question: "Semua kata berikut benar kecuali…",
+        question: "Semua kata berikut benar kecuali …",
         options: ["ڬاوى", "اىٓكين", "اوريب", "بپ"],
         answer: "بپ",
       },
       {
-        question: "Dalam kalimat “Bapak lunga menyang pasar”, kata menyang dalam Pegon adalah…",
-        options: ["مڽڠ", "مڽڭ", "ميسڠ", "ميسڭ"],
+        question: "Dalam kalimat “Bapak lunga menyang pasar”, kata menyang dalam Pegon adalah …",
+        options: ["مڽڭ", "ميسڠ", "ميسڭ", "مڽڠ"],
         answer: "مڽڠ",
       },
       {
         question: "Tulis kalimat “Saka omah menyang sekolah” dengan Pegon.",
-        options: ["ساكا اومه مڽڠ سكوله", "سَاكَا اَومَه مَنِيَڠ سِكُولَه", "ساكا اوماه مڽڠ سِكولَه", "ساك اوماه مڽڠ سكوله"],
+        options: ["ساكا اوماه مڽڠ سِكولَه", "ساك اوماه مڽڠ سكوله", "سَاكَا اَومَه مَنِيَڠ سِكُولَه", "ساكا اومه مڽڠ سكوله"],
         answer: "ساكا اومه مڽڠ سكوله",
       },
       {
-        question: "Bacaan kata اىٓاكي adalah…",
+        question: "Bacaan kata اىٓاكي adalah …",
         options: ["Aki", "Eki", "Iki", "Aeki"],
         answer: "Eki",
       },
       {
-        question: "Kata yang berarti bermain adalah…",
+        question: "Kata yang berarti bermain adalah …",
         options: ["dolan", "lunga", "mangan", "turu"],
         answer: "dolan",
       },
@@ -176,12 +177,12 @@
         answer: "ملاكو ملاكو نيڠ الون الون",
       },
       {
-        question: "Semua kata berikut mengandung vokal i kecuali…",
+        question: "Semua kata berikut mengandung vokal i kecuali …",
         options: ["ايبو", "سىجى", "ڠاجى", "اورا"],
         answer: "اورا",
       },
       {
-        question: "Bacaan kata اىٓرين berarti…",
+        question: "Bacaan kata اىٓرين berarti …",
         options: ["hujan", "panas", "angin", "mendung"],
         answer: "hujan",
       },
@@ -191,17 +192,18 @@
         answer: "اىٓسوك اىٓسوك ڤاسار رامى بڠت",
       },
       {
-        question: "Dalam kalimat “Wong loro mangan sega bareng”, kata bareng ditulis…",
-        options: ["بارڭ", "بارنڭ", "بارنج", "بارڭا"],
+        question: "Dalam kalimat “Wong loro mangan sega bareng”, kata bareng ditulis …",
+        options: ["بارنڭ", "بارنج", "بارڭا", "بارڭ"],
         answer: "بارڭ",
       },
       {
         question: "Tulis kalimat “Kabeh padha dolan neng sawah” dengan Pegon.",
-        options: ["كابى ڤادها دولن نيڠ ساواه", "كابيه فادا دُولَن نَڠ سَاوَاه", "كابى ڤادا دولن نڠ ساواه", "كابِه فَادَه دُولَان نَڠ سَاوَاه"],
+        options: ["كابيه فادا دُولَن نَڠ سَاوَاه", "كابى ڤادها دولن نيڠ ساواه", "كابى ڤادا دولن نڠ ساواه", "كابِه فَادَه دُولَان نَڠ سَاوَاه"],
         answer: "كابى ڤادها دولن نيڠ ساواه",
       }
     ];
 
+    // --- 2. LOGIKA KUIS ---
     const quizUI = document.getElementById('quiz-ui');
     const resultsUI = document.getElementById('results-ui');
     const questionText = document.getElementById('question-text');
@@ -275,7 +277,7 @@
         if (checkAnswer()) {
           nextButton.textContent = 'Lanjut';
         } else {
-          // Instead of alert, use a simple console log
+          // Mengganti alert dengan console.log sesuai instruksi.
           console.log('Silakan pilih jawaban terlebih dahulu.');
         }
       } else {
@@ -297,11 +299,12 @@
       } else {
         scoreMessage.textContent = 'Terus belajar ya! Anda bisa coba lagi.';
       }
-      
+
       saveScoreToFirestore(score);
     }
 
-    // --- FIREBASE AND FIRESTORE LOGIC ---
+    // --- 3. LOGIKA FIREBASE FIRESTORE ---
+    // Mengembalikan logika Firebase yang berfungsi dari file sebelumnya.
     async function initializeFirebase() {
       try {
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
@@ -309,7 +312,7 @@
         const app = initializeApp(firebaseConfig, 'web-app');
         db = getFirestore(app);
         auth = getAuth(app);
-        
+
         onAuthStateChanged(auth, async (user) => {
           if (user) {
             userId = user.uid;
@@ -352,7 +355,6 @@
       }
       const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
       try {
-        // Simpan setiap skor kuis
         const quizScoresCollection = collection(db, `artifacts/${appId}/public/data/quiz_scores`);
         await addDoc(quizScoresCollection, {
           userId: userId,
@@ -361,7 +363,6 @@
         });
         console.log("Skor kuis berhasil disimpan!");
 
-        // Update skor total pengguna
         const userProfileDocRef = doc(db, `artifacts/${appId}/public/data/user_profiles/${userId}`);
         await updateDoc(userProfileDocRef, {
           totalScore: increment(finalScore),
@@ -376,17 +377,14 @@
     function listenToLeaderboard() {
       const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
       const userProfilesCollection = collection(db, `artifacts/${appId}/public/data/user_profiles`);
-      const q = query(userProfilesCollection); // Fetch all documents
-      onSnapshot(q, async (querySnapshot) => {
+      const q = query(userProfilesCollection);
+      onSnapshot(q, (querySnapshot) => {
         const users = [];
         querySnapshot.forEach((doc) => {
           users.push({ id: doc.id, ...doc.data() });
         });
 
-        // Urutkan data secara lokal
         const sortedUsers = users.sort((a, b) => b.totalScore - a.totalScore).slice(0, 10);
-        
-        // Tampilkan data di UI
         renderLeaderboard(sortedUsers);
       });
     }
