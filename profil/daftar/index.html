@@ -3,162 +3,224 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daftar / Masuk - Belajar Ngaji</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title>Profil Pengguna</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: 'Poppins', sans-serif; transition: background 0.3s, color 0.3s; }
-    .dark-mode { background-color: #1e293b; color: #f1f5f9; }
-    .input-field {
-      @apply w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:text-gray-100;
+    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; }
+    .card { background-color: white; border-radius: 1rem; padding: 2rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+    .btn { padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; text-align: center; }
+    .btn-primary { background-color: #2563eb; color: white; transition: background-color 0.2s; }
+    .btn-primary:hover { background-color: #1e40af; }
+    .input-field { width: 100%; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid #d1d5db; margin-bottom: 1rem; }
+    .hidden { display: none; }
+    .logo {
+      width: 40px;
+      height: 40px;
+      background-color: #2563eb;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5rem;
+      color: white;
+      font-weight: bold;
     }
   </style>
 </head>
-<body class="bg-gray-50 dark:bg-slate-800">
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
   <!-- NAVBAR -->
-  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
-    <!-- Brand / Logo -->
-    <div>
-      <a href=".">
-        <img src="../../../..png" alt="Belajar Ngaji" class="h-7 w-auto">
-      </a>
+  <nav class="fixed top-0 left-0 right-0 z-10 flex justify-between items-center bg-white shadow-md p-4">
+    <div class="flex items-center space-x-2">
+      <div class="logo">🔥</div>
+      <span class="text-xl font-bold">Profil</span>
     </div>
+    <a href="../../../" class="btn btn-primary">Kembali</a>
   </nav>
 
-  <!-- FORMULIR DAFTAR/MASUK -->
-  <div class="flex items-center justify-center min-h-screen">
-    <div class="bg-white dark:bg-slate-700 rounded-xl shadow-lg p-8 w-full max-w-md">
-      <h1 id="form-title" class="text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-6">Masuk</h1>
-      
-      <div id="status-message" class="text-center p-3 rounded-lg text-sm hidden"></div>
+  <main class="w-full max-w-lg mt-24">
 
+    <!-- Auth UI Section -->
+    <div id="auth-ui" class="card">
+      <h1 class="text-2xl font-bold text-center mb-6">Masuk atau Daftar</h1>
       <form id="auth-form" class="space-y-4">
-        <input type="text" id="username" placeholder="Nama Pengguna" class="input-field" required>
-        <input type="password" id="password" placeholder="Kata Sandi" class="input-field" required>
-
-        <button type="submit" id="submit-button" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors">
-          Masuk
-        </button>
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+          <input type="email" id="email" class="input-field" required>
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Kata Sandi</label>
+          <input type="password" id="password" class="input-field" required>
+        </div>
+        <button type="submit" id="auth-button" class="btn btn-primary w-full">Masuk</button>
       </form>
-
       <div class="mt-4 text-center">
-        <button id="toggle-form-button" class="text-sm text-blue-600 hover:underline">Belum punya akun? Daftar</button>
+        <button id="toggle-auth-mode" class="text-blue-600 hover:underline">Belum punya akun? Daftar</button>
       </div>
+      <div id="auth-message" class="text-center mt-4 text-sm text-red-500"></div>
     </div>
-  </div>
 
-  <script>
-    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    const authForm = document.getElementById('auth-form');
-    const formTitle = document.getElementById('form-title');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const submitButton = document.getElementById('submit-button');
-    const toggleFormButton = document.getElementById('toggle-form-button');
-    const statusMessage = document.getElementById('status-message');
-
-    let isSignUp = false;
-
-    // Cek status login saat halaman dimuat
-    async function checkUserStatus() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        window.location.href = '../'; // Alihkan ke halaman profil jika sudah login
-      }
-    }
-
-    // Fungsi untuk menampilkan pesan status
-    function showStatus(message, isError = false) {
-      statusMessage.textContent = message;
-      statusMessage.classList.remove('hidden');
-      if (isError) {
-        statusMessage.classList.add('bg-red-100', 'text-red-700');
-        statusMessage.classList.remove('bg-green-100', 'text-green-700');
-      } else {
-        statusMessage.classList.add('bg-green-100', 'text-green-700');
-        statusMessage.classList.remove('bg-red-100', 'text-red-700');
-      }
-    }
-
-    // Toggle antara mode Masuk dan Daftar
-    toggleFormButton.addEventListener('click', () => {
-      isSignUp = !isSignUp;
+    <!-- Profile UI Section -->
+    <div id="profile-ui" class="card hidden">
+      <h1 class="text-2xl font-bold text-center mb-6">Profil Saya</h1>
+      <div class="text-center mb-4">
+        <p class="text-gray-600">Selamat datang, <strong id="user-email" class="text-blue-600"></strong>!</p>
+      </div>
       
-      if (isSignUp) {
-        formTitle.textContent = 'Daftar';
-        submitButton.textContent = 'Daftar';
-        toggleFormButton.textContent = 'Sudah punya akun? Masuk';
-      } else {
-        formTitle.textContent = 'Masuk';
-        submitButton.textContent = 'Masuk';
-        toggleFormButton.textContent = 'Belum punya akun? Daftar';
+      <div id="scores-container" class="mt-8">
+        <h2 class="text-xl font-bold mb-4 text-center">Skor Kuis Anda</h2>
+        <div id="no-scores-message" class="text-gray-500 text-center hidden">
+          <p>Anda belum mengambil kuis apa pun.</p>
+        </div>
+        <table id="scores-table" class="min-w-full divide-y divide-gray-200 hidden">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kuis</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Skor</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
+            </tr>
+          </thead>
+          <tbody id="scores-body" class="bg-white divide-y divide-gray-200">
+            <!-- Scores will be injected here by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+      
+      <button id="logout-button" class="btn btn-primary w-full mt-8">Keluar</button>
+    </div>
+
+  </main>
+  
+  <footer class="mt-12 text-center text-gray-500 text-sm">
+    <p>© 2025 Belajar Ngaji</p>
+  </footer>
+
+<script>
+  // Inisialisasi Supabase dengan kunci Anda
+  const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+  const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Dapatkan elemen UI
+  const authUI = document.getElementById('auth-ui');
+  const profileUI = document.getElementById('profile-ui');
+  const authForm = document.getElementById('auth-form');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const authButton = document.getElementById('auth-button');
+  const toggleAuthModeButton = document.getElementById('toggle-auth-mode');
+  const authMessage = document.getElementById('auth-message');
+  const userEmailSpan = document.getElementById('user-email');
+  const logoutButton = document.getElementById('logout-button');
+  const scoresContainer = document.getElementById('scores-container');
+  const scoresTable = document.getElementById('scores-table');
+  const scoresBody = document.getElementById('scores-body');
+  const noScoresMessage = document.getElementById('no-scores-message');
+
+  let isLoginMode = true;
+
+  // Mendengarkan perubahan status otentikasi
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (session) {
+      // Pengguna login
+      authUI.classList.add('hidden');
+      profileUI.classList.remove('hidden');
+      userEmailSpan.textContent = session.user.email;
+      fetchScores(session.user.id);
+    } else {
+      // Pengguna logout
+      authUI.classList.remove('hidden');
+      profileUI.classList.add('hidden');
+    }
+  });
+
+  // Fungsi untuk mengambil skor dari Supabase
+  async function fetchScores(userId) {
+    const { data, error } = await supabase
+      .from('quiz_scores')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Gagal mengambil skor:', error.message);
+      scoresTable.classList.add('hidden');
+      noScoresMessage.classList.remove('hidden');
+      return;
+    }
+
+    scoresBody.innerHTML = '';
+    if (data.length > 0) {
+      scoresTable.classList.remove('hidden');
+      noScoresMessage.classList.add('hidden');
+      data.forEach(score => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-100 transition-colors';
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${score.quiz_id}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${score.score}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(score.created_at).toLocaleString('id-ID')}</td>
+        `;
+        scoresBody.appendChild(row);
+      });
+    } else {
+      scoresTable.classList.add('hidden');
+      noScoresMessage.classList.remove('hidden');
+    }
+  }
+
+  // Event listener untuk form otentikasi
+  authForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    authMessage.textContent = '';
+    
+    if (isLoginMode) {
+      // Mode login
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        authMessage.textContent = `Gagal masuk: ${error.message}`;
       }
-    });
-
-    // Handle pengiriman formulir
-    authForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const username = usernameInput.value;
-      const password = passwordInput.value;
-      const email = `${username}@belajarngaji.com`; // Membuat email dari username
-
-      submitButton.disabled = true;
-      submitButton.textContent = 'Memproses...';
-      showStatus('Memproses...', false);
-
-      if (isSignUp) {
-        // Logika Pendaftaran
-        const { data: { user }, error: signUpError } = await supabase.auth.signUp({
-          email: email,
-          password: password,
-        });
-
-        if (signUpError) {
-          showStatus(signUpError.message, true);
-        } else {
-          // Buat entri profil baru di tabel 'profiles'
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert([{ id: user.id, username: username, email: email }]);
-          
-          if (profileError) {
-            console.error('Error creating profile:', profileError.message);
-            showStatus('Pendaftaran berhasil, tetapi gagal membuat profil. Silakan coba masuk.', true);
-          } else {
-            showStatus('Pendaftaran berhasil! Anda akan dialihkan...', false);
-            setTimeout(() => {
-              window.location.href = '../';
-            }, 1000);
-          }
-        }
-
+    } else {
+      // Mode pendaftaran
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        authMessage.textContent = `Gagal daftar: ${error.message}`;
       } else {
-        // Logika Masuk
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: email,
-          password: password,
-        });
-
-        if (signInError) {
-          showStatus(signInError.message, true);
-        } else {
-          showStatus('Berhasil masuk! Anda akan dialihkan...', false);
-          setTimeout(() => {
-            window.location.href = '../';
-          }, 1000);
-        }
+        authMessage.textContent = 'Pendaftaran berhasil! Silakan periksa email Anda untuk verifikasi.';
+        authMessage.style.color = '#16a34a'; // green-600
+        isLoginMode = true;
+        authButton.textContent = 'Masuk';
+        toggleAuthModeButton.textContent = 'Belum punya akun? Daftar';
       }
+    }
+  });
 
-      submitButton.disabled = false;
-      submitButton.textContent = isSignUp ? 'Daftar' : 'Masuk';
-    });
+  // Event listener untuk beralih mode otentikasi
+  toggleAuthModeButton.addEventListener('click', () => {
+    isLoginMode = !isLoginMode;
+    if (isLoginMode) {
+      authButton.textContent = 'Masuk';
+      toggleAuthModeButton.textContent = 'Belum punya akun? Daftar';
+    } else {
+      authButton.textContent = 'Daftar';
+      toggleAuthModeButton.textContent = 'Sudah punya akun? Masuk';
+    }
+    authMessage.textContent = '';
+  });
 
-    checkUserStatus();
-  </script>
+  // Event listener untuk tombol keluar
+  logoutButton.addEventListener('click', async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Gagal keluar:', error.message);
+    }
+  });
+
+</script>
+
 </body>
 </html>
