@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar - Belajar Ngaji</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+    #message-box {
+      display: none;
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+      animation: fadeIn 0.5s;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- NAVBAR -->
+  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+    <div>
+      <a href="../..">
+        <span class="text-xl font-bold">Belajar Ngaji</span>
+      </a>
+    </div>
+    <a href="../profil/" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
+      👤
+    </a>
+  </nav>
+
+  <!-- KONTEN DAFTAR -->
+  <div class="max-w-md mx-auto px-4 py-8">
+    <div class="bg-white rounded-xl shadow-lg p-8">
+      <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Buat Akun Baru</h1>
+      <form id="register-form" class="space-y-4">
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700">Nama Pengguna</label>
+          <input type="text" id="username" name="username" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <input type="password" id="password" name="password" required minlength="6" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+          <label for="confirm-password" class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
+          <input type="password" id="confirm-password" name="confirm-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <button type="submit" id="submit-button" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400">
+          Daftar
+        </button>
+      </form>
+      <p class="mt-4 text-sm text-center text-gray-600">
+        Sudah punya akun? <a href="../.." class="font-medium text-blue-600 hover:text-blue-500">Masuk di sini</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Kotak Pesan -->
+  <div id="message-box" class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full">
+    <h3 id="message-title" class="text-xl font-bold mb-2 text-center text-gray-800"></h3>
+    <p id="message-text" class="text-gray-600 text-center"></p>
+    <div class="mt-4 text-center">
+      <button onclick="document.getElementById('message-box').style.display='none'" class="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">OK</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 text-center py-6">
+    <p class="text-gray-500">© 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
+  </footer>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const form = document.getElementById('register-form');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm-password');
+    const submitButton = document.getElementById('submit-button');
+
+    const messageBox = document.getElementById('message-box');
+    const messageTitle = document.getElementById('message-title');
+    const messageText = document.getElementById('message-text');
+
+    function showMessage(title, text) {
+      messageTitle.textContent = title;
+      messageText.textContent = text;
+      messageBox.style.display = 'block';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitButton.disabled = true;
+      submitButton.textContent = 'Memproses...';
+
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+      const email = `${username.toLowerCase().replace(/\s+/g, '')}@belajarngaji.user`;
+
+      // Validasi sisi klien
+      if (!username) {
+        showMessage('Pendaftaran Gagal', 'Nama pengguna tidak boleh kosong.');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Daftar';
+        return;
+      }
+      if (password !== confirmPassword) {
+        showMessage('Pendaftaran Gagal', 'Konfirmasi password tidak cocok.');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Daftar';
+        return;
+      }
+      if (password.length < 6) {
+        showMessage('Pendaftaran Gagal', 'Password minimal harus 6 karakter.');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Daftar';
+        return;
+      }
+
+      // Cek username
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', username)
+        .single();
+
+      if (existingProfile) {
+        showMessage('Pendaftaran Gagal', 'Nama pengguna ini sudah digunakan.');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Daftar';
+        return;
+      }
+
+      // Proses pendaftaran ke Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+      });
+
+      if (error) {
+        console.error('Error signing up:', error);
+
+        // --- REVISI KUNCI ---
+        // Tampilkan pesan error yang sebenarnya dari Supabase, bukan pesan generik lagi.
+        showMessage('Pendaftaran Gagal', error.message);
+
+        submitButton.disabled = false;
+        submitButton.textContent = 'Daftar';
+        return;
+      }
+
+      // Proses simpan profil
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            { id: data.user.id, username: username, email: email } 
+          ]);
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          showMessage('Pendaftaran Gagal', profileError.message);
+        } else {
+          showMessage('Pendaftaran Berhasil!', 'Akun Anda berhasil dibuat. Anda akan dialihkan...');
+          setTimeout(() => {
+            window.location.href = '../masuk/';
+          }, 2000);
+        }
+      }
+
+      if(!data.user) {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Daftar';
+      }
+    });
+  </script>
+</body>
+</html>
