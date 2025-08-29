@@ -3,30 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daftar/Masuk - Belajar Ngaji</title>
+  <title>Masuk - Belajar Ngaji</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: 'Poppins', sans-serif; transition: background 0.3s, color 0.3s; }
-    .dark-mode { background-color: #1e293b; color: #f1f5f9; }
+    body { font-family: 'Poppins', sans-serif; }
     #message-box {
       display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
+      position: fixed; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       z-index: 1000;
       animation: fadeIn 0.5s;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   </style>
 </head>
-<body class="bg-gray-50 dark:bg-slate-800">
+<body class="bg-gray-50">
   <!-- NAVBAR -->
   <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
     <div>
@@ -34,66 +26,62 @@
         <img src="../../logo.png" alt="Belajar Ngaji" class="h-7 w-auto">
       </a>
     </div>
-    <a href="../profil/" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
+    <a href="../" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
       👤
     </a>
   </nav>
 
-  <!-- KONTEN DAFTAR/MASUK -->
+  <!-- KONTEN MASUK -->
   <div class="max-w-md mx-auto px-4 py-8">
-    <div class="bg-white dark:bg-slate-700 rounded-xl shadow-lg p-8">
-      <h1 id="form-title" class="text-3xl font-bold text-center text-gray-800 dark:text-gray-100 mb-6">Daftar Akun</h1>
-      <form id="auth-form" class="space-y-6">
+    <div class="bg-white rounded-xl shadow-lg p-8">
+      <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Masuk ke Akun Anda</h1>
+      <form id="login-form" class="space-y-6">
         <div>
-          <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama Pengguna</label>
-          <input type="text" id="username" name="username" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-800 dark:border-gray-600 dark:text-white">
+          <label for="username" class="block text-sm font-medium text-gray-700">Nama Pengguna</label>
+          <input type="text" id="username" name="username" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
         </div>
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-          <input type="password" id="password" name="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-800 dark:border-gray-600 dark:text-white">
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <input type="password" id="password" name="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
         </div>
-        <button type="submit" id="submit-button" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-          Daftar
+        <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+          Masuk
         </button>
       </form>
-      <p class="mt-4 text-sm text-center text-gray-600 dark:text-gray-300">
-        <span id="toggle-text">Sudah punya akun?</span> <a href="#" id="toggle-link" class="font-medium text-blue-600 hover:text-blue-500">Masuk di sini</a>
+      <p class="mt-4 text-sm text-center text-gray-600">
+        Belum punya akun? <a href="../daftar/" class="font-medium text-blue-600 hover:text-blue-500">Daftar di sini</a>
       </p>
     </div>
   </div>
 
   <!-- Kotak Pesan -->
-  <div id="message-box" class="bg-white dark:bg-slate-700 rounded-lg shadow-xl p-6 max-w-sm w-full">
-    <h3 id="message-title" class="text-xl font-bold mb-2 text-center text-gray-800 dark:text-gray-100"></h3>
-    <p id="message-text" class="text-gray-600 dark:text-gray-300 text-center"></p>
+  <div id="message-box" class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full">
+    <h3 id="message-title" class="text-xl font-bold mb-2 text-center text-gray-800"></h3>
+    <p id="message-text" class="text-gray-600 text-center"></p>
     <div class="mt-4 text-center">
-      <button onclick="document.getElementById('message-box').style.display='none'" class="bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 font-bold py-2 px-4 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors">OK</button>
+      <button onclick="document.getElementById('message-box').style.display='none'" class="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">OK</button>
     </div>
   </div>
 
   <!-- Footer -->
-  <footer class="bg-gray-100 dark:bg-slate-900 text-center py-6">
-    <p class="text-gray-500 dark:text-gray-400">© 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
+  <footer class="bg-gray-100 text-center py-6">
+    <p class="text-gray-500">© 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
   </footer>
 
-  <script>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
-    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const form = document.getElementById('auth-form');
+    const form = document.getElementById('login-form');
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
-    const formTitle = document.getElementById('form-title');
-    const submitButton = document.getElementById('submit-button');
-    const toggleLink = document.getElementById('toggle-link');
-    const toggleText = document.getElementById('toggle-text');
-
+    
     const messageBox = document.getElementById('message-box');
     const messageTitle = document.getElementById('message-title');
     const messageText = document.getElementById('message-text');
-
-    let isLogin = false;
 
     function showMessage(title, text) {
       messageTitle.textContent = title;
@@ -101,91 +89,51 @@
       messageBox.style.display = 'block';
     }
 
-    toggleLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      isLogin = !isLogin;
-      if (isLogin) {
-        formTitle.textContent = 'Masuk';
-        submitButton.textContent = 'Masuk';
-        toggleText.textContent = 'Belum punya akun?';
-        toggleLink.textContent = 'Daftar di sini';
-      } else {
-        formTitle.textContent = 'Daftar Akun';
-        submitButton.textContent = 'Daftar';
-        toggleText.textContent = 'Sudah punya akun?';
-        toggleLink.textContent = 'Masuk di sini';
-      }
-    });
-
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const username = usernameInput.value;
       const password = passwordInput.value;
 
-      if (isLogin) {
-        // Logika untuk masuk (login)
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('email')
-          .eq('username', username)
-          .single();
-          
-        if (profileError || !profileData) {
-          showMessage('Masuk Gagal', 'Nama pengguna atau kata sandi salah.');
-          return;
-        }
+      // KOREKSI: Langkah 1 - Cari email pengguna berdasarkan username di tabel 'profiles'
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('email') // Kita hanya butuh kolom email
+        .eq('username', username)
+        .single(); // .single() akan error jika username tidak ditemukan, ini bagus untuk validasi
 
-        const { error } = await supabase.auth.signInWithPassword({
-          email: profileData.email,
-          password: password,
-        });
+      // Jika username tidak ditemukan, tampilkan pesan error
+      if (profileError || !profileData) {
+        console.error('Error fetching profile:', profileError);
+        showMessage('Masuk Gagal', 'Nama pengguna atau kata sandi salah.');
+        return;
+      }
 
-        if (error) {
-          showMessage('Masuk Gagal', 'Nama pengguna atau kata sandi salah.');
-        } else {
-          showMessage('Masuk Berhasil!', 'Anda akan dialihkan ke halaman profil...');
-          setTimeout(() => {
-            window.location.href = '../profil/';
-          }, 1500);
-        }
+      // KOREKSI: Langkah 2 - Gunakan email yang ditemukan untuk proses login
+      const email = profileData.email;
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (error) {
+        // Jika password salah, tampilkan pesan error yang sama
+        console.error('Error signing in:', error);
+        showMessage('Masuk Gagal', 'Nama pengguna atau kata sandi salah.');
       } else {
-        // Logika untuk pendaftaran (signup)
-        const generatedEmail = `${username}@belajarngaji.co`;
-        const { data, error } = await supabase.auth.signUp({
-          email: generatedEmail,
-          password: password,
-        });
-
-        if (error) {
-          showMessage('Pendaftaran Gagal', error.message);
-        } else {
-          const newUser = data.user;
-          if (newUser) {
-            const { error: profileInsertError } = await supabase
-              .from('profiles')
-              .insert({ id: newUser.id, username: username, email: generatedEmail });
-
-            if (profileInsertError) {
-              showMessage('Pendaftaran Gagal', 'Terjadi kesalahan saat menyimpan nama pengguna. Silakan coba lagi.');
-              console.error('Error inserting profile:', profileInsertError.message);
-              // Catatan: Supabase tidak mendukung penghapusan user dari client-side.
-              // Jika ini adalah server, kita bisa menggunakan admin.deleteUser.
-            } else {
-              showMessage('Pendaftaran Berhasil!', 'Akun Anda berhasil dibuat. Anda akan dialihkan ke halaman profil.');
-              setTimeout(() => {
-                window.location.href = '../profil/';
-              }, 3000);
-            }
-          }
-        }
+        // Jika login berhasil
+        showMessage('Masuk Berhasil!', 'Anda akan dialihkan ke halaman profil...');
+        setTimeout(() => {
+          // Arahkan ke halaman profil utama
+          window.location.href = '../'; 
+        }, 1500);
       }
     });
 
-    // Cek apakah pengguna sudah login saat halaman dimuat
+    // Cek apakah pengguna sudah login saat halaman dimuat, jika ya, langsung arahkan
     document.addEventListener('DOMContentLoaded', async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        window.location.href = '../profil/';
+        window.location.href = '../'; // Arahkan ke halaman profil
       }
     });
   </script>
