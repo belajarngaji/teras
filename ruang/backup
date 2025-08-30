@@ -7,20 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            background-color: #111827;
-            color: #d1d5db;
-            font-family: 'Inter', sans-serif;
-        }
-        .kpi-card {
-            background-color: #1f2937;
-            border: 1px solid #374151;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-        .kpi-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
-        }
+        body { background-color: #111827; color: #d1d5db; font-family: 'Inter', sans-serif; }
+        .kpi-card { background-color: #1f2937; border: 1px solid #374151; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1); }
         @import url('https://rsms.me/inter/inter.css');
     </style>
 </head>
@@ -37,15 +26,8 @@
 
     <main class="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
         <div id="loading-state" class="text-center py-20">
-            <svg class="animate-spin h-8 w-8 text-blue-400 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
+            <svg class="animate-spin h-8 w-8 text-blue-400 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             <p class="mt-4 text-lg text-gray-400">Memuat data dari Supabase...</p>
-        </div>
-        <div id="error-state" class="hidden text-center py-20 bg-red-900/20 border border-red-500 rounded-lg">
-             <h2 class="mt-4 text-2xl font-bold text-red-300">Gagal Terhubung</h2>
-             <p class="mt-2 text-red-400">Pastikan URL dan Anon Key Supabase sudah benar.</p>
         </div>
         <div id="main-content" class="hidden">
             <section class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
@@ -58,7 +40,6 @@
                     <p id="quiz-attempts-today" class="text-3xl font-bold text-white mt-2">0</p>
                 </div>
             </section>
-
             <section class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
                 <div class="lg:col-span-3 bg-gray-800 border border-gray-700 rounded-lg p-6">
                     <h3 class="font-semibold text-white mb-4">🏆 Leaderboard - Top 10 Pengguna</h3>
@@ -82,23 +63,20 @@
                     </div>
                 </div>
             </section>
-
             <section>
                 <h3 class="text-xl font-semibold text-white mb-4">Aktivitas Terbaru</h3>
                 <div class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left text-gray-300">
-                            <thead class="text-xs text-gray-400 uppercase bg-gray-700/50">
-                                <tr>
-                                    <th scope="col" class="py-3 px-6">Pengguna</th>
-                                    <th scope="col" class="py-3 px-6">Nama Kuis</th>
-                                    <th scope="col" class="py-3 px-6">Skor</th>
-                                    <th scope="col" class="py-3 px-6">Waktu</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recent-activity-body"></tbody>
-                        </table>
-                    </div>
+                    <table class="w-full text-sm text-left text-gray-300">
+                        <thead class="text-xs text-gray-400 uppercase bg-gray-700/50">
+                            <tr>
+                                <th scope="col" class="py-3 px-6">Pengguna</th>
+                                <th scope="col" class="py-3 px-6">Nama Kuis</th>
+                                <th scope="col" class="py-3 px-6">Skor</th>
+                                <th scope="col" class="py-3 px-6">Waktu</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-activity-body"></tbody>
+                    </table>
                 </div>
             </section>
         </div>
@@ -116,8 +94,6 @@
             'kelas01_bab01_hijaiyah': 'Kuis Hijaiyah Bab 1',
         };
 
-        // --- FUNGSI-FUNGSI PENGAMBIL DATA ---
-
         async function fetchTotalUsers() {
             const { count, error } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
             if (error) console.error('Error fetching total users:', error.message);
@@ -132,13 +108,8 @@
             return count || 0;
         }
 
-        // REVISI: Fungsi baru untuk mengambil data leaderboard
         async function fetchLeaderboardData() {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('username, total_score')
-                .order('total_score', { ascending: false })
-                .limit(10);
+            const { data, error } = await supabase.from('leaderboard').select('rank, username, total_score').limit(10);
             if (error) console.error('Error fetching leaderboard:', error.message);
             return data || [];
         }
@@ -158,29 +129,24 @@
             return { labels: sortedQuizzes.map(item => item[0]), data: sortedQuizzes.map(item => item[1]) };
         }
 
+        // --- REVISI KUNCI: MENGAMBIL DATA DARI VIEW 'latest_activity' ---
         async function fetchRecentActivities() {
             const { data, error } = await supabase
-                .from('quiz_attempts')
-                .select(`submitted_at, score, quiz_id, profiles ( username ) `)
-                .order('submitted_at', { ascending: false })
-                .limit(5);
+                .from('latest_activity') // Mengambil dari VIEW, bukan 'quiz_attempts'
+                .select('*')
+                .limit(5); // Batasi 5 aktivitas teratas
             if(error) console.error('Error fetching recent activities:', error.message);
             return data || [];
         }
 
-        function createChart(ctx, type, labels, data, label, backgroundColor, borderColor) {
-             new Chart(ctx, { type, data: { labels, datasets: [{ label, data, backgroundColor, borderColor, borderWidth: type === 'doughnut' ? 0 : 1, tension: 0.1 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { display: type !== 'doughnut', beginAtZero: true, ticks: { color: '#9ca3af' }, grid: { color: '#374151' } }, x: { display: type !== 'doughnut', ticks: { color: '#9ca3af' }, grid: { color: '#374151' } } }, plugins: { legend: { labels: { color: '#d1d5db' } } } } });
+        function createChart(ctx, type, labels, data, label, backgroundColor) {
+             new Chart(ctx, { type, data: { labels, datasets: [{ label, data, backgroundColor, borderWidth: type === 'doughnut' ? 0 : 1, tension: 0.1 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { display: type !== 'doughnut', beginAtZero: true, ticks: { color: '#9ca3af' }, grid: { color: '#374151' } }, x: { display: type !== 'doughnut', ticks: { color: '#9ca3af' }, grid: { color: '#374151' } } }, plugins: { legend: { labels: { color: '#d1d5db' } } } } });
         }
 
-        // --- INISIALISASI HALAMAN ---
         document.addEventListener('DOMContentLoaded', async () => {
-            if (!supabase) {
-                document.getElementById('loading-state').classList.add('hidden');
-                document.getElementById('error-state').classList.remove('hidden');
-                return;
-            }
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
 
-            // REVISI: Promise.all disesuaikan dengan fungsi baru
             const [
                 totalUsers, attemptsToday,
                 leaderboardData, popularQuizData, recentActivities
@@ -189,45 +155,35 @@
                 fetchLeaderboardData(), fetchPopularQuizzes(), fetchRecentActivities()
             ]);
 
-            // Update KPI Cards
             document.getElementById('total-users').textContent = totalUsers;
             document.getElementById('quiz-attempts-today').textContent = attemptsToday;
 
-            // Render Leaderboard Table
             const leaderboardTable = document.getElementById('leaderboard-body');
-            if (leaderboardData.length > 0) {
-                leaderboardTable.innerHTML = leaderboardData.map((user, index) => `
+            leaderboardTable.innerHTML = leaderboardData.length > 0
+                ? leaderboardData.map(user => `
                     <tr class="border-b border-gray-700 hover:bg-gray-700/50">
-                        <td class="py-3 px-6 font-medium">${index + 1}</td>
+                        <td class="py-3 px-6 font-medium">${user.rank}</td>
                         <td class="py-3 px-6">${user.username}</td>
-                        <td class="py-3 px-6 text-lg font-bold text-amber-400">${user.total_score}</td>
+                        <td class="py-3 px-6 text-lg font-bold text-amber-400">${user.total_score || 0}</td>
                     </tr>
-                `).join('');
-            } else {
-                leaderboardTable.innerHTML = `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
-            }
+                `).join('')
+                : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
 
-            // Render Chart Kuis Populer
             const quizCtx = document.getElementById('popular-quizzes-chart').getContext('2d');
-            createChart(quizCtx, 'doughnut', popularQuizData.labels, popularQuizData.data, 'Pengerjaan', ['#10b981', '#3b82f6', '#ef4444', '#f97316', '#8b5cf6'], '#1f2937');
+            createChart(quizCtx, 'doughnut', popularQuizData.labels, popularQuizData.data, 'Pengerjaan', ['#10b981', '#3b82f6', '#ef4444', '#f97316', '#8b5cf6']);
 
-            // Render Tabel Aktivitas Terbaru
+            // --- REVISI KUNCI: MENAMPILKAN DATA DARI VIEW 'latest_activity' ---
             const activityTable = document.getElementById('recent-activity-body');
-            if (recentActivities.length > 0) {
-                 activityTable.innerHTML = recentActivities.map(act => `
+            activityTable.innerHTML = recentActivities.length > 0
+                ? recentActivities.map(act => `
                     <tr class="border-b border-gray-700 hover:bg-gray-700/50">
-                        <td class="py-4 px-6">${act.profiles?.username || 'Tanpa Nama'}</td>
+                        <td class="py-4 px-6">${act.username || 'Tanpa Nama'}</td>
                         <td class="py-4 px-6 capitalize">${quizNameMap[act.quiz_id] || act.quiz_id}</td>
                         <td class="py-4 px-6 font-medium text-emerald-400">${act.score}</td>
                         <td class="py-4 px-6 text-sm text-gray-400">${new Date(act.submitted_at).toLocaleString('id-ID')}</td>
                     </tr>
-                `).join('');
-            } else {
-                 activityTable.innerHTML = `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
-            }
-
-            document.getElementById('loading-state').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
+                `).join('')
+                : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
         });
     </script>
 </body>
