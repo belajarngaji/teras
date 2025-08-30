@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Altar | Belajar Ngaji</title>
+  <meta name="description" content="Jelajahi semua fitur seru Terminal Gabut seperti Puisi, Chat AI, Spin Wheel, Quiz, dan lainnya.">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; transition: background 0.3s, color 0.3s; }
+    .dark-mode { background: #1e293b; color: #f1f5f9; }
+    .card {
+      transition: transform 0.3s;
+      cursor: pointer;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .loading-spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-left-color: #3b82f6;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- NAVBAR -->
+  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+    <!-- Brand / Logo -->
+    <div>
+      <a href=".">
+        <img src="..png" alt="Belajar Ngaji" class="h-7 w-auto">
+      </a>
+    </div>
+    <!-- Tombol Profil -->
+    <a href="../profil/" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
+      👤
+    </a>
+  </nav>
+
+  <!-- Grid Fitur -->
+  <div class="container mx-auto px-4 py-10 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+
+    <!-- LEADERBOARD -->
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition col-span-1 md:col-span-2 lg:col-span-3">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">Papan Peringkat</h2>
+      <div id="leaderboard-loading" class="flex justify-center py-4">
+        <div class="loading-spinner"></div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peringkat</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Pengguna</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Skor</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body" class="bg-white divide-y divide-gray-200">
+            <!-- Data leaderboard akan dimuat di sini oleh JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- KELAS 1 -->
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Kelas 1</h2>
+      <a href="1/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Masuk</a>
+    </div>
+
+    <!-- KELAS 2 -->
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Kelas 2</h2>
+      <a href="2/bab/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Masuk</a>
+    </div>
+
+    <!-- KELAS 3 -->
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Kelas 3</h2>
+      <a href="3/bab/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Masuk</a>
+    </div>
+
+    <!-- KELAS 4 -->
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Kelas 4</h2>
+      <a href="4/bab/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Masuk</a>
+    </div>
+
+    <!-- SUPER QUIZ -->
+    <div class="card bg-yellow-400 text-yellow-900 rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">SUPER QUIZ</h2>
+      <a href="superquiz/" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700">Masuk</a>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 text-center py-6">
+    <p>© 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, onSnapshot, collection, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    let db, auth;
+
+    // Inisialisasi Firebase
+    async function initializeFirebase() {
+      try {
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const app = initializeApp(firebaseConfig, 'web-app');
+        db = getFirestore(app);
+        auth = getAuth(app);
+
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            // Jika pengguna terautentikasi, mulai mendengarkan leaderboard
+            listenToLeaderboard();
+          } else {
+            // Jika tidak, lakukan otentikasi
+            const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+            if (token) {
+              await signInWithCustomToken(auth, token);
+            } else {
+              await signInAnonymously(auth);
+            }
+          }
+        });
+      } catch (e) {
+        console.error("Error initializing Firebase:", e);
+        document.getElementById('leaderboard-loading').innerHTML = '<p class="text-red-500">Gagal memuat papan peringkat.</p>';
+      }
+    }
+
+    // Mendengarkan perubahan real-time pada leaderboard
+    function listenToLeaderboard() {
+      const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+      const userProfilesCollection = collection(db, `artifacts/${appId}/public/data/user_profiles`);
+      const q = query(userProfilesCollection);
+
+      onSnapshot(q, (querySnapshot) => {
+        const users = [];
+        querySnapshot.forEach((doc) => {
+          users.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Urutkan dan ambil 10 pengguna teratas
+        const sortedUsers = users.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0)).slice(0, 10);
+        renderLeaderboard(sortedUsers);
+      });
+    }
+
+    // Merender data leaderboard ke dalam tabel HTML
+    function renderLeaderboard(users) {
+      document.getElementById('leaderboard-loading').classList.add('hidden');
+      const leaderboardBody = document.getElementById('leaderboard-body');
+      leaderboardBody.innerHTML = '';
+
+      if (users.length === 0) {
+        leaderboardBody.innerHTML = '<tr><td colspan="3" class="py-4 text-center text-gray-500">Belum ada skor yang tercatat.</td></tr>';
+        return;
+      }
+
+      users.forEach((user, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">${user.id}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.totalScore || 0}</td>
+        `;
+        leaderboardBody.appendChild(row);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeFirebase);
+  </script>
+</body>
+</html>
