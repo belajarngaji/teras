@@ -56,7 +56,7 @@
           <thead class="bg-gray-50">
             <tr>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peringkat</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Pengguna</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Pengguna</th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Skor</th>
             </tr>
           </thead>
@@ -101,15 +101,16 @@
   <script type="module">
     // --- KONEKSI SUPABASE ---
     const { createClient } = supabase;
-    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co"; // Ganti dengan URL proyek Supabase-mu
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; // Ganti dengan Anon Key proyek Supabase-mu
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // --- FUNGSI LEADERBOARD ---
     async function getLeaderboardData() {
+      // Mengambil data dari tabel `quiz_attempts` dan `profiles`
       const { data, error } = await supabaseClient
         .from('quiz_attempts')
-        .select('user_id, score')
+        .select('score, user_id, profiles(username)')
         .order('score', { ascending: false });
 
       if (error) {
@@ -117,22 +118,25 @@
         return null;
       }
       
+      // Mengolah data untuk mendapatkan total skor per pengguna
       const userScores = {};
       data.forEach(attempt => {
+          const username = attempt.profiles ? attempt.profiles.username : 'Pengguna Anonim';
           if (!userScores[attempt.user_id]) {
-              userScores[attempt.user_id] = 0;
+              userScores[attempt.user_id] = { username: username, total_score: 0 };
           }
-          userScores[attempt.user_id] += attempt.score;
+          userScores[attempt.user_id].total_score += attempt.score;
       });
 
-      const sortedUsers = Object.keys(userScores)
-        .map(user_id => ({ user_id, total_score: userScores[user_id] }))
+      // Mengubah objek menjadi array dan mengurutkan berdasarkan total skor
+      const sortedUsers = Object.values(userScores)
         .sort((a, b) => b.total_score - a.total_score)
-        .slice(0, 10); 
+        .slice(0, 10); // Ambil 10 data teratas
 
       return sortedUsers;
     }
 
+    // Fungsi untuk merender data ke dalam tabel HTML
     function renderLeaderboard(users) {
       document.getElementById('leaderboard-loading').classList.add('hidden');
       const leaderboardBody = document.getElementById('leaderboard-body');
@@ -146,19 +150,21 @@
       users.forEach((user, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">${index + 1}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 font-mono">${user.user_id}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${user.total_score || 0}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">${user.username}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.total_score || 0}</td>
         `;
         leaderboardBody.appendChild(row);
       });
     }
 
+    // Fungsi utama untuk mengambil dan menampilkan data saat halaman dimuat
     async function fetchAndRenderLeaderboard() {
       const leaderboardData = await getLeaderboardData();
       renderLeaderboard(leaderboardData);
     }
 
+    // Jalankan fungsi utama saat konten DOM sudah dimuat
     document.addEventListener('DOMContentLoaded', fetchAndRenderLeaderboard);
   </script>
 </body>
