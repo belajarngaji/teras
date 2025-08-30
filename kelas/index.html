@@ -107,33 +107,20 @@
 
     // --- FUNGSI LEADERBOARD ---
     async function getLeaderboardData() {
-      // Mengambil data dari tabel `quiz_attempts` dan `profiles`
+      // Mengambil data dari tabel `user_profiles`
+      // Asumsi: Tabel 'user_profiles' memiliki kolom 'username' dan 'total_score'
       const { data, error } = await supabaseClient
-        .from('quiz_attempts')
-        .select('score, user_id, profiles(username)')
-        .order('score', { ascending: false });
+        .from('user_profiles')
+        .select('username, total_score')
+        .order('total_score', { ascending: false })
+        .limit(10); // Ambil 10 data teratas
 
       if (error) {
         console.error('Error fetching leaderboard data:', error.message);
         return null;
       }
       
-      // Mengolah data untuk mendapatkan total skor per pengguna
-      const userScores = {};
-      data.forEach(attempt => {
-          const username = attempt.profiles ? attempt.profiles.username : 'Pengguna Anonim';
-          if (!userScores[attempt.user_id]) {
-              userScores[attempt.user_id] = { username: username, total_score: 0 };
-          }
-          userScores[attempt.user_id].total_score += attempt.score;
-      });
-
-      // Mengubah objek menjadi array dan mengurutkan berdasarkan total skor
-      const sortedUsers = Object.values(userScores)
-        .sort((a, b) => b.total_score - a.total_score)
-        .slice(0, 10); // Ambil 10 data teratas
-
-      return sortedUsers;
+      return data;
     }
 
     // Fungsi untuk merender data ke dalam tabel HTML
