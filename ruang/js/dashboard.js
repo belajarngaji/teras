@@ -4,12 +4,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const mainContent = document.getElementById("main-content");
 
   try {
-    // Ambil data pengguna
+    // Total Pengguna
     const { data: users, error: userError } = await supabase.from("profiles").select("*");
     if (userError) throw userError;
     document.getElementById("total-users").textContent = users.length;
 
-    // Ambil kuis hari ini
+    // Kuis Hari Ini
     const today = new Date().toISOString().split("T")[0];
     const { data: attempts, error: attemptsError } = await supabase
       .from("quiz_attempts")
@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (attemptsError) throw attemptsError;
     document.getElementById("quiz-attempts-today").textContent = attempts.length;
 
-    // Leaderboard (contoh hanya limit 10)
+    // Leaderboard
     const { data: leaderboard, error: lbError } = await supabase
       .from("quiz_attempts")
       .select("user_id, score")
@@ -37,7 +37,56 @@ document.addEventListener("DOMContentLoaded", async () => {
       leaderboardBody.appendChild(tr);
     });
 
-    // Tampilkan konten
+    // Popular Quizzes Chart
+    const { data: popularQuizzes, error: pqError } = await supabase
+      .from("quiz_attempts")
+      .select("quiz_name");
+    if (pqError) throw pqError;
+
+    const quizCounts = {};
+    popularQuizzes.forEach(q => {
+      quizCounts[q.quiz_name] = (quizCounts[q.quiz_name] || 0) + 1;
+    });
+
+    const ctx = document.getElementById("popular-quizzes-chart").getContext("2d");
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: Object.keys(quizCounts),
+        datasets: [{
+          label: "Jumlah Percobaan",
+          data: Object.values(quizCounts),
+          backgroundColor: "rgba(75, 192, 192, 0.7)"
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+
+    // Recent Activity
+    const { data: recent, error: recentError } = await supabase
+      .from("quiz_attempts")
+      .select("user_id, quiz_name, score, created_at")
+      .order("created_at", { ascending: false })
+      .limit(10);
+    if (recentError) throw recentError;
+
+    const recentBody = document.getElementById("recent-activity-body");
+    recent.forEach(item => {
+      const tr = document.createElement("tr");
+      const waktu = new Date(item.created_at).toLocaleString("id-ID");
+      tr.innerHTML = `
+        <td class="py-2 px-6">${item.user_id}</td>
+        <td class="py-2 px-6">${item.quiz_name}</td>
+        <td class="py-2 px-6">${item.score}</td>
+        <td class="py-2 px-6">${waktu}</td>
+      `;
+      recentBody.appendChild(tr);
+    });
+
     loadingState.classList.add("hidden");
     mainContent.classList.remove("hidden");
   } catch (err) {
