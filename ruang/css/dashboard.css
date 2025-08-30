@@ -1,0 +1,19 @@
+body {
+  background-color: #111827;
+  color: #d1d5db;
+  font-family: 'Inter', sans-serif;
+}
+
+.kpi-card {
+  background-color: #1f2937;
+  border: 1px solid #374151;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.kpi-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2),
+    0 4px 6px -2px rgba(0, 0, 0, 0.1);
+}
+
+@import url('https://rsms.me/inter/inter.css');
