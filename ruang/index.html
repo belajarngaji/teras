@@ -109,15 +109,15 @@
 
         const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
-        
+
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
+
         const quizNameMap = {
             'kelas01_bab01_hijaiyah': 'Kuis Hijaiyah Bab 1',
         };
 
         // --- FUNGSI-FUNGSI PENGAMBIL DATA ---
-        
+
         async function fetchTotalUsers() {
             const { count, error } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
             if (error) console.error('Error fetching total users:', error.message);
@@ -131,16 +131,32 @@
             if (error) console.error('Error fetching quiz attempts:', error.message);
             return count || 0;
         }
-        
-        // REVISI: Fungsi baru untuk mengambil data leaderboard
+
+        // FUNGSI LEADERBOARD YANG TELAH DIPERBAIKI
         async function fetchLeaderboardData() {
             const { data, error } = await supabase
-                .from('profiles')
-                .select('username, total_score')
-                .order('total_score', { ascending: false })
-                .limit(10);
-            if (error) console.error('Error fetching leaderboard:', error.message);
-            return data || [];
+                .from('quiz_attempts')
+                .select(`user_id, score, profiles(username)`);
+            
+            if (error) {
+                console.error('Error fetching leaderboard data:', error.message);
+                return [];
+            }
+
+            const userScores = {};
+            data.forEach(attempt => {
+                const username = attempt.profiles ? attempt.profiles.username : 'Anonim';
+                if (!userScores[attempt.user_id]) {
+                    userScores[attempt.user_id] = { username, total_score: 0 };
+                }
+                userScores[attempt.user_id].total_score += attempt.score;
+            });
+
+            const sortedUsers = Object.values(userScores)
+                .sort((a, b) => b.total_score - a.total_score)
+                .slice(0, 10);
+
+            return sortedUsers;
         }
 
         async function fetchPopularQuizzes() {
@@ -179,8 +195,7 @@
                 document.getElementById('error-state').classList.remove('hidden');
                 return;
             }
-            
-            // REVISI: Promise.all disesuaikan dengan fungsi baru
+
             const [
                 totalUsers, attemptsToday,
                 leaderboardData, popularQuizData, recentActivities
@@ -210,7 +225,7 @@
             // Render Chart Kuis Populer
             const quizCtx = document.getElementById('popular-quizzes-chart').getContext('2d');
             createChart(quizCtx, 'doughnut', popularQuizData.labels, popularQuizData.data, 'Pengerjaan', ['#10b981', '#3b82f6', '#ef4444', '#f97316', '#8b5cf6'], '#1f2937');
-            
+
             // Render Tabel Aktivitas Terbaru
             const activityTable = document.getElementById('recent-activity-body');
             if (recentActivities.length > 0) {
