@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard kuis</title>
+    <title>Dashboard Admin Kuis</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -15,11 +15,11 @@
 </head>
 <body class="antialiased">
 
-    <header class="bg-red-800 shadow-md p-4 sticky top-0 z-10">
+    <header class="bg-gray-800 shadow-md p-4 sticky top-0 z-10">
         <div class="max-w-7xl mx-auto">
             <h1 class="text-2xl font-bold text-white flex items-center gap-3">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-300"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                Dashboard
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20V16"/></svg>
+                Dashboard Admin Kuis
             </h1>
         </div>
     </header>
@@ -31,10 +31,10 @@
         </div>
         <div id="main-content" class="hidden">
             <section class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-                <div class="kpi-card rounded-lg p-6">
+                <a href="users/" class="kpi-card rounded-lg p-6 block">
                     <h3 class="text-sm font-medium text-gray-400">Total Pengguna</h3>
                     <p id="total-users" class="text-3xl font-bold text-white mt-2">0</p>
-                </div>
+                </a>
                 <div class="kpi-card rounded-lg p-6">
                     <h3 class="text-sm font-medium text-gray-400">Kuis Dikerjakan Hari Ini</h3>
                     <p id="quiz-attempts-today" class="text-3xl font-bold text-white mt-2">0</p>
@@ -43,17 +43,40 @@
             <section class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
                 <div class="lg:col-span-3 bg-gray-800 border border-gray-700 rounded-lg p-6">
                     <h3 class="font-semibold text-white mb-4">🏆 Leaderboard - Top 10 Pengguna</h3>
-                    <table class="w-full text-sm text-left text-gray-300"><thead class="text-xs text-gray-400 uppercase bg-gray-700/50"><tr><th scope="col" class="py-3 px-6">Peringkat</th><th scope="col" class="py-3 px-6">Pengguna</th><th scope="col" class="py-3 px-6">Total Skor</th></tr></thead><tbody id="leaderboard-body"></tbody></table>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-300">
+                            <thead class="text-xs text-gray-400 uppercase bg-gray-700/50">
+                                <tr>
+                                    <th scope="col" class="py-3 px-6">Peringkat</th>
+                                    <th scope="col" class="py-3 px-6">Pengguna</th>
+                                    <th scope="col" class="py-3 px-6">Total Skor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-body"></tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="lg:col-span-2 bg-gray-800 border border-gray-700 rounded-lg p-6 h-96">
                     <h3 class="font-semibold text-white mb-4">Kuis Terpopuler</h3>
-                    <div class="relative h-full w-full flex items-center justify-center"><canvas id="popular-quizzes-chart"></canvas></div>
+                    <div class="relative h-full w-full flex items-center justify-center">
+                        <canvas id="popular-quizzes-chart"></canvas>
+                    </div>
                 </div>
             </section>
             <section>
                 <h3 class="text-xl font-semibold text-white mb-4">Aktivitas Terbaru</h3>
                 <div class="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
-                    <table class="w-full text-sm text-left text-gray-300"><thead class="text-xs text-gray-400 uppercase bg-gray-700/50"><tr><th scope="col" class="py-3 px-6">Pengguna</th><th scope="col" class="py-3 px-6">Nama Kuis</th><th scope="col" class="py-3 px-6">Skor</th><th scope="col" class="py-3 px-6">Waktu</th></tr></thead><tbody id="recent-activity-body"></tbody></table>
+                    <table class="w-full text-sm text-left text-gray-300">
+                        <thead class="text-xs text-gray-400 uppercase bg-gray-700/50">
+                            <tr>
+                                <th scope="col" class="py-3 px-6">Pengguna</th>
+                                <th scope="col" class="py-3 px-6">Nama Kuis</th>
+                                <th scope="col" class="py-3 px-6">Skor</th>
+                                <th scope="col" class="py-3 px-6">Waktu</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-activity-body"></tbody>
+                    </table>
                 </div>
             </section>
         </div>
@@ -62,17 +85,11 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-        // --- KONFIGURASI SUPABASE ---
         const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co"; 
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
 
-        // --- PERINGATAN KERAS: JANGAN PERNAH GUNAKAN KUNCI INI DI WEBSITE PUBLIK! ---
-        // Ini adalah kunci super admin yang mengabaikan semua RLS.
-        // Hanya untuk eksperimen di komputer lokal Anda.
-        const SUPABASE_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
-        
-        // --- Inisialisasi Supabase Client dengan Kunci Admin ---
-        const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
-        
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         const quizNameMap = {
             'kelas01_bab01_hijaiyah': 'Kuis Hijaiyah Bab 1',
         };
@@ -90,14 +107,9 @@
             if (error) console.error('Error fetching quiz attempts:', error.message);
             return count || 0;
         }
-
+        
         async function fetchLeaderboardData() {
-            // Karena kita pakai service key, query ini akan berhasil tanpa perlu RLS baca publik
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('username, total_score')
-                .order('total_score', { ascending: false })
-                .limit(10);
+            const { data, error } = await supabase.from('leaderboard').select('rank, username, total_score').limit(10);
             if (error) console.error('Error fetching leaderboard:', error.message);
             return data || [];
         }
@@ -117,26 +129,24 @@
             return { labels: sortedQuizzes.map(item => item[0]), data: sortedQuizzes.map(item => item[1]) };
         }
 
+        // --- REVISI KUNCI: MENGAMBIL DATA DARI VIEW 'latest_activity' ---
         async function fetchRecentActivities() {
             const { data, error } = await supabase
-                .from('quiz_attempts')
-                .select(`submitted_at, score, quiz_id, profiles ( username ) `)
-                .order('submitted_at', { ascending: false })
-                .limit(5);
+                .from('latest_activity') // Mengambil dari VIEW, bukan 'quiz_attempts'
+                .select('*')
+                .limit(5); // Batasi 5 aktivitas teratas
             if(error) console.error('Error fetching recent activities:', error.message);
             return data || [];
         }
 
         function createChart(ctx, type, labels, data, label, backgroundColor) {
-             new Chart(ctx, { type, data: { labels, datasets: [{ label, data, backgroundColor, borderWidth: type === 'doughnut' ? 0 : 1, tension: 0.1 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { display: type !== 'doughnut', beginAtZero: true, ticks: { color: '#9ca3af' }, grid: { color: '#374151' } }, x: { display: type !== 'doughuenut', ticks: { color: '#9ca3af' }, grid: { color: '#374151' } } }, plugins: { legend: { labels: { color: '#d1d5db' } } } } });
+             new Chart(ctx, { type, data: { labels, datasets: [{ label, data, backgroundColor, borderWidth: type === 'doughnut' ? 0 : 1, tension: 0.1 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { display: type !== 'doughnut', beginAtZero: true, ticks: { color: '#9ca3af' }, grid: { color: '#374151' } }, x: { display: type !== 'doughnut', ticks: { color: '#9ca3af' }, grid: { color: '#374151' } } }, plugins: { legend: { labels: { color: '#d1d5db' } } } } });
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            if (!supabase || SUPABASE_SERVICE_KEY === "GANTI_DENGAN_SERVICE_ROLE_KEY_ANDA") {
-                document.getElementById('loading-state').textContent = "Error: Service Role Key belum dimasukkan.";
-                return;
-            }
-            
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+
             const [
                 totalUsers, attemptsToday,
                 leaderboardData, popularQuizData, recentActivities
@@ -144,27 +154,36 @@
                 fetchTotalUsers(), fetchQuizAttemptsToday(),
                 fetchLeaderboardData(), fetchPopularQuizzes(), fetchRecentActivities()
             ]);
-            
-            // ... (sisa kode untuk render data sama persis) ...
+
             document.getElementById('total-users').textContent = totalUsers;
             document.getElementById('quiz-attempts-today').textContent = attemptsToday;
+
             const leaderboardTable = document.getElementById('leaderboard-body');
-            if (leaderboardData.length > 0) {
-                leaderboardTable.innerHTML = leaderboardData.map((user, index) => `<tr class="border-b border-gray-700 hover:bg-gray-700/50"><td class="py-3 px-6 font-medium">${index + 1}</td><td class="py-3 px-6">${user.username}</td><td class="py-3 px-6 text-lg font-bold text-amber-400">${user.total_score}</td></tr>`).join('');
-            } else {
-                leaderboardTable.innerHTML = `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
-            }
+            leaderboardTable.innerHTML = leaderboardData.length > 0
+                ? leaderboardData.map(user => `
+                    <tr class="border-b border-gray-700 hover:bg-gray-700/50">
+                        <td class="py-3 px-6 font-medium">${user.rank}</td>
+                        <td class="py-3 px-6">${user.username}</td>
+                        <td class="py-3 px-6 text-lg font-bold text-amber-400">${user.total_score || 0}</td>
+                    </tr>
+                `).join('')
+                : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
+
             const quizCtx = document.getElementById('popular-quizzes-chart').getContext('2d');
             createChart(quizCtx, 'doughnut', popularQuizData.labels, popularQuizData.data, 'Pengerjaan', ['#10b981', '#3b82f6', '#ef4444', '#f97316', '#8b5cf6']);
-            const activityTable = document.getElementById('recent-activity-body');
-            if (recentActivities.length > 0) {
-                 activityTable.innerHTML = recentActivities.map(act => `<tr class="border-b border-gray-700 hover:bg-gray-700/50"><td class="py-4 px-6">${act.profiles?.username || 'Tanpa Nama'}</td><td class="py-4 px-6 capitalize">${quizNameMap[act.quiz_id] || act.quiz_id}</td><td class="py-4 px-6 font-medium text-emerald-400">${act.score}</td><td class="py-4 px-6 text-sm text-gray-400">${new Date(act.submitted_at).toLocaleString('id-ID')}</td></tr>`).join('');
-            } else {
-                 activityTable.innerHTML = `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
-            }
             
-            document.getElementById('loading-state').classList.add('hidden');
-            document.getElementById('main-content').classList.remove('hidden');
+            // --- REVISI KUNCI: MENAMPILKAN DATA DARI VIEW 'latest_activity' ---
+            const activityTable = document.getElementById('recent-activity-body');
+            activityTable.innerHTML = recentActivities.length > 0
+                ? recentActivities.map(act => `
+                    <tr class="border-b border-gray-700 hover:bg-gray-700/50">
+                        <td class="py-4 px-6">${act.username || 'Tanpa Nama'}</td>
+                        <td class="py-4 px-6 capitalize">${quizNameMap[act.quiz_id] || act.quiz_id}</td>
+                        <td class="py-4 px-6 font-medium text-emerald-400">${act.score}</td>
+                        <td class="py-4 px-6 text-sm text-gray-400">${new Date(act.submitted_at).toLocaleString('id-ID')}</td>
+                    </tr>
+                `).join('')
+                : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
         });
     </script>
 </body>
