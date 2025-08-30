@@ -1,22 +1,23 @@
 async function loadDashboard() {
+  const loadingState = document.getElementById('loading-state');
+  const errorState = document.getElementById('error-state');
+  const mainContent = document.getElementById('main-content');
+
   try {
-    // Ambil total pengguna dari tabel profiles
-    const { data: profiles, error } = await window.supabase
-      .from("profiles")
-      .select("*");
+    let { data: profiles, error } = await supabase.from('profiles').select('*');
 
     if (error) throw error;
 
-    document.getElementById("total-users").textContent = profiles.length;
+    document.getElementById('total-users').textContent = profiles.length;
 
-    document.getElementById("loading-state").classList.add("hidden");
-    document.getElementById("main-content").classList.remove("hidden");
+    loadingState.classList.add('hidden');
+    errorState.classList.add('hidden');
+    mainContent.classList.remove('hidden');
 
   } catch (err) {
-    console.error("Gagal memuat dashboard:", err.message);
-    document.getElementById("loading-state").classList.add("hidden");
-    document.getElementById("error-state").classList.remove("hidden");
-    document.getElementById("error-state").textContent = "Gagal memuat data";
+    loadingState.classList.add('hidden');
+    errorState.classList.remove('hidden');
+    errorState.innerText = "Error: " + err.message; // Tampilkan di layar
   }
 }
 
