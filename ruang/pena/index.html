@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Pena</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    .wrong {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .correct {
+      background-color: #d4edda;
+      color: #155724;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+</head>
+<body>
+
+  <h1>Dashboard Pena</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Soal</th>
+        <th>Jawaban User</th>
+        <th>Jawaban Benar</th>
+        <th>Status</th>
+        <th>Skor</th>
+        <th>Waktu Pengerjaan</th>
+        <th>Tanggal Submit</th>
+      </tr>
+    </thead>
+    <tbody id="quiz-table-body">
+      <!-- Data akan dimasukkan di sini -->
+    </tbody>
+  </table>
+
+  <script>
+    // Ganti dengan URL dan Key Supabase proyekmu
+    const supabaseUrl = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function loadQuizData() {
+      // Ambil data dari tabel dashboard_quiz_attempts
+      const { data, error } = await supabase
+        .from('dashboard_quiz_attempts')
+        .select(`
+          score,
+          is_correct,
+          time_taken,
+          submitted_at,
+          selected_answer,
+          quiz_question_id,
+          user:profiles(username),
+          question:dashboard_quiz_questions(question_text, correct_answer)
+        `)
+        .order('submitted_at', { ascending: false });
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      const tbody = document.getElementById("quiz-table-body");
+      tbody.innerHTML = ""; // kosongkan dulu
+
+      data.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.className = item.is_correct ? "correct" : "wrong";
+
+        tr.innerHTML = `
+          <td>${item.user.username}</td>
+          <td>${item.question.question_text}</td>
+          <td>${item.selected_answer}</td>
+          <td>${item.question.correct_answer}</td>
+          <td>${item.is_correct ? "Benar" : "Salah"}</td>
+          <td>${item.score}</td>
+          <td>${item.time_taken}</td>
+          <td>${new Date(item.submitted_at).toLocaleString()}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Load data saat halaman dibuka
+    loadQuizData();
+  </script>
+
+</body>
+</html>
