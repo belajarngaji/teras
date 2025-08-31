@@ -8,13 +8,90 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @import url('https://rsms.me/inter/inter.css');
-    body { font-family: 'Inter', sans-serif; background-color: #f0f8ff; color: #1f2937; } /* biru-putih soft */
-    .kpi-card { background-color: #ffffff; border: 1px solid #e2e8f0; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
-    .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 6px 10px rgba(0,0,0,0.1); }
-    .sidebar a { transition: all 0.2s; color: #1e3a8a; } /* biru gelap */
-    .sidebar a:hover { color: #2563eb; font-weight: 600; }
-    .correct { background-color: #d1fae5; } /* hijau soft */
-    .wrong { background-color: #fee2e2; }   /* merah soft */
+
+/* Font & body dasar */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f0f8ff; /* biru-putih soft */
+  color: #1f2937;
+  margin: 0;
+  overflow-x: hidden; /* cegah geser horizontal di mobile */
+}
+
+/* Kartu KPI */
+.kpi-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.1);
+}
+
+/* Sidebar */
+.sidebar {
+  background-color: #ffffff;
+  border-right: 1px solid #e2e8f0;
+}
+.sidebar a {
+  display: block;
+  color: #1e3a8a; /* biru gelap */
+  transition: all 0.2s;
+  padding: 0.5rem 0;
+}
+.sidebar a:hover {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+/* Status jawaban */
+.correct { background-color: #d1fae5; } /* hijau soft */
+.wrong { background-color: #fee2e2; }   /* merah soft */
+
+/* Table aktivitas terbaru scroll horizontal */
+.overflow-x-auto {
+  overflow-x: auto;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 600px; /* cukup besar agar bisa scroll horizontal */
+}
+
+/* Responsive canvas chart */
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Pastikan elemen tidak melebar melebihi viewport */
+*, *::before, *::after {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* Header sticky */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Sidebar overlay untuk mobile */
+#overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0,0,0,0.3);
+  display: none;
+  z-index: 20;
+}
+
+/* Flex container wrap untuk mobile */
+.flex-container {
+  flex-wrap: wrap;
+}
   </style>
 </head>
 <body class="antialiased flex">
@@ -46,7 +123,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
         </button>
-        <h1 class="text-2xl font-bold text-blue-600">Dashboard</h1>
+        <h1 class="text-2xl font-bold text-blue-600">Dashboard Belajar Ngaji</h1>
       </div>
     </header>
 
