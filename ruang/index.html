@@ -241,8 +241,11 @@ header {
     }
 
     async function fetchRecentActivities() {
-      const { data } = await supabase.from('latest_activity').select('*').limit(5);
-      return data || [];
+  const { data } = await supabase
+    .from('latest_activity')
+    .select('*')
+    .order('submitted_at', { ascending: false });
+  return data || [];
     }
 
     function createChart(ctx, type, labels, data, label, backgroundColor) {
