@@ -135,92 +135,104 @@
   </div>
 
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
+  const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Sidebar toggle
-    const toggleBtn = document.getElementById('sidebar-toggle');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
+  // Sidebar toggle
+  const toggleBtn = document.getElementById('sidebar-toggle');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
 
-    toggleBtn.addEventListener('click', () => {
+  toggleBtn?.addEventListener('click', () => {
     sidebar.classList.toggle('-translate-x-full');
     overlay.classList.toggle('hidden');
-});
+  });
 
-    overlay.addEventListener('click', () => {
+  overlay?.addEventListener('click', () => {
     sidebar.classList.add('-translate-x-full');
     overlay.classList.add('hidden');
-});
+  });
 
-    // Submit soal baru
-const quizForm = document.getElementById('quiz-form');
-quizForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const question_text = document.getElementById('question_text').value;
-  const options = {
-    A: document.getElementById('optionA').value,
-    B: document.getElementById('optionB').value,
-    C: document.getElementById('optionC').value,
-    D: document.getElementById('optionD').value
-  };
-  const correct_answer = document.getElementById('correct_answer').value;
+  // Submit soal baru
+  const quizForm = document.getElementById('quiz-form');
+  quizForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const question_text = document.getElementById('question_text').value.trim();
+    const options = {
+      A: document.getElementById('optionA').value.trim(),
+      B: document.getElementById('optionB').value.trim(),
+      C: document.getElementById('optionC').value.trim(),
+      D: document.getElementById('optionD').value.trim()
+    };
+    const correct_answer = document.getElementById('correct_answer').value;
 
-  const { data, error } = await supabase
-    .from('dashboard_quiz_questions')
-    .insert([
-      { question_text, options, correct_answer }
-    ]);
+    const { data, error } = await supabase
+      .from('dashboard_quiz_questions')
+      .insert([{ question_text, options, correct_answer }]);
 
-  if (error) {
-    console.error("Gagal insert:", error);
-  } else {
-    console.log("Berhasil insert:", data);
-    quizForm.reset(); // kosongkan form setelah berhasil
+    if (error) {
+      console.error("❌ Gagal insert:", error);
+      alert("Gagal simpan soal: " + error.message);
+    } else {
+      console.log("✅ Berhasil insert:", data);
+      alert("Soal berhasil disimpan!");
+      quizForm.reset();
+    }
+  });
+
+  // Load data leaderboard & aktivitas
+  async function loadDashboardData() {
+    // Leaderboard total skor per user
+    const { data: leaderboard, error: lbError } = await supabase
+      .from('dashboard_quiz_attempts')
+      .select('user_id, score, profiles(username)')
+      .order('score', { ascending: false });
+
+    const leaderboardBody = document.getElementById('leaderboard-body');
+    if (lbError) {
+      console.error("❌ Error leaderboard:", lbError);
+      leaderboardBody.innerHTML = `<tr><td colspan="3" class="py-4 px-6 text-center text-red-500">Gagal memuat leaderboard.</td></tr>`;
+    } else {
+      leaderboardBody.innerHTML = leaderboard?.length > 0
+        ? leaderboard.slice(0, 10).map((row, i) => `
+          <tr class="border-b border-gray-200 hover:bg-gray-50">
+            <td class="py-3 px-6 font-medium">${i + 1}</td>
+            <td class="py-3 px-6">${row.profiles?.username || '-'}</td>
+            <td class="py-3 px-6 font-bold text-blue-600">${row.score}</td>
+          </tr>
+        `).join('')
+        : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
+    }
+
+    // Recent activity
+    const { data: recent, error: raError } = await supabase
+      .from('dashboard_quiz_attempts')
+      .select('score, submitted_at, profiles(username), dashboard_quiz_questions(question_text)')
+      .order('submitted_at', { ascending: false });
+
+    const tbody = document.getElementById('recent-activity-body');
+    if (raError) {
+      console.error("❌ Error aktivitas:", raError);
+      tbody.innerHTML = `<tr><td colspan="4" class="py-4 px-6 text-center text-red-500">Gagal memuat aktivitas.</td></tr>`;
+    } else {
+      tbody.innerHTML = recent?.length > 0
+        ? recent.slice(0, 5).map(act => `
+          <tr class="${act.score > 0 ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
+            <td class="py-4 px-6">${act.profiles?.username || '-'}</td>
+            <td class="py-4 px-6">${act.dashboard_quiz_questions?.question_text || '-'}</td>
+            <td class="py-4 px-6 font-medium">${act.score}</td>
+            <td class="py-4 px-6 text-sm text-gray-500">${new Date(act.submitted_at).toLocaleString('id-ID')}</td>
+          </tr>
+        `).join('')
+        : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
+    }
   }
-});
 
-async function loadDashboardData() {
-  // Leaderboard
-  const { data: leaderboard } = await supabase.from('dashboard_quiz_attempts')
-    .select('user_id, score, user:profiles(username)')
-    .order('score', { ascending: false })
-    .limit(10);
-
-  const leaderboardBody = document.getElementById('leaderboard-body');
-  leaderboardBody.innerHTML = leaderboard?.length > 0
-    ? leaderboard.map((row, i) => `
-      <tr class="border-b border-gray-200 hover:bg-gray-50">
-        <td class="py-3 px-6 font-medium">${i+1}</td>
-        <td class="py-3 px-6">${row.user?.username || '-'}</td>
-        <td class="py-3 px-6 font-bold text-blue-600">${row.score}</td>
-      </tr>
-    `).join('')
-    : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
-
-  // Recent activity (5 row)
-  const { data: recent } = await supabase.from('dashboard_quiz_attempts')
-    .select('user_id, quiz_question_id, score, submitted_at, user:profiles(username), question:dashboard_quiz_questions(question_text)')
-    .order('submitted_at', { ascending: false });
-
-  const tbody = document.getElementById('recent-activity-body');
-  tbody.innerHTML = recent?.length > 0
-    ? recent.slice(0,5).map(act => `
-      <tr class="${act.score>0 ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
-        <td class="py-4 px-6">${act.user?.username || '-'}</td>
-        <td class="py-4 px-6">${act.question?.question_text || '-'}</td>
-        <td class="py-4 px-6 font-medium">${act.score}</td>
-        <td class="py-4 px-6 text-sm text-gray-500">${new Date(act.submitted_at).toLocaleString('id-ID')}</td>
-      </tr>
-    `).join('')
-    : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
-}
-
-    document.addEventListener('DOMContentLoaded', loadDashboardData);
-  </script>
+  document.addEventListener('DOMContentLoaded', loadDashboardData);
+</script>
 </body>
 </html>
