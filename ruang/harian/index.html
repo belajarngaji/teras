@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin Kuis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://rsms.me/inter/inter.css');
+    body { font-family: 'Inter', sans-serif; background-color: #f0f8ff; color: #1f2937; margin:0; overflow-x:hidden; }
+    .kpi-card { background:white; border:1px solid #e2e8f0; border-radius:.5rem; transition: transform .2s, box-shadow .2s; }
+    .kpi-card:hover { transform: translateY(-3px); box-shadow:0 6px 10px rgba(0,0,0,0.1); }
+    .sidebar { background:white; border-right:1px solid #e2e8f0; }
+    .sidebar a { display:block; color:#1e3a8a; padding:.5rem 0; transition:.2s; }
+    .sidebar a:hover { color:#2563eb; font-weight:600; }
+    .correct { background-color: #d1fae5; }
+    .wrong { background-color: #fee2e2; }
+    .overflow-x-auto { overflow-x:auto; }
+    table { border-collapse:collapse; width:100%; min-width:600px; }
+    canvas { max-width:100%; height:auto; }
+    *, *::before, *::after { box-sizing:border-box; max-width:100%; }
+    header { position:sticky; top:0; z-index:10; }
+    #overlay { position:fixed; inset:0; background-color: rgba(0,0,0,.3); z-index:20; }
+  </style>
+</head>
+<body class="flex antialiased">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30 p-6">
+    <h2 class="text-xl font-bold mb-6 text-blue-600">Menu Admin</h2>
+    <ul class="space-y-4">
+      <li><a href="#" class="block">Dashboard</a></li>
+      <li><a href="#input-soal" class="block">Input Soal</a></li>
+      <li><a href="#leaderboard" class="block">Leaderboard</a></li>
+      <li><a href="#recent-activity" class="block">Aktivitas Terbaru</a></li>
+    </ul>
+  </aside>
+
+  <div id="overlay" class="hidden lg:hidden"></div>
+
+  <!-- Main content -->
+  <div class="flex-1 flex flex-col lg:ml-64 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-md p-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button id="sidebar-toggle" class="lg:hidden text-blue-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+        <h1 class="text-2xl font-bold text-blue-600">Dashboard Admin Kuis</h1>
+      </div>
+    </header>
+
+    <main class="p-6 flex-1 overflow-y-auto">
+
+      <!-- Input Soal -->
+      <section id="input-soal" class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-700 mb-4">Input Soal Kuis</h2>
+        <form id="quiz-form" class="bg-white p-6 rounded-lg border border-gray-200 space-y-4">
+          <div>
+            <label class="block font-medium mb-1">Pertanyaan</label>
+            <textarea id="question_text" class="w-full border border-gray-300 rounded p-2" required></textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block font-medium mb-1">Opsi A</label>
+              <input type="text" id="optionA" class="w-full border border-gray-300 rounded p-2">
+            </div>
+            <div>
+              <label class="block font-medium mb-1">Opsi B</label>
+              <input type="text" id="optionB" class="w-full border border-gray-300 rounded p-2">
+            </div>
+            <div>
+              <label class="block font-medium mb-1">Opsi C</label>
+              <input type="text" id="optionC" class="w-full border border-gray-300 rounded p-2">
+            </div>
+            <div>
+              <label class="block font-medium mb-1">Opsi D</label>
+              <input type="text" id="optionD" class="w-full border border-gray-300 rounded p-2">
+            </div>
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Jawaban Benar</label>
+            <select id="correct_answer" class="border border-gray-300 rounded p-2 w-full">
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
+          </div>
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500">Simpan Soal</button>
+        </form>
+      </section>
+
+      <!-- KPI & Leaderboard -->
+      <section id="leaderboard" class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
+        <div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-6">
+          <h3 class="font-semibold text-gray-700 mb-4">🏆 Leaderboard - Top 10 User</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-600">
+              <thead class="text-xs text-gray-500 uppercase bg-gray-100">
+                <tr>
+                  <th class="py-3 px-6">Peringkat</th>
+                  <th class="py-3 px-6">Pengguna</th>
+                  <th class="py-3 px-6">Total Skor</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center">
+          <h3 class="font-semibold text-gray-700 mb-4">Kuis Terpopuler</h3>
+          <div class="w-full max-w-[300px] h-[300px]">
+            <canvas id="popular-quizzes-chart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recent activity -->
+      <section id="recent-activity">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Aktivitas Terbaru</h3>
+        <div class="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+          <table class="w-full text-sm text-left text-gray-600 min-w-[600px]">
+            <thead class="text-xs text-gray-500 uppercase bg-gray-100">
+              <tr>
+                <th class="py-3 px-6">Pengguna</th>
+                <th class="py-3 px-6">Nama Kuis</th>
+                <th class="py-3 px-6">Skor</th>
+                <th class="py-3 px-6">Waktu</th>
+              </tr>
+            </thead>
+            <tbody id="recent-activity-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    });
+    overlay.addEventListener('click', () => {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    });
+
+    // Submit soal baru
+    const quizForm = document.getElementById('quiz-form');
+    quizForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const question_text = document.getElementById('question_text').value;
+      const options = {
+        A: document.getElementById('optionA').value,
+        B: document.getElementById('optionB').value,
+        C: document.getElementById('optionC').value,
+        D: document.getElementById('optionD').value
+      };
+      const correct_answer = document.getElementById('correct_answer').value;
+
+      const { error } = await supabase.from('dashboard_quiz_questions').insert([{ question_text, options, correct_answer }]);
+      if (error) return alert('Gagal simpan soal: ' + error.message);
+      alert('Soal berhasil disimpan!');
+      quizForm.reset();
+      loadDashboardData();
+    });
+
+    async function loadDashboardData() {
+      // Leaderboard
+      const { data: leaderboard } = await supabase.from('dashboard_quiz_attempts')
+        .select('user_id, score, user:profiles(username)')
+        .order('score', { ascending: false })
+        .limit(10);
+
+      const leaderboardBody = document.getElementById('leaderboard-body');
+      leaderboardBody.innerHTML = leaderboard.length > 0
+        ? leaderboard.map((row, i) => `
+          <tr class="border-b border-gray-200 hover:bg-gray-50">
+            <td class="py-3 px-6 font-medium">${i+1}</td>
+            <td class="py-3 px-6">${row.user.username}</td>
+            <td class="py-3 px-6 font-bold text-blue-600">${row.score}</td>
+          </tr>
+        `).join('')
+        : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
+
+      // Recent activity (5 row)
+      const { data: recent } = await supabase.from('dashboard_quiz_attempts')
+        .select('user_id, quiz_question_id, score, submitted_at, user:profiles(username), question:dashboard_quiz_questions(question_text)')
+        .order('submitted_at', { ascending: false });
+
+      const tbody = document.getElementById('recent-activity-body');
+      tbody.innerHTML = recent.length > 0
+        ? recent.slice(0,5).map(act => `
+          <tr class="${act.score>0 ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
+            <td class="py-4 px-6">${act.user.username}</td>
+            <td class="py-4 px-6">${act.question.question
+            <td class="py-4 px-6">${act.question.question_text}</td>
+            <td class="py-4 px-6 font-medium">${act.score}</td>
+            <td class="py-4 px-6 text-sm text-gray-500">${new Date(act.submitted_at).toLocaleString('id-ID')}</td>
+          </tr>
+        `).join('')
+        : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', loadDashboardData);
+  </script>
+</body>
+</html>
