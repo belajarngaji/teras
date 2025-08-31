@@ -152,9 +152,9 @@
     overlay.classList.toggle('hidden');
 });
 
-overlay.addEventListener('click', () => {
-  sidebar.classList.add('-translate-x-full');
-  overlay.classList.add('hidden');
+    overlay.addEventListener('click', () => {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
 });
 
     // Submit soal baru
@@ -170,11 +170,14 @@ overlay.addEventListener('click', () => {
       };
       const correct_answer = document.getElementById('correct_answer').value;
 
-      const { error } = await supabase.from('dashboard_quiz_questions').insert([{ question_text, options, correct_answer }]);
-      if (error) return alert('Gagal simpan soal: ' + error.message);
-      alert('Soal berhasil disimpan!');
-      quizForm.reset();
-      loadDashboardData();
+     const { data, error } = await supabase
+      .from('dashboard_quiz_questions')
+      .insert([
+         { question_text: 'Contoh soal?', options: { A:'...',       B:'...' }, correct_answer: 'A' }
+  ]);
+
+      if(error) console.error(error);
+      else console.log('Berhasil insert:', data);
     });
 
     async function loadDashboardData() {
