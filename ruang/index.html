@@ -147,4 +147,86 @@
         return acc;
       }, {});
       const sorted = Object.entries(quizCounts).sort(([,a],[,b])=>b-a).slice(0,5);
-      return { labels: sorted.map(x=>x[0]), data: sorted.map(x=>
+      return { labels: sorted.map(x=>x[0]), data: sorted.map(x=>x[1]) };
+    }
+
+    async function fetchRecentActivities() {
+      const { data } = await supabase.from('latest_activity').select('*').limit(5);
+      return data || [];
+    }
+
+    function createChart(ctx, type, labels, data, label, backgroundColor) {
+      new Chart(ctx, {
+        type,
+        data: {
+          labels,
+          datasets: [{
+            label,
+            data,
+            backgroundColor,
+            borderWidth: 1,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#1f2937' } } },
+          scales: {
+            y: { beginAtZero: true, ticks: { color: '#1f2937' }, grid: { color: '#e5e7eb' } },
+            x: { ticks: { color: '#1f2937' }, grid: { color: '#e5e7eb' } }
+          }
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const [
+        totalUsers,
+        quizAttemptsToday,
+        leaderboardData,
+        popularQuizData,
+        recentActivities
+      ] = await Promise.all([
+        fetchTotalUsers(),
+        fetchQuizAttemptsToday(),
+        fetchLeaderboardData(),
+        fetchPopularQuizzes(),
+        fetchRecentActivities()
+      ]);
+
+      document.getElementById('total-users').textContent = totalUsers;
+      document.getElementById('quiz-attempts-today').textContent = quizAttemptsToday;
+
+      // Leaderboard
+      const leaderboardBody = document.getElementById('leaderboard-body');
+      leaderboardBody.innerHTML = leaderboardData.length > 0
+        ? leaderboardData.map(user => `
+            <tr class="border-b border-gray-200 hover:bg-gray-50">
+              <td class="py-3 px-6 font-medium">${user.rank}</td>
+              <td class="py-3 px-6">${user.username}</td>
+              <td class="py-3 px-6 font-bold text-blue-600">${user.total_score || 0}</td>
+            </tr>
+          `).join('')
+        : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
+
+      // Popular quizzes chart
+      const quizCtx = document.getElementById('popular-quizzes-chart').getContext('2d');
+      createChart(quizCtx, 'doughnut', popularQuizData.labels, popularQuizData.data, 'Pengerjaan', ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#e0f2fe']);
+
+      // Recent activity
+      const activityBody = document.getElementById('recent-activity-body');
+      activityBody.innerHTML = recentActivities.length > 0
+        ? recentActivities.map(act => `
+            <tr class="${act.is_correct ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
+              <td class="py-4 px-6">${act.username || 'Tanpa Nama'}</td>
+              <td class="py-4 px-6">${quizNameMap[act.quiz_id] || act.quiz_id}</td>
+              <td class="py-4 px-6 font-medium">${act.score}</td>
+              <td class="py-4 px-6 text-sm text-gray-500">${new Date(act.submitted_at).toLocaleString('id-ID')}</td>
+            </tr>
+          `).join('')
+        : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
+    });
+  </script>
+</body>
+</html>
