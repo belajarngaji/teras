@@ -8,11 +8,11 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @import url('https://rsms.me/inter/inter.css');
-    body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; color: #1f2937; }
+    body { font-family: 'Inter', sans-serif; background-color: #f0f8ff; color: #1f2937; } /* biru-putih soft */
     .kpi-card { background-color: #ffffff; border: 1px solid #e2e8f0; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
     .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 6px 10px rgba(0,0,0,0.1); }
-    .sidebar a { transition: all 0.2s; }
-    .sidebar a:hover { color: #1d4ed8; font-weight: 600; }
+    .sidebar a { transition: all 0.2s; color: #1e3a8a; } /* biru gelap */
+    .sidebar a:hover { color: #2563eb; font-weight: 600; }
     .correct { background-color: #d1fae5; } /* hijau soft */
     .wrong { background-color: #fee2e2; }   /* merah soft */
   </style>
@@ -20,10 +20,10 @@
 <body class="antialiased flex">
 
   <!-- Sidebar -->
-  <aside id="sidebar" class="sidebar fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform -translate-x-full transition-transform duration-300 z-20">
+  <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30">
     <div class="p-6">
       <h2 class="text-xl font-bold mb-6 text-blue-600">Menu Admin</h2>
-      <ul class="space-y-4 text-gray-700">
+      <ul class="space-y-4">
         <li><a href="#" class="block">Dashboard</a></li>
         <li><a href="#" class="block">Users</a></li>
         <li><a href="#" class="block">Management</a></li>
@@ -32,13 +32,16 @@
     </div>
   </aside>
 
+  <!-- Overlay -->
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-30 hidden z-20 lg:hidden"></div>
+
   <!-- Main content -->
-  <div class="flex-1 min-h-screen flex flex-col">
+  <div class="flex-1 min-h-screen flex flex-col lg:ml-64">
     <!-- Header -->
     <header class="bg-white shadow-md p-4 flex items-center justify-between sticky top-0 z-10">
       <div class="flex items-center gap-3">
         <!-- Sidebar toggle -->
-        <button id="sidebar-toggle" class="text-blue-600 hover:text-blue-500 focus:outline-none">
+        <button id="sidebar-toggle" class="text-blue-600 hover:text-blue-500 focus:outline-none lg:hidden">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
@@ -118,10 +121,20 @@
     const quizNameMap = { 'kelas01_bab01_hijaiyah': 'Kuis Hijaiyah Bab 1' };
 
     // Sidebar toggle
-    const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');
-    sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
+    const overlay = document.getElementById('overlay');
+    const toggleBtn = document.getElementById('sidebar-toggle');
 
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    });
+    overlay.addEventListener('click', () => {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    });
+
+    // Fetch functions
     async function fetchTotalUsers() {
       const { count } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
       return count || 0;
@@ -158,16 +171,7 @@
     function createChart(ctx, type, labels, data, label, backgroundColor) {
       new Chart(ctx, {
         type,
-        data: {
-          labels,
-          datasets: [{
-            label,
-            data,
-            backgroundColor,
-            borderWidth: 1,
-            tension: 0.3
-          }]
-        },
+        data: { labels, datasets: [{ label, data, backgroundColor, borderWidth: 1, tension: 0.3 }] },
         options: {
           responsive: true,
           maintainAspectRatio: false,
