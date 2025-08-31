@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://rsms.me/inter/inter.css');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f8ff; /* biru-putih soft */
+      color: #1f2937;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #1e3a8a;
+      transition: all 0.2s;
+      padding: 0.5rem 0;
+    }
+    .sidebar a:hover {
+      color: #2563eb;
+      font-weight: 600;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 600px;
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .correct { background-color: #d1fae5; }
+    .wrong { background-color: #fee2e2; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0,0,0,0.3);
+      z-index: 20;
+    }
+
+  </style>
+</head>
+<body class="flex">
+
+  <!-- Sidebar -->
+  <aside id="sidebar"
+         class="sidebar fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30 p-6">
+    <h2 class="text-xl font-bold mb-6 text-blue-600">Management Belajar Ngaji</h2>
+    <ul class="space-y-4">
+      <li><a href="/../">Dashboard</a></li>
+      <li><a href="#">Users</a></li>
+      <li><a href="#">Management</a></li>
+      <li><a href="#">Buat Soal Harian</a></li>
+    </ul>
+  </aside>
+
+  <!-- Overlay -->
+  <div id="overlay" class="hidden lg:hidden"></div>
+
+  <!-- Main content -->
+  <div class="flex-1 min-h-screen flex flex-col lg:ml-64">
+    <!-- Header -->
+    <header class="bg-white shadow-md p-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button id="sidebar-toggle" class="text-blue-600 hover:text-blue-500 focus:outline-none lg:hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+        <h1 class="text-2xl font-bold text-blue-600">Jawaban Salah</h1>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="p-6 flex-1 overflow-y-auto">
+      <section>
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Daftar Jawaban Salah</h3>
+        <div class="table-wrapper bg-white border border-gray-200 rounded-lg p-4">
+          <table>
+            <thead class="bg-gray-100 text-gray-500 uppercase text-xs">
+              <tr>
+                <th>Pengguna</th>
+                <th>Pertanyaan</th>
+                <th>Jawaban Terpilih</th>
+                <th>Jawaban Benar</th>
+                <th>Waktu Pengerjaan (detik)</th>
+                <th>Waktu Submit</th>
+              </tr>
+            </thead>
+            <tbody id="wrong-answers-body">
+              <tr><td colspan="6" class="py-4 px-6 text-center text-gray-400">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Script -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    });
+    overlay.addEventListener('click', () => {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    });
+
+    async function fetchWrongAnswers() {
+      const { data, error } = await supabase
+        .from('dashboard_wrong_answers')
+        .select('*')
+        .order('submitted_at', { ascending: false });
+
+      const tbody = document.getElementById('wrong-answers-body');
+
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-4 px-6 text-center text-red-500">Terjadi error: ${error.message}</td></tr>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-4 px-6 text-center text-gray-400">Belum ada jawaban salah.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map(row => `
+        <tr class="wrong">
+          <td class="py-3 px-6">${row.username}</td>
+          <td class="py-3 px-6">${row.question_text}</td>
+          <td class="py-3 px-6">${row.selected_answer}</td>
+          <td class="py-3 px-6">${row.correct_answer}</td>
+          <td class="py-3 px-6">${row.time_taken}</td>
+          <td class="py-3 px-6">${new Date(row.submitted_at).toLocaleString('id-ID')}</td>
+        </tr>
+      `).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchWrongAnswers);
+  </script>
+</body>
+</html>
