@@ -27,7 +27,7 @@
 <body class="flex antialiased">
 
   <!-- Sidebar -->
-  <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30 p-6">
+  <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30">
     <h2 class="text-xl font-bold mb-6 text-blue-600">Soal Harian</h2>
     <ul class="space-y-4">
       <li><a href="#" class="block">Dashboard</a></li>
@@ -37,7 +37,7 @@
     </ul>
   </aside>
 
-  <div id="overlay" class="hidden lg:hidden"></div>
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-30 hidden z-20 lg:hidden"></div>
 
   <!-- Main content -->
   <div class="flex-1 flex flex-col lg:ml-64 min-h-screen">
@@ -143,18 +143,19 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Sidebar toggle
+    const toggleBtn = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
-    const toggleBtn = document.getElementById('sidebar-toggle');
 
     toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('-translate-x-full');
-      overlay.classList.toggle('hidden');
-    });
-    overlay.addEventListener('click', () => {
-      sidebar.classList.add('-translate-x-full');
-      overlay.classList.add('hidden');
-    });
+    sidebar.classList.toggle('-translate-x-full');
+    overlay.classList.toggle('hidden');
+});
+
+overlay.addEventListener('click', () => {
+  sidebar.classList.add('-translate-x-full');
+  overlay.classList.add('hidden');
+});
 
     // Submit soal baru
     const quizForm = document.getElementById('quiz-form');
