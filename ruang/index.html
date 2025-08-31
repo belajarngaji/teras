@@ -94,7 +94,7 @@
       <section>
         <h3 class="text-xl font-semibold text-gray-700 mb-4">Aktivitas Terbaru</h3>
         <div class="bg-white border border-gray-200 rounded-lg overflow-x-auto">
-          <table class="w-full text-sm text-left text-gray-600">
+          <table class="w-full text-sm text-left text-gray-600 min-w-[600px]">
             <thead class="text-xs text-gray-500 uppercase bg-gray-100">
               <tr>
                 <th class="py-3 px-6">Pengguna</th>
@@ -177,8 +177,8 @@
           maintainAspectRatio: false,
           plugins: { legend: { labels: { color: '#1f2937' } } },
           scales: {
-            y: { beginAtZero: true, ticks: { color: '#1f2937' }, grid: { color: '#e5e7eb' } },
-            x: { ticks: { color: '#1f2937' }, grid: { color: '#e5e7eb' } }
+            y: { display: false, grid: { display: false } },
+            x: { display: false, grid: { display: false } }
           }
         }
       });
@@ -199,6 +199,7 @@
         fetchRecentActivities()
       ]);
 
+      // Update KPI
       document.getElementById('total-users').textContent = totalUsers;
       document.getElementById('quiz-attempts-today').textContent = quizAttemptsToday;
 
