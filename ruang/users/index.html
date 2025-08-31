@@ -4,42 +4,57 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dashboard Pengguna</title>
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+  <<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js"
 
-    // Ganti dengan URL & ANON KEY (bukan service role!)
-    const supabaseUrl = "https://jpxtbdawajjyrvqrgijd.supabase.co"
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I"
-    const supabase = createClient(supabaseUrl, supabaseKey)
+  // kamu pakai service_role di sini
+  const supabaseUrl = "https://jpxtbdawajjyrvqrgijd.supabase.co"
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I"
+  const supabase = createClient(supabaseUrl, supabaseKey)
 
-    async function loadUser() {
-      // Ambil user pertama (atau filter sesuai username tertentu)
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("username", "abcdhshu")
-        .single()
+  async function loadUser(username) {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select(`
+        id,
+        username,
+        quiz_attempts (
+          score,
+          created_at
+        )
+      `)
+      .eq("username", username)
+      .single()
 
-      if (error) {
-        console.error(error)
-        return
-      }
-
-      // update DOM
-      document.querySelector('#nama').textContent = `Nama: ${data.username}`
-      document.querySelector('#usernameRaw').textContent = '@' + data.username
-      document.querySelector('#totalScore').textContent = data.total_score
-      document.querySelector('#quizzesTaken').textContent = data.quizzes_taken
-      document.querySelector('#lastActive').textContent =
-        new Date(data.last_activity).toLocaleString('id-ID')
-
-      // KPI
-      document.querySelector('#kpiScore').textContent = data.total_score
-      document.querySelector('#kpiQuizzes').textContent = data.quizzes_taken
+    if (error) {
+      console.error("Error:", error)
+      return
     }
 
-    loadUser()
-  </script>
+    console.log("DATA:", data)
+
+    const totalScore = data.quiz_attempts.reduce((sum, a) => sum + a.score, 0)
+    const quizzesTaken = data.quiz_attempts.length
+    const lastActivity = data.quiz_attempts.length > 0
+      ? new Date(
+          data.quiz_attempts.sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          )[0].created_at
+        ).toLocaleString("id-ID")
+      : "—"
+
+    document.querySelector("#nama").textContent = `Nama: ${data.username}`
+    document.querySelector("#usernameRaw").textContent = `@${data.username}`
+    document.querySelector("#totalScore").textContent = totalScore
+    document.querySelector("#quizzesTaken").textContent = quizzesTaken
+    document.querySelector("#lastActive").textContent = lastActivity
+
+    document.querySelector("#kpiScore").textContent = totalScore
+    document.querySelector("#kpiQuizzes").textContent = quizzesTaken
+  }
+
+  loadUser("abcdhshu")
+</script>
   <style>
     :root{
       --bg: #f7fbff;
