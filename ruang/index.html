@@ -300,18 +300,19 @@ header {
       createChart(quizCtx, 'doughnut', popularQuizData.labels, popularQuizData.data, 'Pengerjaan', ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#e0f2fe']);
 
       // Recent activity
-      const activityBody = document.getElementById('recent-activity-body');
-      activityBody.innerHTML = recentActivities.length > 0
-        ? recentActivities.map(act => `
-            <tr class="${act.is_correct ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
-              <td class="py-4 px-6">${act.username || 'Tanpa Nama'}</td>
-              <td class="py-4 px-6">${quizNameMap[act.quiz_id] || act.quiz_id}</td>
-              <td class="py-4 px-6 font-medium">${act.score}</td>
-              <td class="py-4 px-6 text-sm text-gray-500">${new Date(act.submitted_at).toLocaleString('id-ID')}</td>
-            </tr>
-          `).join('')
-        : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
-    });
+      const tbody = document.getElementById('recent-activity-body');
+const rowsToShow = 5;
+
+tbody.innerHTML = recentActivities.length > 0
+  ? recentActivities.slice(0, rowsToShow).map(act => `
+      <tr class="${act.is_correct ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
+        <td class="py-4 px-6">${act.username || 'Tanpa Nama'}</td>
+        <td class="py-4 px-6">${quizNameMap[act.quiz_id] || act.quiz_id}</td>
+        <td class="py-4 px-6 font-medium">${act.score}</td>
+        <td class="py-4 px-6 text-sm text-gray-500">${new Date(act.submitted_at).toLocaleString('id-ID')}</td>
+      </tr>
+    `).join('')
+  : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
   </script>
 </body>
 </html>
