@@ -4,57 +4,47 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dashboard Pengguna</title>
-  <<script type="module">
-  import { createClient } from "https://esm.sh/@supabase/supabase-js"
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js"
 
-  // kamu pakai service_role di sini
-  const supabaseUrl = "https://jpxtbdawajjyrvqrgijd.supabase.co"
-  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I"
-  const supabase = createClient(supabaseUrl, supabaseKey)
+    
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co"
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I"
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-  async function loadUser(username) {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select(`
-        id,
-        username,
-        quiz_attempts (
-          score,
-          created_at
-        )
-      `)
-      .eq("username", username)
-      .single()
+    async function loadUser(username) {
+      const { data, error } = await supabase
+        .from("user_profiles_dashboard")
+        .select("*")
+        .eq("username", username)
+        .single()
 
-    if (error) {
-      console.error("Error:", error)
-      return
+      if (error) {
+        console.error("Error:", error)
+        return
+      }
+
+      console.log("DATA:", data)
+
+      document.querySelector("#nama").textContent = `Nama: ${data.username}`
+      document.querySelector("#usernameRaw").textContent = `@${data.username}`
+      document.querySelector("#totalScore").textContent = data.total_score
+      document.querySelector("#quizzesTaken").textContent = data.quizzes_taken
+      document.querySelector("#lastActive").textContent =
+        data.last_activity
+          ? new Date(data.last_activity).toLocaleString("id-ID")
+          : "—"
+
+      document.querySelector("#kpiScore").textContent = data.total_score
+      document.querySelector("#kpiQuizzes").textContent = data.quizzes_taken
+
+      // avatar huruf depan
+      document.querySelector("#avatar").textContent =
+        data.username?.charAt(0).toUpperCase() || "U"
     }
 
-    console.log("DATA:", data)
-
-    const totalScore = data.quiz_attempts.reduce((sum, a) => sum + a.score, 0)
-    const quizzesTaken = data.quiz_attempts.length
-    const lastActivity = data.quiz_attempts.length > 0
-      ? new Date(
-          data.quiz_attempts.sort(
-            (a, b) => new Date(b.created_at) - new Date(a.created_at)
-          )[0].created_at
-        ).toLocaleString("id-ID")
-      : "—"
-
-    document.querySelector("#nama").textContent = `Nama: ${data.username}`
-    document.querySelector("#usernameRaw").textContent = `@${data.username}`
-    document.querySelector("#totalScore").textContent = totalScore
-    document.querySelector("#quizzesTaken").textContent = quizzesTaken
-    document.querySelector("#lastActive").textContent = lastActivity
-
-    document.querySelector("#kpiScore").textContent = totalScore
-    document.querySelector("#kpiQuizzes").textContent = quizzesTaken
-  }
-
-  loadUser("abcdhshu")
-</script>
+    loadUser("abcdhshu")
+  </script>
   <style>
     :root{
       --bg: #f7fbff;
@@ -97,9 +87,6 @@
     .card.pad{padding:18px}
 
     .grid{display:grid; gap:16px}
-    .grid.cols{
-      grid-template-columns: repeat(12, 1fr);
-    }
 
     /* Profil pengguna */
     .profile{display:flex; gap:18px; align-items:center}
@@ -122,18 +109,7 @@
     .kpi .label{font-size:12px; color:var(--muted)}
     .kpi .value{font-weight:700; font-size:20px}
 
-    /* Tabel */
-    .table{width:100%; border-collapse:separate; border-spacing:0 10px}
-    .table thead th{font-size:12px; color:var(--muted); text-align:left; padding:10px 14px}
-    .table tbody tr{background:var(--card); box-shadow:var(--shadow)}
-    .table tbody td{padding:14px; border-top:1px solid var(--blue-50); border-bottom:1px solid var(--blue-50)}
-    .table tbody tr td:first-child{border-left:1px solid var(--blue-50); border-top-left-radius:12px; border-bottom-left-radius:12px}
-    .table tbody tr td:last-child{border-right:1px solid var(--blue-50); border-top-right-radius:12px; border-bottom-right-radius:12px}
-
-    /* Footer ringkas */
     footer{margin-top:24px; color:var(--muted); font-size:12px; text-align:center}
-
-    /* Responsif */
     @media (max-width: 720px){
       header{flex-direction:column; align-items:flex-start}
       .profile{align-items:flex-start}
