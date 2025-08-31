@@ -41,7 +41,88 @@
     loadUser()
   </script>
   <style>
-    /* ... (pakai CSS biru-putih dari versi sebelumnya) ... */
+    :root{
+      --bg: #f7fbff;
+      --bg-2: #eef6ff;
+      --card: #ffffff;
+      --ink: #0f172a; /* slate-900 */
+      --muted: #64748b; /* slate-500 */
+      --blue-50: #eff6ff;
+      --blue-100:#dbeafe;
+      --blue-200:#bfdbfe;
+      --blue-300:#93c5fd;
+      --blue-400:#60a5fa;
+      --blue-500:#3b82f6;
+      --blue-600:#2563eb;
+      --ring: rgba(59,130,246,.35);
+      --shadow: 0 10px 25px rgba(2,30,84,.08);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    html, body{height:100%}
+    body{
+      margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--ink); background: linear-gradient(180deg,var(--bg),var(--bg-2));
+    }
+    .container{max-width:1100px; margin-inline:auto; padding:24px;}
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px;
+    }
+    .brand{display:flex; align-items:center; gap:12px}
+    .logo{
+      width:44px; height:44px; border-radius:12px;
+      background: linear-gradient(135deg, var(--blue-400), var(--blue-600));
+      box-shadow: 0 8px 20px rgba(37,99,235,.25);
+      display:grid; place-items:center; color:white; font-weight:700;
+    }
+    h1{font-size:20px; margin:0; letter-spacing:.2px}
+    .sub{color:var(--muted); font-size:13px; margin-top:3px}
+
+    .card{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); border:1px solid var(--blue-50)}
+    .card.pad{padding:18px}
+
+    .grid{display:grid; gap:16px}
+    .grid.cols{
+      grid-template-columns: repeat(12, 1fr);
+    }
+
+    /* Profil pengguna */
+    .profile{display:flex; gap:18px; align-items:center}
+    .avatar{
+      width:70px; height:70px; border-radius:50%;
+      background: conic-gradient(from 200deg, var(--blue-300), var(--blue-600));
+      display:grid; place-items:center; color:white; font-weight:700; font-size:22px;
+      box-shadow: 0 12px 24px rgba(37,99,235,.25);
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px;
+      background:var(--blue-50); color:#1e40af; border:1px solid var(--blue-100); font-size:12px; font-weight:600;
+    }
+
+    /* Metrik cepat */
+    .kpi{display:flex; align-items:center; gap:14px}
+    .kpi .icon{
+      width:40px; height:40px; border-radius:12px; background:var(--blue-50); display:grid; place-items:center; color:#1d4ed8; border:1px solid var(--blue-100);
+    }
+    .kpi .label{font-size:12px; color:var(--muted)}
+    .kpi .value{font-weight:700; font-size:20px}
+
+    /* Tabel */
+    .table{width:100%; border-collapse:separate; border-spacing:0 10px}
+    .table thead th{font-size:12px; color:var(--muted); text-align:left; padding:10px 14px}
+    .table tbody tr{background:var(--card); box-shadow:var(--shadow)}
+    .table tbody td{padding:14px; border-top:1px solid var(--blue-50); border-bottom:1px solid var(--blue-50)}
+    .table tbody tr td:first-child{border-left:1px solid var(--blue-50); border-top-left-radius:12px; border-bottom-left-radius:12px}
+    .table tbody tr td:last-child{border-right:1px solid var(--blue-50); border-top-right-radius:12px; border-bottom-right-radius:12px}
+
+    /* Footer ringkas */
+    footer{margin-top:24px; color:var(--muted); font-size:12px; text-align:center}
+
+    /* Responsif */
+    @media (max-width: 720px){
+      header{flex-direction:column; align-items:flex-start}
+      .profile{align-items:flex-start}
+    }
   </style>
 </head>
 <body>
