@@ -84,8 +84,8 @@ header {
   position: fixed;
   inset: 0;
   background-color: rgba(0,0,0,0.3);
-  display: none;
   z-index: 20;
+  /* jangan pakai display:none di CSS, fix sidebar*/
 }
 
 /* Flex container wrap untuk mobile */
@@ -110,8 +110,8 @@ header {
   </aside>
 
   <!-- Overlay -->
-  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-30 hidden z-20 lg:hidden"></div>
-
+ <div id="overlay" class="fixed inset-0 bg-black bg-opacity-30 hidden z-20 lg:hidden"></div>
+#FIX sidebar--
   <!-- Main content -->
   <div class="flex-1 min-h-screen flex flex-col lg:ml-64">
     <!-- Header -->
@@ -203,13 +203,14 @@ header {
     const toggleBtn = document.getElementById('sidebar-toggle');
 
     toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('-translate-x-full');
-      overlay.classList.toggle('hidden');
-    });
+     sidebar.classList.toggle('-translate-x-full'); // toggle sidebar
+     overlay.classList.toggle('hidden');            // toggle overlay
+});
+
     overlay.addEventListener('click', () => {
-      sidebar.classList.add('-translate-x-full');
-      overlay.classList.add('hidden');
-    });
+     sidebar.classList.add('-translate-x-full');    // tutup sidebar
+    overlay.classList.add('hidden');               // sembunyikan overlay
+});
 
     // Fetch functions
     async function fetchTotalUsers() {
