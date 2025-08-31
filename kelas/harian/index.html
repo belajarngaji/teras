@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuis Harian</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; text-align: center; padding: 20px; }
+    .quiz-container { background: white; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
+    .question { font-size: 20px; margin-bottom: 20px; }
+    .options button { display: block; width: 100%; margin: 8px 0; padding: 10px; font-size: 16px; border-radius: 6px; cursor: pointer; }
+    .options button:hover { background: #f0f0f0; }
+    #next-btn { margin-top: 20px; padding: 10px 20px; font-size: 16px; display: none; }
+    #result { font-size: 18px; margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h2>Kuis Harian</h2>
+    <div id="quiz">
+      <div class="question" id="questionText">Memuat pertanyaan...</div>
+      <div class="options" id="options"></div>
+      <button id="next-btn">Pertanyaan Berikutnya</button>
+      <div id="result"></div>
+    </div>
+  </div>
+
+  <!-- Supabase -->
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+    // 🔹 Ganti dengan project Supabase kamu
+    const supabaseUrl = "https://YOUR_PROJECT.supabase.co"
+    const supabaseKey = "YOUR_ANON_KEY"
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    // Element HTML
+    const questionText = document.getElementById("questionText")
+    const optionsContainer = document.getElementById("options")
+    const nextBtn = document.getElementById("next-btn")
+    const resultDiv = document.getElementById("result")
+
+    let quizData = []
+    let currentQuestionIndex = 0
+    let score = 0
+    let profileId = null
+
+    // 🔹 Ambil user yang login
+    async function getUserProfile() {
+      const { data: { user }, error } = await supabase.auth.getUser()
+
+      if (error || !user) {
+        questionText.textContent = "❌ Kamu belum login ke Supabase!"
+        console.error(error)
+        return null
+      }
+
+      console.log("✅ User login:", user)
+      profileId = user.id
+      return user.id
+    }
+
+    // 🔹 Ambil soal dari tabel quiz_questions
+    async function loadQuizFromSupabase() {
+      const { data, error } = await supabase
+        .from("quiz_questions")
+        .select("*")
+        .limit(5)
+
+      if (error) {
+        console.error("Gagal ambil data:", error)
+        questionText.textContent = "Gagal memuat pertanyaan."
+        return
+      }
+
+      if (!data || data.length === 0) {
+        questionText.textContent = "Belum ada kuis tersedia."
+        return
+      }
+
+      quizData = data.map(q => ({
+        id: q.id,
+        question: q.question,
+        options: q.options,
+        answer: q.correct_answer
+      }))
+
+      loadQuestion()
+    }
+
+    // 🔹 Tampilkan pertanyaan
+    function loadQuestion() {
+      resultDiv.textContent = ""
+      nextBtn.style.display = "none"
+
+      const currentQuestion = quizData[currentQuestionIndex]
+      questionText.textContent = currentQuestion.question
+      optionsContainer.innerHTML = ""
+
+      currentQuestion.options.forEach(option => {
+        const btn = document.createElement("button")
+        btn.textContent = option
+        btn.onclick = () => selectAnswer(option, currentQuestion.answer)
+        optionsContainer.appendChild(btn)
+      })
+    }
+
+    // 🔹 Pilih jawaban
+    function selectAnswer(selected, correct) {
+      const buttons = optionsContainer.querySelectorAll("button")
+      buttons.forEach(btn => {
+        btn.disabled = true
+        if (btn.textContent === correct) {
+          btn.style.backgroundColor = "lightgreen"
+        }
+        if (btn.textContent === selected && selected !== correct) {
+          btn.style.backgroundColor = "salmon"
+        }
+      })
+
+      if (selected === correct) {
+        score++
+        resultDiv.textContent = "✅ Jawaban benar!"
+      } else {
+        resultDiv.textContent = "❌ Jawaban salah!"
+      }
+
+      saveScore(quizData[currentQuestionIndex].id, selected, selected === correct ? 1 : 0)
+
+      nextBtn.style.display = "inline-block"
+    }
+
+    // 🔹 Simpan skor ke daily_quiz_scores
+    async function saveScore(quizId, answer, point) {
+      if (!profileId) {
+        console.error("❌ User belum login, skor tidak bisa disimpan")
+        return
+      }
+
+      const { error } = await supabase
+        .from("daily_quiz_scores")
+        .insert([
+          { profile_id: profileId, quiz_id: quizId, score: point, answered_at: new Date().toISOString() }
+        ])
+
+      if (error) console.error("Gagal simpan skor:", error)
+      else console.log("✅ Skor tersimpan")
+    }
+
+    // 🔹 Next question
+    nextBtn.addEventListener("click", () => {
+      currentQuestionIndex++
+      if (currentQuestionIndex < quizData.length) {
+        loadQuestion()
+      } else {
+        showFinalScore()
+      }
+    })
+
+    // 🔹 Hasil akhir
+    function showFinalScore() {
+      questionText.textContent = "Kuis selesai!"
+      optionsContainer.innerHTML = ""
+      nextBtn.style.display = "none"
+      resultDiv.textContent = `Skor akhir kamu: ${score} / ${quizData.length}`
+    }
+
+    // Jalankan
+    document.addEventListener("DOMContentLoaded", async () => {
+      const uid = await getUserProfile()
+      if (uid) loadQuizFromSupabase()
+    })
+  </script>
+</body>
+</html>
