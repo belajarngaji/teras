@@ -158,64 +158,67 @@
 });
 
     // Submit soal baru
-    const quizForm = document.getElementById('quiz-form');
-    quizForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const question_text = document.getElementById('question_text').value;
-      const options = {
-        A: document.getElementById('optionA').value,
-        B: document.getElementById('optionB').value,
-        C: document.getElementById('optionC').value,
-        D: document.getElementById('optionD').value
-      };
-      const correct_answer = document.getElementById('correct_answer').value;
+const quizForm = document.getElementById('quiz-form');
+quizForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const question_text = document.getElementById('question_text').value;
+  const options = {
+    A: document.getElementById('optionA').value,
+    B: document.getElementById('optionB').value,
+    C: document.getElementById('optionC').value,
+    D: document.getElementById('optionD').value
+  };
+  const correct_answer = document.getElementById('correct_answer').value;
 
-     const { data, error } = await supabase
-      .from('dashboard_quiz_questions')
-      .insert([
-         { question_text: 'Contoh soal?', options: { A:'...',       B:'...' }, correct_answer: 'A' }
-  ]);
+  const { data, error } = await supabase
+    .from('dashboard_quiz_questions')
+    .insert([
+      { question_text, options, correct_answer }
+    ]);
 
-      if(error) console.error(error);
-      else console.log('Berhasil insert:', data);
-    });
+  if (error) {
+    console.error("Gagal insert:", error);
+  } else {
+    console.log("Berhasil insert:", data);
+    quizForm.reset(); // kosongkan form setelah berhasil
+  }
+});
 
-    async function loadDashboardData() {
-      // Leaderboard
-      const { data: leaderboard } = await supabase.from('dashboard_quiz_attempts')
-        .select('user_id, score, user:profiles(username)')
-        .order('score', { ascending: false })
-        .limit(10);
+async function loadDashboardData() {
+  // Leaderboard
+  const { data: leaderboard } = await supabase.from('dashboard_quiz_attempts')
+    .select('user_id, score, user:profiles(username)')
+    .order('score', { ascending: false })
+    .limit(10);
 
-      const leaderboardBody = document.getElementById('leaderboard-body');
-      leaderboardBody.innerHTML = leaderboard.length > 0
-        ? leaderboard.map((row, i) => `
-          <tr class="border-b border-gray-200 hover:bg-gray-50">
-            <td class="py-3 px-6 font-medium">${i+1}</td>
-            <td class="py-3 px-6">${row.user.username}</td>
-            <td class="py-3 px-6 font-bold text-blue-600">${row.score}</td>
-          </tr>
-        `).join('')
-        : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
+  const leaderboardBody = document.getElementById('leaderboard-body');
+  leaderboardBody.innerHTML = leaderboard?.length > 0
+    ? leaderboard.map((row, i) => `
+      <tr class="border-b border-gray-200 hover:bg-gray-50">
+        <td class="py-3 px-6 font-medium">${i+1}</td>
+        <td class="py-3 px-6">${row.user?.username || '-'}</td>
+        <td class="py-3 px-6 font-bold text-blue-600">${row.score}</td>
+      </tr>
+    `).join('')
+    : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
 
-      // Recent activity (5 row)
-      const { data: recent } = await supabase.from('dashboard_quiz_attempts')
-        .select('user_id, quiz_question_id, score, submitted_at, user:profiles(username), question:dashboard_quiz_questions(question_text)')
-        .order('submitted_at', { ascending: false });
+  // Recent activity (5 row)
+  const { data: recent } = await supabase.from('dashboard_quiz_attempts')
+    .select('user_id, quiz_question_id, score, submitted_at, user:profiles(username), question:dashboard_quiz_questions(question_text)')
+    .order('submitted_at', { ascending: false });
 
-      const tbody = document.getElementById('recent-activity-body');
-      tbody.innerHTML = recent.length > 0
-        ? recent.slice(0,5).map(act => `
-          <tr class="${act.score>0 ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
-            <td class="py-4 px-6">${act.user.username}</td>
-            <td class="py-4 px-6">${act.question.question
-            <td class="py-4 px-6">${act.question.question_text}</td>
-            <td class="py-4 px-6 font-medium">${act.score}</td>
-            <td class="py-4 px-6 text-sm text-gray-500">${new Date(act.submitted_at).toLocaleString('id-ID')}</td>
-          </tr>
-        `).join('')
-        : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
-    }
+  const tbody = document.getElementById('recent-activity-body');
+  tbody.innerHTML = recent?.length > 0
+    ? recent.slice(0,5).map(act => `
+      <tr class="${act.score>0 ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
+        <td class="py-4 px-6">${act.user?.username || '-'}</td>
+        <td class="py-4 px-6">${act.question?.question_text || '-'}</td>
+        <td class="py-4 px-6 font-medium">${act.score}</td>
+        <td class="py-4 px-6 text-sm text-gray-500">${new Date(act.submitted_at).toLocaleString('id-ID')}</td>
+      </tr>
+    `).join('')
+    : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
+}
 
     document.addEventListener('DOMContentLoaded', loadDashboardData);
   </script>
