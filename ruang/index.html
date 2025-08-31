@@ -43,7 +43,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
         </button>
-        <h1 class="text-2xl font-bold text-blue-600">Dashboard Belajar Ngaji</h1>
+        <h1 class="text-2xl font-bold text-blue-600">Dashboard</h1>
       </div>
     </header>
 
@@ -122,45 +122,29 @@
     const sidebar = document.getElementById('sidebar');
     sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
 
-    // Fetch functions
     async function fetchTotalUsers() {
-      const { count, error } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-      if(error) console.error(error);
+      const { count } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
       return count || 0;
     }
 
     async function fetchQuizAttemptsToday() {
       const today = new Date(); today.setHours(0,0,0,0);
-      const { count, error } = await supabase.from('quiz_attempts').select('*', { count: 'exact', head: true }).gte('submitted_at', today.toISOString());
-      if(error) console.error(error);
+      const { count } = await supabase.from('quiz_attempts').select('*', { count: 'exact', head: true }).gte('submitted_at', today.toISOString());
       return count || 0;
     }
 
     async function fetchLeaderboardData() {
-      const { data, error } = await supabase.from('leaderboard').select('rank, username, total_score').limit(10);
-      if(error) console.error(error);
+      const { data } = await supabase.from('leaderboard').select('rank, username, total_score').limit(10);
       return data || [];
     }
 
     async function fetchPopularQuizzes() {
-      const { data, error } = await supabase.from('quiz_attempts').select('quiz_id');
-      if(error) return { labels: [], data: [] };
+      const { data } = await supabase.from('quiz_attempts').select('quiz_id');
+      if(!data) return { labels: [], data: [] };
       const quizCounts = data.reduce((acc, item) => {
         const name = quizNameMap[item.quiz_id] || item.quiz_id;
         acc[name] = (acc[name] || 0) + 1;
         return acc;
       }, {});
-      const sorted = Object.entries(quizCounts).sort(([,a],[,b]) => b-a).slice(0,5);
-      return { labels: sorted.map(x=>x[0]), data: sorted.map(x=>x[1]) };
-    }
-
-    async function fetchRecentActivities() {
-      const { data, error } = await supabase.from('latest_activity').select('*').limit(5);
-      if(error) console.error(error);
-      return data || [];
-    }
-
-    function createChart(ctx, type, labels, data, label, backgroundColor) {
-      new Chart(ctx, { 
-        type, 
-        data: { labels, datasets: [{
+      const sorted = Object.entries(quizCounts).sort(([,a],[,b])=>b-a).slice(0,5);
+      return { labels: sorted.map(x=>x[0]), data: sorted.map(x=>
