@@ -45,7 +45,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co"; 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; // Ganti dengan anon keymu
+const SUPABASE_ANON_KEY = "YOUR_ANON_KEY"; // Ganti dengan anon keymu
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const quizNameMap = {
@@ -118,7 +118,8 @@ async function renderUserCards(users) {
                         <p class="text-sm text-gray-500 mt-1">Kuis Dikerjakan</p>
                         <p class="font-semibold">${user.quizzes_taken}</p>
 
-                        <div class="flex flex-col sm:flex-row sm:items-center mt-2 gap-4">
+                        <!-- Posisi sejajar horizontal -->
+                        <div class="flex flex-row justify-start gap-6 mt-2">
                             <div class="text-center">
                                 <p class="text-gray-500">Total Skor Tantangan</p>
                                 <p class="text-2xl font-bold text-amber-500">${totalDashboardScore}</p>
