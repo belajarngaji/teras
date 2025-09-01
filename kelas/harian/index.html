@@ -78,15 +78,27 @@ async function loadQuizFromSupabase() {
     return;
   }
 
-  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
+  // Ambil batch terbaru
+  const { data: latestBatch, error: batchError } = await supabase
+    .from('dashboard_quiz_questions')
+    .select('batch_id')
+    .order('created_at', { ascending: false })
+    .limit(1);
 
-  // Ambil ID soal yang sudah dikerjakan user hari ini
+  if (batchError || !latestBatch || latestBatch.length === 0) {
+    questionText.textContent = 'Belum ada kuis tersedia.';
+    nextButton.disabled = true;
+    return;
+  }
+
+  const currentBatch = latestBatch[0].batch_id;
+
+  // Ambil ID soal yang sudah dikerjakan user di batch ini
   const { data: attempted, error: attemptError } = await supabase
     .from('dashboard_quiz_attempts')
     .select('quiz_question_id')
     .eq('user_id', user.id)
-    .gte('submitted_at', today + 'T00:00:00+07')
-    .lte('submitted_at', today + 'T23:59:59+07');
+    .eq('batch_id', currentBatch);
 
   if (attemptError) {
     console.error("Gagal fetch jawaban user:", attemptError);
@@ -97,11 +109,11 @@ async function loadQuizFromSupabase() {
 
   const attemptedIds = attempted.map(a => a.quiz_question_id);
 
-  // Ambil soal hari ini yang belum dikerjakan user
+  // Ambil soal batch terbaru yang belum dikerjakan user
   const { data, error } = await supabase
     .from('dashboard_quiz_questions')
-    .select('id, question_text, options, correct_answer')
-    .eq('quiz_date', today)
+    .select('id, question_text, options, correct_answer, batch_id')
+    .eq('batch_id', currentBatch)
     .not('id', 'in', `(${attemptedIds.join(',') || 0})`);
 
   if (error) {
@@ -113,7 +125,7 @@ async function loadQuizFromSupabase() {
 
   // Cek jika semua soal sudah dikerjakan
   if (!data || data.length === 0) {
-    questionText.textContent = 'Sudah dikerjakan hari ini, tunggu soal baru.';
+    questionText.textContent = 'Sudah dikerjakan, tunggu kuis baru.';
     optionsList.innerHTML = '';
     nextButton.disabled = true;
     timerSpan.textContent = "00:00";
@@ -122,8 +134,11 @@ async function loadQuizFromSupabase() {
 
   quizData = data.map(q => ({
     id: q.id,
+    batch_id: q.batch_id,
     question_text: q.question_text,
-    options: typeof q.options === 'object' ? Object.entries(q.options).map(([key, value]) => ({ key, value })) : [],
+    options: typeof q.options === 'object'
+      ? Object.entries(q.options).map(([key, value]) => ({ key, value }))
+      : [],
     correct_answer: q.correct_answer,
     correct_text: q.options[q.correct_answer]
   }));
@@ -188,10 +203,8 @@ async function submitAnswer(currentQuestion, timeTakenSec) {
     .insert([{
       user_id: user.id,
       quiz_question_id: currentQuestion.id,
+      batch_id: currentQuestion.batch_id,
       selected_answer: selectedOption,
-      selected_text: currentQuestion.options.find(o => o.key === selectedOption)?.value || '',
-      correct_answer: currentQuestion.correct_answer,
-      correct_text: currentQuestion.correct_text,
       score: scoreThis,
       is_correct: isCorrect,
       time_taken: timeTakenSec,
@@ -204,8 +217,7 @@ async function submitAnswer(currentQuestion, timeTakenSec) {
 // --- Feedback & next ---
 function giveFeedback() {
   const currentQuestion = quizData[currentQuestionIndex];
-  const selectedLi = document.querySelector('.option-item.selected');
-  if (!selectedLi) return;
+  if (!selectedOption) return;
 
   const timeTakenSec = Math.floor((Date.now() - questionStartTime) / 1000);
   clearInterval(timerInterval);
