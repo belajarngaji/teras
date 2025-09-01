@@ -46,7 +46,7 @@
     <p>&copy; 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
   </footer>
 
-    <<script type="module">
+    <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
@@ -70,17 +70,39 @@ let selectedOption = null;
 let questionStartTime = null;
 let timerInterval = null;
 
-// Dummy user untuk testing tanpa login
-const dummyUser = { id: 'test-user-1' };
-
 // --- Load kuis ---
 async function loadQuizFromSupabase() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    questionText.textContent = 'Silakan masuk untuk mengerjakan kuis.';
+    nextButton.disabled = true;
+    return;
+  }
+
   const today = new Date().toISOString().split('T')[0];
 
+  // Ambil ID soal yang sudah dikerjakan user hari ini
+  const { data: attempted, error: attemptError } = await supabase
+    .from('dashboard_quiz_attempts')
+    .select('quiz_question_id')
+    .eq('user_id', user.id)
+    .gte('submitted_at', today + 'T00:00:00')
+    .lte('submitted_at', today + 'T23:59:59');
+
+  if (attemptError) {
+    console.error("Gagal fetch jawaban user:", attemptError);
+    questionText.textContent = 'Terjadi error saat memuat kuis.';
+    return;
+  }
+
+  const attemptedIds = attempted.map(a => a.quiz_question_id);
+
+  // Ambil soal hari ini yang belum dikerjakan user
   const { data, error } = await supabase
     .from('dashboard_quiz_questions')
     .select('id, question_text, options, correct_answer')
-    .eq('quiz_date', today);
+    .eq('quiz_date', today)
+    .not('id', 'in', `(${attemptedIds.join(',') || 0})`); // pastikan tidak ambil soal yang sudah dikerjakan
 
   if (error) {
     console.error('Gagal fetch kuis:', error);
@@ -90,7 +112,7 @@ async function loadQuizFromSupabase() {
   }
 
   if (!data || data.length === 0) {
-    questionText.textContent = 'Tidak ada soal hari ini.';
+    questionText.textContent = 'Soal hari ini sudah selesai dikerjakan.';
     nextButton.disabled = true;
     return;
   }
@@ -112,10 +134,10 @@ async function loadQuizFromSupabase() {
 function loadQuestion() {
   selectedOption = null;
   optionsList.innerHTML = '';
+  timerSpan.textContent = "00:00"; // reset timer tiap soal
 
   if (timerInterval) clearInterval(timerInterval);
   questionStartTime = Date.now();
-  timerSpan.textContent = "00:00"; // reset timer tiap soal
 
   if (currentQuestionIndex >= quizData.length) {
     showResults();
@@ -152,7 +174,9 @@ function loadQuestion() {
 
 // --- Submit jawaban ---
 async function submitAnswer(currentQuestion, timeTakenSec) {
-  const user = dummyUser;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
   const isCorrect = selectedOption === currentQuestion.correct_answer;
   const scoreThis = isCorrect ? 10 : 0;
 
