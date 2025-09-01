@@ -70,6 +70,14 @@ let questionStartTime = null;
 let timerInterval = null;
 let feedbackShown = false;
 
+// --- Fungsi untuk menampilkan status message ---
+function showStatusMessage(message, textClasses, bgClasses) {
+  const status = document.getElementById('status-message');
+  status.textContent = message;
+  status.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textClasses} ${bgClasses}`;
+  status.style.display = 'block';
+}
+
 // --- Load kuis ---
 async function loadQuizFromSupabase() {
   const { data: { user } } = await supabase.auth.getUser();
@@ -142,7 +150,7 @@ async function loadQuizFromSupabase() {
       ? Object.entries(q.options).map(([key, value]) => ({ key, value }))
       : [],
     correct_answer: q.correct_answer,
-    correct_text: q.options[q.correct_answer]
+    correct_text: typeof q.options === 'object' ? q.options[q.correct_answer] : ''
   }));
 
   currentQuestionIndex = 0;
@@ -156,6 +164,7 @@ function loadQuestion() {
   feedbackShown = false;
   optionsList.innerHTML = '';
   timerSpan.textContent = "00:00";
+  document.getElementById('status-message').style.display = 'none';
 
   if (timerInterval) clearInterval(timerInterval);
   questionStartTime = Date.now();
@@ -178,7 +187,7 @@ function loadQuestion() {
       document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
       li.classList.add('selected');
       selectedOption = opt.key;
-      nextButton.disabled = false; // tombol aktif
+      nextButton.disabled = false;
     });
     optionsList.appendChild(li);
   });
@@ -228,32 +237,33 @@ function giveFeedback() {
   clearInterval(timerInterval);
 
   document.querySelectorAll('.option-item').forEach(item => {
-    item.classList.remove('selected'); // hapus highlight klik
+    item.classList.remove('selected');
     if (item.dataset.optionKey === currentQuestion.correct_answer) {
-      item.classList.add('bg-green-500', 'text-white', 'border-green-700'); // hijau terang
+      item.classList.add('bg-green-500', 'text-white', 'border-green-700');
     } else if (item.dataset.optionKey === selectedOption) {
-      item.classList.add('bg-red-500', 'text-white', 'border-red-700'); // merah terang
+      item.classList.add('bg-red-500', 'text-white', 'border-red-700');
     } else {
-      item.classList.add('bg-gray-800/10', 'border-gray-300'); // opsi lain tetap netral
+      item.classList.add('bg-gray-800/10', 'border-gray-300');
     }
   });
 
-  // Feedback teks
   const feedbackMessage = selectedOption === currentQuestion.correct_answer
     ? 'Jawaban Benar! Bagus sekali!'
     : 'Jawaban kurang tepat.';
-  
-  showStatusMessage(feedbackMessage,
+
+  showStatusMessage(
+    feedbackMessage,
     selectedOption === currentQuestion.correct_answer
-  ? 'text-green-800 dark:text-green-300 bg-green-100 dark:bg-green-900/50'
-  : 'text-orange-800 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/50'
-    'bg-gray-100 rounded-md p-2 text-center font-semibold');
+      ? 'text-green-800 dark:text-green-300 bg-green-100 dark:bg-green-900/50'
+      : 'text-orange-800 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/50',
+    'bg-gray-100 rounded-md p-2 text-center font-semibold'
+  );
 
   if (selectedOption === currentQuestion.correct_answer) score += 10;
 
   submitAnswer(currentQuestion, timeTakenSec);
 
-  nextButton.disabled = false; // tombol Selanjutnya aktif
+  nextButton.disabled = false;
 }
 
 // --- Lanjut ke soal berikut ---
