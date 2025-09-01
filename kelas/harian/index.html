@@ -3,93 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kuis Supabase</title>
+  <title>Kuis Kelas 1 Bab 1 - Hijaiyah</title>
+  <link rel="icon" href="https://placehold.co/32x32/3B82F6/FFFFFF?text=BN" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-      color: #333;
-      padding: 20px;
-    }
-    #quiz-ui, #results-ui {
-      max-width: 600px;
-      margin: auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    #question-text {
-      font-size: 1.2rem;
-      margin-bottom: 20px;
-    }
-    ul#options-list {
-      list-style: none;
-      padding: 0;
-    }
-    .option-item {
-      padding: 12px 16px;
-      margin-bottom: 10px;
-      border: 2px solid #ccc;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .option-item:hover { background-color: #e0f0ff; }
-    .option-item.selected { background-color: #cce5ff; border-color: #3399ff; }
-    .option-item.correct { background-color: #d4edda; border-color: #28a745; }
-    .option-item.incorrect { background-color: #f8d7da; border-color: #dc3545; }
-    #next-button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background-color: #3399ff;
-      color: white;
-    }
-    #next-button:disabled { background-color: #ccc; cursor: not-allowed; }
-    #status-message, #save-status-message {
-      margin-top: 12px;
-      padding: 10px;
-      border-radius: 8px;
-      font-weight: bold;
-      text-align: center;
-      display: none;
-    }
+    body { font-family: 'Poppins', sans-serif; }
+    .option-item.selected { background-color: #3b82f6; color: #fff; border-color: #2563eb; }
+    .option-item.correct { background-color: #22c55e; color: #fff; border-color: #16a34a; }
+    .option-item.incorrect { background-color: #ef4444; color: #fff; border-color: #dc2626; }
+    .no-pointer-events { pointer-events: none; }
   </style>
 </head>
-<body>
+<body class="bg-gray-100 dark:bg-slate-900">
+  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md sticky top-0 z-10">
+    <div><span class="text-xl font-bold">Huruf Hijaiyah</span></div>
+    <button class="bg-white text-blue-600 px-3 py-1.5 rounded-full hover:bg-gray-200 text-lg font-bold">🔔</button>
+  </nav>
 
-  <!-- --- BAGIAN QUIZ --- -->
-  <div id="quiz-ui">
-    <div id="question-text">Memuat soal...</div>
-    <ul id="options-list"></ul>
-    <button id="next-button">Selanjutnya</button>
-    <div id="timer"></div>
-    <div id="status-message"></div>
-    <div id="save-status-message"></div>
-  </div>
+  <main class="mx-auto px-4 py-10 w-full max-w-2xl">
+    <div id="quiz-ui" class="bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center dark:bg-slate-800 dark:text-gray-100">
+      <h2 id="question-text" class="text-2xl font-semibold mb-6">Memuat pertanyaan...</h2>
+      <ul id="options-list" class="flex flex-col gap-4 text-xl"></ul>
+      <div id="status-message" class="mt-4 p-3 rounded-lg text-sm font-semibold text-center hidden"></div>
+      <button id="next-button" class="mt-6 w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">Selanjutnya</button>
+    </div>
 
-  <!-- --- BAGIAN HASIL --- -->
-  <div id="results-ui" style="display:none;">
-    <h2>Hasil Kuis</h2>
-    <p>Skor Anda: <span id="final-score"></span></p>
-    <p id="score-message"></p>
-  </div>
+    <div id="results-ui" class="bg-white rounded-xl shadow-lg p-6 sm:p-8 mt-8 text-center dark:bg-slate-800 dark:text-gray-100" style="display:none;">
+      <h2 class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-4">Hasil Kuis</h2>
+      <p class="text-lg mb-2">Skor Akhir Anda:</p>
+      <p id="final-score" class="font-bold text-6xl text-green-600 dark:text-green-400">0</p>
+      <p id="score-message" class="mt-4 text-lg"></p>
+      <div id="save-status-message" class="mt-4 p-3 rounded-lg text-sm font-semibold text-center hidden"></div>
+      <a href="../../1/" class="mt-8 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">Kembali ke Kelas</a>
+    </div>
+  </main>
 
-  <!-- --- BAGIAN JS --- -->
+  <footer class="bg-gray-200 text-center py-6 dark:bg-slate-950 dark:text-gray-500 mt-10">
+    <p>&copy; 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
+  </footer>
+
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-    // --- KONFIGURASI SUPABASE ---
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE"; // ganti dengan key Supabase
+    const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE"; // ganti dengan kunci anon yang benar
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // --- ELEMENT DOM ---
     const quizUI = document.getElementById('quiz-ui');
     const resultsUI = document.getElementById('results-ui');
     const questionText = document.getElementById('question-text');
@@ -99,18 +60,15 @@
     const scoreMessage = document.getElementById('score-message');
     const statusMessage = document.getElementById('status-message');
     const saveStatusMessage = document.getElementById('save-status-message');
-    const timerEl = document.getElementById('timer');
 
     let quizData = [];
     let currentQuestionIndex = 0;
     let score = 0;
     let selectedOption = null;
-    let questionStartTime = null;
-    let timerInterval = null;
 
-    // --- FETCH SOAL DARI SUPABASE ---
+    // --- Load kuis dari Supabase ---
     async function loadQuizFromSupabase() {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabase
         .from('dashboard_quiz_questions')
         .select('id, question_text, options, correct_answer')
         .limit(10);
@@ -124,7 +82,7 @@
       quizData = data.map(q => ({
         id: q.id,
         question_text: q.question_text,
-        options: Object.entries(q.options).map(([key, value]) => ({ key, value })),
+        options: Object.entries(q.options).map(([key,value]) => ({ key, value })),
         correct_answer: q.correct_answer
       }));
 
@@ -133,27 +91,11 @@
       loadQuestion();
     }
 
-    // --- TIMER ---
-    function startTimer() {
-      questionStartTime = Date.now();
-      timerEl.textContent = '';
-      timerInterval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
-        timerEl.textContent = `Waktu: ${elapsed} detik`;
-      }, 500);
-    }
-
-    function stopTimer() {
-      clearInterval(timerInterval);
-      return Math.floor((Date.now() - questionStartTime) / 1000);
-    }
-
-    // --- LOAD SOAL ---
+    // --- Load pertanyaan ---
     function loadQuestion() {
       selectedOption = null;
       hideStatusMessage();
-      saveStatusMessage.style.display = 'none';
-      timerEl.textContent = '';
+      optionsList.innerHTML = '';
 
       if (currentQuestionIndex >= quizData.length) {
         showResults();
@@ -162,13 +104,12 @@
 
       const currentQuestion = quizData[currentQuestionIndex];
       questionText.textContent = `${currentQuestionIndex + 1}. ${currentQuestion.question_text}`;
-      optionsList.innerHTML = '';
 
       currentQuestion.options.forEach(opt => {
         const li = document.createElement('li');
         li.textContent = opt.value;
         li.dataset.optionKey = opt.key;
-        li.className = 'option-item';
+        li.className = 'option-item border-2 border-gray-200 dark:border-slate-600 font-semibold py-3 px-4 rounded-lg cursor-pointer transition hover:bg-blue-100 dark:hover:bg-slate-700';
         li.addEventListener('click', () => {
           document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
           li.classList.add('selected');
@@ -177,42 +118,22 @@
         optionsList.appendChild(li);
       });
 
-      nextButton.textContent = currentQuestionIndex === quizData.length - 1 ? 'Selesai' : 'Selanjutnya';
+      nextButton.textContent = currentQuestionIndex === quizData.length-1 ? 'Selesai' : 'Selanjutnya';
       optionsList.classList.remove('no-pointer-events');
       nextButton.disabled = false;
-      startTimer();
     }
 
-    // --- STATUS MESSAGE ---
-    function showStatusMessage(message, textColor = 'text-black', bgColor = 'bg-gray-200') {
-      statusMessage.textContent = message;
-      statusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
-      statusMessage.style.display = 'block';
-    }
-
-    function hideStatusMessage() {
-      statusMessage.style.display = 'none';
-    }
-
-    function showSaveStatusMessage(message, textColor, bgColor) {
-      saveStatusMessage.textContent = message;
-      saveStatusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
-      saveStatusMessage.style.display = 'block';
-    }
-
-    // --- SUBMIT JAWABAN ---
-    async function submitAnswer(currentQuestion, timeTakenSec) {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-
+    async function submitAnswer(currentQuestion) {
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        showSaveStatusMessage('Anda belum masuk untuk menyimpan skor.', 'text-orange-800', 'bg-orange-100');
+        showSaveStatusMessage('Anda belum masuk untuk menyimpan skor.', 'text-orange-800 dark:text-orange-300', 'bg-orange-100 dark:bg-orange-900/50');
         return;
       }
 
       const isCorrect = selectedOption === currentQuestion.correct_answer;
       const scoreThis = isCorrect ? 10 : 0;
 
-      const { error } = await supabaseClient
+      const { error } = await supabase
         .from('dashboard_quiz_attempts')
         .insert([{
           user_id: user.id,
@@ -220,72 +141,68 @@
           selected_answer: selectedOption,
           score: scoreThis,
           is_correct: isCorrect,
-          time_taken: `${timeTakenSec} seconds`,
           submitted_at: new Date().toISOString()
         }]);
 
-      if (error) {
-        console.error('Gagal menyimpan jawaban:', error);
-        showSaveStatusMessage('Gagal menyimpan jawaban.', 'text-red-800', 'bg-red-100');
-      } else {
-        showSaveStatusMessage('Jawaban berhasil dicatat!', 'text-green-800', 'bg-green-100');
-      }
+      if (error) console.error("Gagal menyimpan jawaban:", error);
     }
 
-    // --- FEEDBACK & LANJUT SOAL ---
     function giveFeedback() {
-      optionsList.classList.add('no-pointer-events');
-      nextButton.disabled = true;
       const currentQuestion = quizData[currentQuestionIndex];
       const selectedLi = document.querySelector('.option-item.selected');
-      const timeTakenSec = stopTimer();
-
       if (!selectedLi) return;
 
       const isCorrect = selectedOption === currentQuestion.correct_answer;
       if (isCorrect) {
         score += 10;
         selectedLi.classList.add('correct');
-        showStatusMessage('Jawaban Benar!', 'text-green-800', 'bg-green-100');
+        showStatusMessage('Jawaban Benar!', 'text-green-800 dark:text-green-300', 'bg-green-100 dark:bg-green-900/50');
       } else {
         selectedLi.classList.add('incorrect');
-        showStatusMessage('Jawaban salah.', 'text-red-800', 'bg-red-100');
+        showStatusMessage('Jawaban Salah.', 'text-red-800 dark:text-red-300', 'bg-red-100 dark:bg-red-900/50');
       }
 
-      submitAnswer(currentQuestion, timeTakenSec);
+      submitAnswer(currentQuestion);
 
       setTimeout(() => {
         currentQuestionIndex++;
         loadQuestion();
-      }, 1500);
+      }, 1200);
     }
 
-    // --- TAMPILKAN HASIL ---
     function showResults() {
       quizUI.style.display = 'none';
       resultsUI.style.display = 'block';
       finalScoreSpan.textContent = score;
-
-      if (score === quizData.length * 10) {
-        scoreMessage.textContent = 'Masya Allah! Skor sempurna!';
-      } else if (score >= quizData.length * 7) {
-        scoreMessage.textContent = 'Kerja bagus! Anda lulus kuis.';
-      } else {
-        scoreMessage.textContent = 'Coba lagi, jangan menyerah!';
-      }
+      if (score === quizData.length*10) scoreMessage.textContent = 'Skor sempurna!';
+      else if (score >= quizData.length*7) scoreMessage.textContent = 'Bagus, Anda lulus!';
+      else scoreMessage.textContent = 'Terus belajar, coba lagi ya!';
     }
 
-    // --- EVENT NEXT BUTTON ---
+    function showStatusMessage(msg, textColor, bgColor) {
+      statusMessage.textContent = msg;
+      statusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
+      statusMessage.classList.remove('hidden');
+    }
+
+    function hideStatusMessage() { statusMessage.classList.add('hidden'); }
+    function showSaveStatusMessage(msg, textColor, bgColor) {
+      saveStatusMessage.textContent = msg;
+      saveStatusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
+      saveStatusMessage.classList.remove('hidden');
+    }
+
     nextButton.addEventListener('click', () => {
       if (!selectedOption) {
-        showStatusMessage('Pilih jawaban terlebih dahulu.', 'text-red-800', 'bg-red-100');
+        showStatusMessage('Silakan pilih jawaban terlebih dahulu.', 'text-red-800 dark:text-red-300', 'bg-red-100 dark:bg-red-900/50');
         return;
       }
       giveFeedback();
     });
 
-    document.addEventListener('DOMContentLoaded', loadQuizFromSupabase);
-
+    document.addEventListener('DOMContentLoaded', () => {
+      loadQuizFromSupabase();
+    });
   </script>
 </body>
 </html>
