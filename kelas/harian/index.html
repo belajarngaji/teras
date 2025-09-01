@@ -71,49 +71,28 @@ let selectedOption = null;
 let questionStartTime = null;
 let timerInterval = null;
 
+// Dummy user untuk testing tanpa login
+const dummyUser = { id: 'test-user-1', email: 'dummy@example.com' };
+
 // --- Load kuis dari Supabase ---
 async function loadQuizFromSupabase() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    questionText.textContent = 'Silakan masuk untuk mengerjakan kuis.';
-    nextButton.disabled = true;
-    return;
-  }
-
   const today = new Date().toISOString().split('T')[0];
 
-  // Ambil ID soal yang sudah dikerjakan user hari ini
-  const { data: attempted, error: attemptError } = await supabase
-    .from('dashboard_quiz_attempts')
-    .select('quiz_question_id')
-    .eq('user_id', user.id)
-    .gte('submitted_at', today + 'T00:00:00')
-    .lte('submitted_at', today + 'T23:59:59');
-
-  if (attemptError) {
-    console.error("Gagal fetch jawaban user:", attemptError);
-    questionText.textContent = 'Terjadi error saat memuat kuis.';
-    return;
-  }
-
-  const attemptedIds = attempted.map(a => a.quiz_question_id);
-
-  // Ambil soal hari ini yang belum dikerjakan user
   const { data, error } = await supabase
     .from('dashboard_quiz_questions')
     .select('id, question_text, options, correct_answer')
     .eq('quiz_date', today)
-    .not('id', 'in', `(${attemptedIds.join(',') || 0})`)
     .limit(10);
 
   if (error) {
     console.error('Gagal fetch kuis:', error);
     questionText.textContent = 'Gagal memuat kuis.';
+    nextButton.disabled = true;
     return;
   }
 
   if (!data || data.length === 0) {
-    questionText.textContent = 'Soal harian hari ini sudah selesai dikerjakan.';
+    questionText.textContent = 'Tidak ada soal hari ini.';
     nextButton.disabled = true;
     return;
   }
@@ -165,7 +144,7 @@ function loadQuestion() {
   optionsList.classList.remove('no-pointer-events');
   nextButton.disabled = false;
 
-  // Start timer update di statusMessage
+  // Timer tampil di statusMessage
   timerInterval = setInterval(() => {
     const elapsed = Math.floor((Date.now() - questionStartTime)/1000);
     const minutes = String(Math.floor(elapsed/60)).padStart(2,'0');
@@ -177,8 +156,7 @@ function loadQuestion() {
 
 // --- Submit jawaban ---
 async function submitAnswer(currentQuestion, timeTakenSec) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
+  const user = dummyUser; // gunakan dummy user
 
   const isCorrect = selectedOption === currentQuestion.correct_answer;
   const scoreThis = isCorrect ? 10 : 0;
