@@ -45,43 +45,6 @@
     <p>&copy; 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
   </footer>
 
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kuis</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    #quiz-ui, #results-ui { max-width: 600px; margin: auto; }
-    .option-item {
-      border: 2px solid #ccc;
-      border-radius: 8px;
-      padding: 12px;
-      margin: 8px 0;
-      cursor: pointer;
-      transition: background 0.3s, border 0.3s;
-    }
-    .option-item.selected { border-color: #007bff; background: #e6f0ff; }
-    .option-item.correct { background: #d4edda; border-color: #28a745; }
-    .option-item.wrong { background: #f8d7da; border-color: #dc3545; }
-    #next-button { display: none; margin-top: 20px; padding: 10px 20px; }
-    #timer { font-weight: bold; }
-  </style>
-</head>
-<body>
-  <div id="quiz-ui">
-    <h2 id="question-text">Memuat soal...</h2>
-    <ul id="options-list"></ul>
-    <p>Waktu: <span id="timer">00:00</span></p>
-    <button id="next-button">Selanjutnya</button>
-  </div>
-  <div id="results-ui" style="display:none;">
-    <h2>Hasil Kuis</h2>
-    <p>Skor: <span id="final-score">0</span></p>
-    <p id="score-message"></p>
-  </div>
-
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
