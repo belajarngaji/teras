@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kuis Kelas 1 Bab 1 - Hijaiyah</title>
+  <title>Kuis Harian - Hijaiyah</title>
   <link rel="icon" href="https://placehold.co/32x32/3B82F6/FFFFFF?text=BN" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -20,8 +20,8 @@
   <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md sticky top-0 z-10">
     <div><span class="text-xl font-bold">Huruf Hijaiyah</span></div>
     <button class="bg-white text-blue-600 px-3 py-1.5 rounded-full text-lg font-bold">
-  ⏱ <span id="timer">00:00</span>
-</button>
+      ⏱ <span id="timer">00:00</span>
+    </button>
   </nav>
 
   <main class="mx-auto px-4 py-10 w-full max-w-2xl">
@@ -37,7 +37,6 @@
       <p class="text-lg mb-2">Skor Akhir Anda:</p>
       <p id="final-score" class="font-bold text-6xl text-green-600 dark:text-green-400">0</p>
       <p id="score-message" class="mt-4 text-lg"></p>
-      <div id="save-status-message" class="mt-4 p-3 rounded-lg text-sm font-semibold text-center hidden"></div>
       <a href="../../1/" class="mt-8 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">Kembali ke Kelas</a>
     </div>
   </main>
@@ -46,11 +45,11 @@
     <p>&copy; 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
   </footer>
 
-    <<script type="module">
+<script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -79,15 +78,15 @@ async function loadQuizFromSupabase() {
     return;
   }
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
 
   // Ambil ID soal yang sudah dikerjakan user hari ini
   const { data: attempted, error: attemptError } = await supabase
     .from('dashboard_quiz_attempts')
     .select('quiz_question_id')
     .eq('user_id', user.id)
-    .gte('submitted_at', today + 'T00:00:00')
-    .lte('submitted_at', today + 'T23:59:59');
+    .gte('submitted_at', today + 'T00:00:00+07')
+    .lte('submitted_at', today + 'T23:59:59+07');
 
   if (attemptError) {
     console.error("Gagal fetch jawaban user:", attemptError);
@@ -112,12 +111,12 @@ async function loadQuizFromSupabase() {
     return;
   }
 
-  // --- CEK JIKA SEMUA SOAL SUDAH DIKERJAKAN ---
+  // Cek jika semua soal sudah dikerjakan
   if (!data || data.length === 0) {
-    questionText.textContent = 'Soal hari ini sudah selesai dikerjakan.';
+    questionText.textContent = 'Sudah dikerjakan hari ini, tunggu soal baru.';
     optionsList.innerHTML = '';
     nextButton.disabled = true;
-    timerSpan.textContent = "00:00"; // reset timer
+    timerSpan.textContent = "00:00";
     return;
   }
 
@@ -138,7 +137,7 @@ async function loadQuizFromSupabase() {
 function loadQuestion() {
   selectedOption = null;
   optionsList.innerHTML = '';
-  timerSpan.textContent = "00:00"; // reset timer tiap soal
+  timerSpan.textContent = "00:00";
 
   if (timerInterval) clearInterval(timerInterval);
   questionStartTime = Date.now();
@@ -167,7 +166,7 @@ function loadQuestion() {
   nextButton.textContent = currentQuestionIndex === quizData.length - 1 ? 'Selesai' : 'Selanjutnya';
   nextButton.disabled = false;
 
-  // --- Timer real-time di span ---
+  // Timer real-time
   timerInterval = setInterval(() => {
     const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
     const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
@@ -225,7 +224,7 @@ function showResults() {
   resultsUI.style.display = 'block';
   finalScoreSpan.textContent = score;
   scoreMessage.textContent = score === quizData.length * 10 ? 'Skor sempurna!' : 'Selesai';
-  timerSpan.textContent = "00:00"; // reset timer
+  timerSpan.textContent = "00:00";
 }
 
 // --- Event ---
