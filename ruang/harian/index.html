@@ -27,9 +27,9 @@
     <div class="max-w-3xl mx-auto flex items-center justify-between gap-3 px-6 py-3">
       <div class="flex items-center gap-3">
         <button id="btn-back" class="text-blue-600 bg-blue-50 px-3 py-2 rounded-md hover:bg-blue-100">← Kembali</button>
-        <h1 class="text-lg font-semibold text-slate-800">Admin Kuis — Input Per Batch</h1>
+        <h1 class="text-lg font-semibold text-slate-800">Buat soal</h1>
       </div>
-      <div class="text-sm text-slate-500">Mode: <span class="font-medium text-slate-700">Batch Sekali Jawab</span></div>
+      <div class="text-sm text-slate-500">Mode: <span class="font-medium text-slate-700">Soal Sekali Jawab</span></div>
     </div>
   </header>
 
@@ -45,7 +45,7 @@
       <div class="card p-4 small">
         <div class="text-xs text-slate-400">Soal di Batch</div>
         <div id="countBatch" class="text-sm font-semibold text-slate-800">0</div>
-        <div class="text-xs text-slate-400 mt-1">Jumlah soal pada batch yang sedang dimuat.</div>
+        <div class="text-xs text-slate-400 mt-1">Jumlah soal yang sedang dimuat.</div>
       </div>
       <div class="card p-4 small">
         <div class="text-xs text-slate-400">Petunjuk</div>
@@ -62,7 +62,7 @@
             <div class="flex gap-2">
               <input id="batchId" type="text" required class="flex-1 border border-slate-200 rounded-md px-3 py-2 small" placeholder="contoh: batch_2025_09_01_120000_ab12" />
               <button type="button" id="genBatch" class="px-3 py-2 rounded-md bg-slate-100 hover:bg-slate-200 small">Generate</button>
-              <button type="button" id="loadBatch" class="px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-500 small">Muat Batch</button>
+              <button type="button" id="loadBatch" class="px-3 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-500 small">Muat</button>
             </div>
             <p class="text-xs text-slate-400 mt-1">Semua soal harus punya batch. Anda dapat menggunakan tombol Generate untuk membuat batch baru cepat.</p>
           </div>
@@ -145,7 +145,7 @@
   </main>
 
   <footer class="max-w-3xl mx-auto px-6 py-6 text-center text-xs text-slate-400">
-    © 2025 — Admin Kuis
+    © 2025 — Dasboard 
   </footer>
 
   <!-- SCRIPT -->
