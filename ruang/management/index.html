@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Management - Jawaban Salah Per User</title>
+  <title>Dashboard Jawaban Salah Per User</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://rsms.me/inter/inter.css');
+
     body {
       font-family: 'Inter', sans-serif;
       background-color: #f0f8ff;
@@ -26,44 +27,19 @@
       font-weight: 600;
     }
 
-    .table-wrapper {
-      overflow-x: auto;
-    }
+    header { position: sticky; top: 0; z-index: 10; }
+    #overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.3); z-index: 20; }
 
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      min-width: 600px;
-    }
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; }
+    .correct { color: green; font-weight: bold; }
+    .wrong { color: red; font-weight: bold; }
 
-    th, td {
-      padding: 0.75rem 1rem;
-      text-align: left;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .correct { background-color: #d1fae5; }
-    .wrong { background-color: #fee2e2; }
-
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    #overlay {
-      position: fixed;
-      inset: 0;
-      background-color: rgba(0,0,0,0.3);
-      z-index: 20;
-    }
   </style>
 </head>
 <body class="flex">
 
   <!-- Sidebar -->
-  <aside id="sidebar"
-         class="sidebar fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30 p-6">
+  <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30 p-6">
     <h2 class="text-xl font-bold mb-6 text-blue-600">Management Belajar Ngaji</h2>
     <ul class="space-y-4">
       <li><a href="../">Dashboard</a></li>
@@ -73,12 +49,10 @@
     </ul>
   </aside>
 
-  <!-- Overlay -->
   <div id="overlay" class="hidden lg:hidden"></div>
 
   <!-- Main content -->
   <div class="flex-1 min-h-screen flex flex-col lg:ml-64">
-    <!-- Header -->
     <header class="bg-white shadow-md p-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <button id="sidebar-toggle" class="text-blue-600 hover:text-blue-500 focus:outline-none lg:hidden">
@@ -90,37 +64,20 @@
       </div>
     </header>
 
-    <!-- Content -->
     <main class="p-6 flex-1 overflow-y-auto">
       <section>
-        <h3 class="text-xl font-semibold text-gray-700 mb-4">Daftar Jawaban Salah</h3>
-        <div class="table-wrapper bg-white border border-gray-200 rounded-lg p-4">
-          <table>
-            <thead class="bg-gray-100 text-gray-500 uppercase text-xs">
-              <tr>
-                <th>Nama User | Waktu Submit</th>
-                <th>Pertanyaan</th>
-                <th>Jawaban Terpilih</th>
-                <th>Jawaban Benar</th>
-                <th>Timer (detik)</th>
-              </tr>
-            </thead>
-            <tbody id="wrong-answers-body">
-              <tr><td colspan="5" class="py-4 px-6 text-center text-gray-400">Memuat data...</td></tr>
-            </tbody>
-          </table>
+        <div id="wrong-answers-container">
+          <p class="text-gray-400">Memuat data...</p>
         </div>
       </section>
     </main>
   </div>
 
-  <!-- Script -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
-
+    const SUPABASE_KEY = "YOUR_KEY_HERE";
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Sidebar toggle
@@ -137,37 +94,61 @@
       overlay.classList.add('hidden');
     });
 
-    // Current user filter (ubah sesuai auth atau username saat ini)
-    const currentUser = "fa370261"; // misal ambil dari auth.user.id atau username
-
+    // Fetch jawaban salah per user
     async function fetchWrongAnswers() {
       const { data, error } = await supabase
         .from('dashboard_wrong_answers')
         .select('*')
-        .eq('username', currentUser)
         .order('submitted_at', { ascending: false });
 
-      const tbody = document.getElementById('wrong-answers-body');
+      const container = document.getElementById('wrong-answers-container');
 
       if (error) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-4 px-6 text-center text-red-500">Terjadi error: ${error.message}</td></tr>`;
+        container.innerHTML = `<p class="text-red-500">Terjadi error: ${error.message}</p>`;
         return;
       }
 
       if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-4 px-6 text-center text-gray-400">Belum ada jawaban salah untuk user ini.</td></tr>`;
+        container.innerHTML = `<p class="text-gray-400">Belum ada jawaban salah.</p>`;
         return;
       }
 
-      tbody.innerHTML = data.map(row => `
-        <tr class="wrong">
-          <td class="py-3 px-6">${row.username} | ${new Date(row.submitted_at).toLocaleString('id-ID')}</td>
-          <td class="py-3 px-6">${row.question_text}</td>
-          <td class="py-3 px-6">${row.selected_answer}, ${row.selected_text}</td>
-          <td class="py-3 px-6">${row.correct_answer}, ${row.correct_text}</td>
-          <td class="py-3 px-6">${row.time_taken}</td>
-        </tr>
-      `).join('');
+      // Kelompokkan per username + attempt_id
+      const grouped = {};
+      data.forEach(row => {
+        const key = `${row.username}||${row.attempt_id}`;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(row);
+      });
+
+      container.innerHTML = '';
+
+      Object.keys(grouped).forEach(key => {
+        const [username, attempt_id] = key.split('||');
+        const attemptRows = grouped[key];
+
+        const attemptDate = new Date(attemptRows[0].submitted_at).toLocaleString('id-ID');
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const header = document.createElement('p');
+        header.innerHTML = `<strong>Nama user:</strong> ${username} &nbsp;&nbsp; <strong>Waktu submit:</strong> ${attemptDate}`;
+        card.appendChild(header);
+
+        attemptRows.forEach(r => {
+          const rowDiv = document.createElement('div');
+          rowDiv.className = 'mt-2 p-2 border-b border-gray-200';
+          rowDiv.innerHTML = `
+            <p><strong>Soal:</strong> ${r.question_text}</p>
+            <p><strong>Jawaban:</strong> ${r.selected_answer}, ${r.selected_text}</p>
+            <p><strong>Jawaban benar:</strong> ${r.correct_answer}, ${r.correct_text}</p>
+            <p><strong>Timer:</strong> ${r.time_taken} detik</p>
+          `;
+          card.appendChild(rowDiv);
+        });
+
+        container.appendChild(card);
+      });
     }
 
     document.addEventListener('DOMContentLoaded', fetchWrongAnswers);
