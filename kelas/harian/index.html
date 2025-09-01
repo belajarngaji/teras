@@ -82,10 +82,10 @@
       quizData = data.map(q => ({
         id: q.id,
         question_text: q.question_text,
-        options: Object.entries(q.options).map(([key,value]) => ({ key, value })),
-        correct_answer: q.correct_answer
+        options: Object.entries(q.options).map(([key, value]) => ({ key, value })), // key: A/B/C..., value: isi jawaban
+        correct_answer: q.correct_answer, // A/B/C/D
+        correct_text: q.options[q.correct_answer] // isi jawaban benar
       }));
-
       currentQuestionIndex = 0;
       score = 0;
       loadQuestion();
