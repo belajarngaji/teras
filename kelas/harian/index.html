@@ -63,9 +63,9 @@
     // 🔹 Ambil soal dari tabel quiz_questions
     async function loadQuizFromSupabase() {
       const { data, error } = await supabase
-        .from("quiz_questions")
+        .from("dashboard_quiz_questions")
         .select("*")
-        .limit(5)
+        .limit(10)
 
       if (error) {
         console.error("Gagal ambil data:", error)
