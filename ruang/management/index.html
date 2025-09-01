@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Jawaban Salah Per User</title>
+  <title>Dashboard Jawaban Salah</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://rsms.me/inter/inter.css');
@@ -27,19 +27,30 @@
       font-weight: 600;
     }
 
-    header { position: sticky; top: 0; z-index: 10; }
-    #overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.3); z-index: 20; }
+    .attempt-box {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
 
-    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; }
-    .correct { color: green; font-weight: bold; }
-    .wrong { color: red; font-weight: bold; }
+    .question-item {
+      margin-left: 1rem;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      border-left: 3px solid #3b82f6;
+    }
 
+    .correct { color: #065f46; font-weight: 600; }
+    .wrong { color: #991b1b; font-weight: 600; }
   </style>
 </head>
 <body class="flex">
 
   <!-- Sidebar -->
-  <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30 p-6">
+  <aside id="sidebar"
+         class="sidebar fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30 p-6">
     <h2 class="text-xl font-bold mb-6 text-blue-600">Management Belajar Ngaji</h2>
     <ul class="space-y-4">
       <li><a href="../">Dashboard</a></li>
@@ -49,10 +60,12 @@
     </ul>
   </aside>
 
+  <!-- Overlay -->
   <div id="overlay" class="hidden lg:hidden"></div>
 
   <!-- Main content -->
   <div class="flex-1 min-h-screen flex flex-col lg:ml-64">
+    <!-- Header -->
     <header class="bg-white shadow-md p-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <button id="sidebar-toggle" class="text-blue-600 hover:text-blue-500 focus:outline-none lg:hidden">
@@ -60,19 +73,22 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
         </button>
-        <h1 class="text-2xl font-bold text-blue-600">Jawaban Salah Per User</h1>
+        <h1 class="text-2xl font-bold text-blue-600">Jawaban Salah</h1>
       </div>
     </header>
 
+    <!-- Content -->
     <main class="p-6 flex-1 overflow-y-auto">
       <section>
-        <div id="wrong-answers-container">
-          <p class="text-gray-400">Memuat data...</p>
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Daftar Jawaban Salah</h3>
+        <div id="attempts-container" class="space-y-4">
+          <div class="text-gray-400">Memuat data...</div>
         </div>
       </section>
     </main>
   </div>
 
+  <!-- Script -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -94,60 +110,50 @@
       overlay.classList.add('hidden');
     });
 
-    // Fetch jawaban salah per user
     async function fetchWrongAnswers() {
       const { data, error } = await supabase
         .from('dashboard_wrong_answers')
-        .select('*')
+        .select('attempt_id, username, question_text, selected_answer, selected_text, correct_answer, correct_text, time_taken, submitted_at')
         .order('submitted_at', { ascending: false });
 
-      const container = document.getElementById('wrong-answers-container');
+      const container = document.getElementById('attempts-container');
 
       if (error) {
-        container.innerHTML = `<p class="text-red-500">Terjadi error: ${error.message}</p>`;
+        container.innerHTML = `<div class="text-red-500">Terjadi error: ${error.message}</div>`;
         return;
       }
 
       if (!data || data.length === 0) {
-        container.innerHTML = `<p class="text-gray-400">Belum ada jawaban salah.</p>`;
+        container.innerHTML = `<div class="text-gray-400">Belum ada jawaban salah.</div>`;
         return;
       }
 
-      // Kelompokkan per username + attempt_id
-      const grouped = {};
+      // Kelompokkan per attempt_id
+      const attemptsMap = {};
       data.forEach(row => {
-        const key = `${row.username}||${row.attempt_id}`;
-        if (!grouped[key]) grouped[key] = [];
-        grouped[key].push(row);
+        if (!attemptsMap[row.attempt_id]) attemptsMap[row.attempt_id] = { username: row.username, submitted_at: row.submitted_at, questions: [] };
+        attemptsMap[row.attempt_id].questions.push(row);
       });
 
+      // Render
       container.innerHTML = '';
-
-      Object.keys(grouped).forEach(key => {
-        const [username, attempt_id] = key.split('||');
-        const attemptRows = grouped[key];
-
-        const attemptDate = new Date(attemptRows[0].submitted_at).toLocaleString('id-ID');
-        const card = document.createElement('div');
-        card.className = 'card';
-
-        const header = document.createElement('p');
-        header.innerHTML = `<strong>Nama user:</strong> ${username} &nbsp;&nbsp; <strong>Waktu submit:</strong> ${attemptDate}`;
-        card.appendChild(header);
-
-        attemptRows.forEach(r => {
-          const rowDiv = document.createElement('div');
-          rowDiv.className = 'mt-2 p-2 border-b border-gray-200';
-          rowDiv.innerHTML = `
-            <p><strong>Soal:</strong> ${r.question_text}</p>
-            <p><strong>Jawaban:</strong> ${r.selected_answer}, ${r.selected_text}</p>
-            <p><strong>Jawaban benar:</strong> ${r.correct_answer}, ${r.correct_text}</p>
-            <p><strong>Timer:</strong> ${r.time_taken} detik</p>
+      Object.values(attemptsMap).forEach(attempt => {
+        const box = document.createElement('div');
+        box.className = 'attempt-box';
+        const submittedTime = new Date(attempt.submitted_at).toLocaleString('id-ID');
+        box.innerHTML = `<div class="font-semibold mb-2">Nama User: ${attempt.username} &nbsp;&nbsp; ${submittedTime}</div>`;
+        attempt.questions.forEach((q, i) => {
+          const qDiv = document.createElement('div');
+          qDiv.className = 'question-item';
+          qDiv.innerHTML = `
+            ${i+1}. Soal: ${q.question_text}<br>
+            Jawaban: ${q.selected_answer}, "${q.selected_text}"<br>
+            Jawaban Benar: ${q.correct_answer}, "${q.correct_text}"<br>
+            Waktu: ${q.time_taken} detik
           `;
-          card.appendChild(rowDiv);
+          box.appendChild(qDiv);
         });
-
-        container.appendChild(card);
+        container.appendChild(box);
       });
     }
 
