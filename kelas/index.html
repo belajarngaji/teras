@@ -117,7 +117,7 @@
       const { data, error } = await supabaseClient
         .from('leaderboard') // DIUBAH: Mengambil dari VIEW 'leaderboard'
         .select('rank, username, total_score') // DIUBAH: Memilih kolom dari VIEW
-        .limit(10); // Ambil 10 data teratas
+        .limit(3); // Ambil 10 data teratas
 
       if (error) {
         console.error('Error fetching leaderboard data:', error.message);
