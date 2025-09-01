@@ -46,8 +46,8 @@
     <p>&copy; 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
   </footer>
 
-    <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+    <<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
@@ -92,6 +92,7 @@ async function loadQuizFromSupabase() {
   if (attemptError) {
     console.error("Gagal fetch jawaban user:", attemptError);
     questionText.textContent = 'Terjadi error saat memuat kuis.';
+    nextButton.disabled = true;
     return;
   }
 
@@ -102,7 +103,7 @@ async function loadQuizFromSupabase() {
     .from('dashboard_quiz_questions')
     .select('id, question_text, options, correct_answer')
     .eq('quiz_date', today)
-    .not('id', 'in', `(${attemptedIds.join(',') || 0})`); // pastikan tidak ambil soal yang sudah dikerjakan
+    .not('id', 'in', `(${attemptedIds.join(',') || 0})`);
 
   if (error) {
     console.error('Gagal fetch kuis:', error);
@@ -111,9 +112,12 @@ async function loadQuizFromSupabase() {
     return;
   }
 
+  // --- CEK JIKA SEMUA SOAL SUDAH DIKERJAKAN ---
   if (!data || data.length === 0) {
     questionText.textContent = 'Soal hari ini sudah selesai dikerjakan.';
+    optionsList.innerHTML = '';
     nextButton.disabled = true;
+    timerSpan.textContent = "00:00"; // reset timer
     return;
   }
 
@@ -221,6 +225,7 @@ function showResults() {
   resultsUI.style.display = 'block';
   finalScoreSpan.textContent = score;
   scoreMessage.textContent = score === quizData.length * 10 ? 'Skor sempurna!' : 'Selesai';
+  timerSpan.textContent = "00:00"; // reset timer
 }
 
 // --- Event ---
