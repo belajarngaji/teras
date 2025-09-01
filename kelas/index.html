@@ -104,68 +104,102 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module">
-    // --- KONEKSI SUPABASE ---
-    const { createClient } = supabase;
-    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // --- KONEKSI SUPABASE ---
+  const { createClient } = supabase;
+  const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+  const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- FUNGSI LEADERBOARD (DIPERBAIKI SESUAI VIEW SQL) ---
-    async function getLeaderboardData() {
-      // Mengambil data dari VIEW 'leaderboard' yang sudah Anda buat
-      // dan memilih kolom yang relevan.
-      const { data, error } = await supabaseClient
-        .from('leaderboard') // DIUBAH: Mengambil dari VIEW 'leaderboard'
-        .select('rank, username, total_score') // DIUBAH: Memilih kolom dari VIEW
-        .limit(3); // Ambil 10 data teratas
+  // --- LEADERBOARD UMUM ---
+  async function getLeaderboardData() {
+    const { data, error } = await supabaseClient
+      .from('leaderboard')
+      .select('rank, username, total_score')
+      .limit(3);
 
-      if (error) {
-        console.error('Error fetching leaderboard data:', error.message);
-        // Tampilkan error jika VIEW tidak ditemukan atau ada masalah lain
-        document.getElementById('leaderboard-body').innerHTML = `<tr><td colspan="3" class="py-4 text-center text-red-500">Error: ${error.message}</td></tr>`;
-        return null;
-      }
+    if (error) {
+      console.error('Error fetching leaderboard data:', error.message);
+      document.getElementById('leaderboard-body').innerHTML = `<tr><td colspan="3" class="py-4 text-center text-red-500">Error: ${error.message}</td></tr>`;
+      return null;
+    }
+    return data;
+  }
 
-      return data;
+  function renderLeaderboard(users) {
+    document.getElementById('leaderboard-loading').classList.add('hidden');
+    const leaderboardBody = document.getElementById('leaderboard-body');
+
+    if (leaderboardBody.innerHTML.includes('Error:')) return;
+
+    leaderboardBody.innerHTML = '';
+
+    if (!users || users.length === 0) {
+      leaderboardBody.innerHTML = '<tr><td colspan="3" class="py-4 text-center text-gray-500">Belum ada skor yang tercatat.</td></tr>';
+      return;
     }
 
-    // Fungsi untuk merender data ke dalam tabel HTML
-    function renderLeaderboard(users) {
-      document.getElementById('leaderboard-loading').classList.add('hidden');
-      const leaderboardBody = document.getElementById('leaderboard-body');
-      
-      // Jangan hapus isi tabel jika sudah ada pesan error dari fungsi getLeaderboardData
-      if (leaderboardBody.innerHTML.includes('Error:')) {
-        return;
-      }
-      leaderboardBody.innerHTML = '';
+    users.forEach(user => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.rank}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">${user.username}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.total_score || 0}</td>
+      `;
+      leaderboardBody.appendChild(row);
+    });
+  }
 
-      if (!users || users.length === 0) {
-        leaderboardBody.innerHTML = '<tr><td colspan="3" class="py-4 text-center text-gray-500">Belum ada skor yang tercatat.</td></tr>';
-        return;
-      }
+  async function fetchAndRenderLeaderboard() {
+    const leaderboardData = await getLeaderboardData();
+    if (leaderboardData) renderLeaderboard(leaderboardData);
+  }
 
-      users.forEach(user => { // DIUBAH: tidak perlu 'index' lagi
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.rank}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">${user.username}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.total_score || 0}</td>
-        `;
-        leaderboardBody.appendChild(row);
-      });
+  // --- LEADERBOARD TANTANGAN TOP 1 ---
+  function createDashboardLeaderboardDiv() {
+    const container = document.querySelector('.container');
+    const div = document.createElement('div');
+    div.id = 'leaderboard-dashboard';
+    div.className = 'card bg-amber-200 dark:bg-amber-800 rounded-2xl shadow-2xl p-6 sm:p-8 text-center hover:scale-105 transition col-span-1 md:col-span-2 lg:col-span-3 mt-4';
+    div.innerHTML = `
+      <h2 class="text-2xl font-extrabold text-amber-900 dark:text-amber-200 mb-4 tracking-wider uppercase">TOP 1 TANTANGAN</h2>
+      <div id="leaderboard-dashboard-single" class="text-3xl font-bold text-amber-800 dark:text-amber-200 tracking-wide">Memuat...</div>
+    `;
+    container.insertBefore(div, container.firstChild);
+  }
+
+  async function loadTopDashboardUser() {
+    const { data: leaderboard, error } = await supabaseClient
+      .from('profiles')
+      .select('username, dashboard_score_total')
+      .order('dashboard_score_total', { ascending: false })
+      .limit(1);
+
+    const container = document.getElementById('leaderboard-dashboard-single');
+
+    if (error) {
+      console.error("Gagal load leaderboard Tantangan:", error);
+      container.textContent = "Gagal memuat leaderboard";
+      return;
     }
 
-    // Fungsi utama untuk mengambil dan menampilkan data saat halaman dimuat
-    async function fetchAndRenderLeaderboard() {
-      const leaderboardData = await getLeaderboardData();
-      if (leaderboardData) {
-        renderLeaderboard(leaderboardData);
-      }
+    if (!leaderboard || leaderboard.length === 0 || leaderboard[0].dashboard_score_total === null) {
+      container.textContent = "Belum ada skor Tantangan";
+      return;
     }
 
-    // Jalankan fungsi utama saat konten DOM sudah dimuat
-    document.addEventListener('DOMContentLoaded', fetchAndRenderLeaderboard);
-  </script>
+    const user = leaderboard[0];
+    container.innerHTML = `
+      <span class="block text-5xl font-extrabold">${user.username}</span>
+      <span class="block mt-2 text-2xl font-semibold text-amber-900 dark:text-amber-200">${user.dashboard_score_total} poin</span>
+    `;
+  }
+
+  // --- INIT SEMUA ---
+  document.addEventListener('DOMContentLoaded', () => {
+    createDashboardLeaderboardDiv(); // leaderboard Tantangan top 1
+    loadTopDashboardUser();
+    fetchAndRenderLeaderboard();     // leaderboard umum
+  });
+</script>
 </body>
 </html>
