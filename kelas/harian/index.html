@@ -228,20 +228,30 @@ function giveFeedback() {
   clearInterval(timerInterval);
 
   document.querySelectorAll('.option-item').forEach(item => {
+    item.classList.remove('selected'); // hapus highlight klik
     if (item.dataset.optionKey === currentQuestion.correct_answer) {
-      item.classList.add('bg-green-300', 'border-green-600'); // hijau jelas
+      item.classList.add('bg-green-500', 'text-white', 'border-green-700'); // hijau terang
     } else if (item.dataset.optionKey === selectedOption) {
-      item.classList.add('bg-red-300', 'border-red-600'); // merah jelas
+      item.classList.add('bg-red-500', 'text-white', 'border-red-700'); // merah terang
+    } else {
+      item.classList.add('bg-gray-800/10', 'border-gray-300'); // opsi lain tetap netral
     }
-    item.classList.remove('selected');
   });
+
+  // Feedback teks
+  const feedbackMessage = selectedOption === currentQuestion.correct_answer
+    ? 'Jawaban Benar! Bagus sekali!'
+    : 'Jawaban kurang tepat.';
+  
+  showStatusMessage(feedbackMessage,
+    selectedOption === currentQuestion.correct_answer ? 'text-green-700' : 'text-red-700',
+    'bg-gray-100 rounded-md p-2 text-center font-semibold');
 
   if (selectedOption === currentQuestion.correct_answer) score += 10;
 
   submitAnswer(currentQuestion, timeTakenSec);
 
-  // tombol Selanjutnya aktif
-  nextButton.disabled = false;
+  nextButton.disabled = false; // tombol Selanjutnya aktif
 }
 
 // --- Lanjut ke soal berikut ---
