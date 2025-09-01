@@ -68,16 +68,18 @@ let score = 0;
 let selectedOption = null;
 let questionStartTime = null;
 let timerInterval = null;
-let hasAnswered = false;
+let feedbackShown = false;
 
 // --- Load kuis ---
 async function loadQuizFromSupabase() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     questionText.textContent = 'Silakan masuk untuk mengerjakan kuis.';
+    nextButton.disabled = true;
     return;
   }
 
+  // Ambil batch terbaru
   const { data: latestBatch, error: batchError } = await supabase
     .from('dashboard_quiz_questions')
     .select('batch_id')
@@ -86,29 +88,52 @@ async function loadQuizFromSupabase() {
 
   if (batchError || !latestBatch || latestBatch.length === 0) {
     questionText.textContent = 'Belum ada kuis tersedia.';
+    nextButton.disabled = true;
     return;
   }
 
   const currentBatch = latestBatch[0].batch_id;
 
-  const { data: attempted } = await supabase
+  // Ambil ID soal yang sudah dikerjakan user di batch ini
+  const { data: attempted, error: attemptError } = await supabase
     .from('dashboard_quiz_attempts')
     .select('quiz_question_id')
     .eq('user_id', user.id)
     .eq('batch_id', currentBatch);
 
-  const attemptedIds = attempted?.map(a => a.quiz_question_id) || [];
+  if (attemptError) {
+    console.error("Gagal fetch jawaban user:", attemptError);
+    questionText.textContent = 'Terjadi error saat memuat kuis.';
+    nextButton.disabled = true;
+    return;
+  }
 
-  const { data, error } = await supabase
+  const attemptedIds = attempted.map(a => a.quiz_question_id);
+
+  // Ambil soal batch terbaru yang belum dikerjakan user
+  let query = supabase
     .from('dashboard_quiz_questions')
     .select('id, question_text, options, correct_answer, batch_id')
-    .eq('batch_id', currentBatch)
-    .not('id', 'in', `(${attemptedIds.join(',') || 0})`);
+    .eq('batch_id', currentBatch);
 
-  if (error || !data || data.length === 0) {
+  if (attemptedIds.length > 0) {
+    query = query.not('id', 'in', `(${attemptedIds.join(',')})`);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Gagal fetch kuis:', error);
+    questionText.textContent = 'Gagal memuat kuis.';
+    nextButton.disabled = true;
+    return;
+  }
+
+  if (!data || data.length === 0) {
     questionText.textContent = 'Sudah dikerjakan, tunggu kuis baru.';
     optionsList.innerHTML = '';
-    nextButton.style.display = 'none';
+    nextButton.disabled = true;
+    timerSpan.textContent = "00:00";
     return;
   }
 
@@ -116,11 +141,11 @@ async function loadQuizFromSupabase() {
     id: q.id,
     batch_id: q.batch_id,
     question_text: q.question_text,
-    options: (() => {
-      let opts = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
-      return Object.entries(opts || {}).map(([key, value]) => ({ key, value }));
-    })(),
-    correct_answer: q.correct_answer
+    options: typeof q.options === 'object'
+      ? Object.entries(q.options).map(([key, value]) => ({ key, value }))
+      : [],
+    correct_answer: q.correct_answer,
+    correct_text: q.options[q.correct_answer]
   }));
 
   currentQuestionIndex = 0;
@@ -131,10 +156,10 @@ async function loadQuizFromSupabase() {
 // --- Load pertanyaan ---
 function loadQuestion() {
   selectedOption = null;
-  hasAnswered = false;
+  feedbackShown = false;
   optionsList.innerHTML = '';
-  nextButton.style.display = 'none';
   timerSpan.textContent = "00:00";
+
   if (timerInterval) clearInterval(timerInterval);
   questionStartTime = Date.now();
 
@@ -150,10 +175,19 @@ function loadQuestion() {
     const li = document.createElement('li');
     li.textContent = opt.value;
     li.dataset.optionKey = opt.key;
-    li.className = 'option-item';
-    li.addEventListener('click', () => handleOptionClick(li, opt.key));
+    li.className = 'option-item border-2 border-gray-200 font-semibold py-3 px-4 rounded-lg cursor-pointer transition hover:bg-blue-100';
+    li.addEventListener('click', () => {
+      if (feedbackShown) return;
+      document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
+      li.classList.add('selected');
+      selectedOption = opt.key;
+      nextButton.disabled = false; // <- Tombol aktif setelah klik jawaban
+    });
     optionsList.appendChild(li);
   });
+
+  nextButton.textContent = currentQuestionIndex === quizData.length - 1 ? 'Selesai' : 'Selanjutnya';
+  nextButton.disabled = true;
 
   timerInterval = setInterval(() => {
     const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
@@ -163,51 +197,57 @@ function loadQuestion() {
   }, 500);
 }
 
-// --- Klik opsi ---
-function handleOptionClick(li, key) {
-  if (hasAnswered) return;
-  selectedOption = key;
-  hasAnswered = true;
-
-  document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
-  li.classList.add('selected');
-
-  // Cek jawaban
-  const currentQuestion = quizData[currentQuestionIndex];
-  const correctKey = currentQuestion.correct_answer;
-
-  document.querySelectorAll('.option-item').forEach(item => {
-    if (item.dataset.optionKey === correctKey) {
-      item.classList.add('correct');
-    } else if (item.dataset.optionKey === selectedOption) {
-      item.classList.add('wrong');
-    }
-  });
-
-  nextButton.style.display = 'block';
-}
-
 // --- Submit jawaban ---
-async function submitAnswer() {
-  const currentQuestion = quizData[currentQuestionIndex];
+async function submitAnswer(currentQuestion, timeTakenSec) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
 
-  const timeTakenSec = Math.floor((Date.now() - questionStartTime) / 1000);
   const isCorrect = selectedOption === currentQuestion.correct_answer;
-  if (isCorrect) score += 10;
+  const scoreThis = isCorrect ? 10 : 0;
 
-  await supabase.from('dashboard_quiz_attempts').insert([{
-    user_id: user.id,
-    quiz_question_id: currentQuestion.id,
-    batch_id: currentQuestion.batch_id,
-    selected_answer: selectedOption,
-    score: isCorrect ? 10 : 0,
-    is_correct: isCorrect,
-    time_taken: timeTakenSec,
-    submitted_at: new Date().toISOString()
-  }]);
+  const { error } = await supabase
+    .from('dashboard_quiz_attempts')
+    .insert([{
+      user_id: user.id,
+      quiz_question_id: currentQuestion.id,
+      batch_id: currentQuestion.batch_id,
+      selected_answer: selectedOption,
+      score: scoreThis,
+      is_correct: isCorrect,
+      time_taken: timeTakenSec,
+      submitted_at: new Date().toISOString()
+    }]);
 
+  if (error) console.error("Gagal menyimpan jawaban:", error);
+}
+
+// --- Feedback ---
+function giveFeedback() {
+  const currentQuestion = quizData[currentQuestionIndex];
+  if (!selectedOption || feedbackShown) return;
+
+  feedbackShown = true;
+  const timeTakenSec = Math.floor((Date.now() - questionStartTime) / 1000);
+  clearInterval(timerInterval);
+
+  document.querySelectorAll('.option-item').forEach(item => {
+    if (item.dataset.optionKey === currentQuestion.correct_answer) {
+      item.classList.add('bg-green-200');
+    } else if (item.dataset.optionKey === selectedOption) {
+      item.classList.add('bg-red-200');
+    }
+    item.classList.remove('selected');
+  });
+
+  if (selectedOption === currentQuestion.correct_answer) score += 10;
+
+  submitAnswer(currentQuestion, timeTakenSec);
+
+  nextButton.disabled = false;
+}
+
+// --- Lanjut ke soal berikut ---
+function goNext() {
   currentQuestionIndex++;
   loadQuestion();
 }
@@ -223,15 +263,16 @@ function showResults() {
 
 // --- Event ---
 nextButton.addEventListener('click', () => {
-  if (!selectedOption) return;
-  submitAnswer();
+  if (!feedbackShown) {
+    giveFeedback();
+  } else {
+    goNext();
+  }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
   loadQuizFromSupabase();
 });
 </script>
-</body>
-</html>
 </body>
 </html>
