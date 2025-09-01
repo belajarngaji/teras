@@ -45,7 +45,7 @@
     <p>&copy; 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
   </footer>
 
-<script type="module">
+<<script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
@@ -79,7 +79,6 @@ async function loadQuizFromSupabase() {
     return;
   }
 
-  // Ambil batch terbaru
   const { data: latestBatch, error: batchError } = await supabase
     .from('dashboard_quiz_questions')
     .select('batch_id')
@@ -94,7 +93,6 @@ async function loadQuizFromSupabase() {
 
   const currentBatch = latestBatch[0].batch_id;
 
-  // Ambil ID soal yang sudah dikerjakan user di batch ini
   const { data: attempted, error: attemptError } = await supabase
     .from('dashboard_quiz_attempts')
     .select('quiz_question_id')
@@ -110,7 +108,6 @@ async function loadQuizFromSupabase() {
 
   const attemptedIds = attempted.map(a => a.quiz_question_id);
 
-  // Ambil soal batch terbaru yang belum dikerjakan user
   let query = supabase
     .from('dashboard_quiz_questions')
     .select('id, question_text, options, correct_answer, batch_id')
@@ -181,7 +178,7 @@ function loadQuestion() {
       document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
       li.classList.add('selected');
       selectedOption = opt.key;
-      nextButton.disabled = false; // <- Tombol aktif setelah klik jawaban
+      nextButton.disabled = false; // tombol aktif
     });
     optionsList.appendChild(li);
   });
@@ -232,9 +229,9 @@ function giveFeedback() {
 
   document.querySelectorAll('.option-item').forEach(item => {
     if (item.dataset.optionKey === currentQuestion.correct_answer) {
-      item.classList.add('bg-green-200');
+      item.classList.add('bg-green-300', 'border-green-600'); // hijau jelas
     } else if (item.dataset.optionKey === selectedOption) {
-      item.classList.add('bg-red-200');
+      item.classList.add('bg-red-300', 'border-red-600'); // merah jelas
     }
     item.classList.remove('selected');
   });
@@ -243,6 +240,7 @@ function giveFeedback() {
 
   submitAnswer(currentQuestion, timeTakenSec);
 
+  // tombol Selanjutnya aktif
   nextButton.disabled = false;
 }
 
