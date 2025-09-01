@@ -66,6 +66,11 @@
       </div>
     </div>
 
+    <div class="card bg-yellow-400 text-yellow-900 rounded-xl shadow-lg p-6 text-center hover:scale-105 transition col-span-1 md:col-span-2 lg:col-span-3">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">Tantangan Harian</h2>
+      <a href="harian/" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700">Masuk</a>
+    </div>
+
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
       <h2 class="text-xl font-semibold mb-2">Kelas 1</h2>
       <a href="1/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Masuk</a>
@@ -101,22 +106,23 @@
   <script type="module">
     // --- KONEKSI SUPABASE ---
     const { createClient } = supabase;
-    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co"; // Ganti dengan URL proyek Supabase-mu
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; // Ganti dengan Anon Key proyek Supabase-mu
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- FUNGSI LEADERBOARD ---
+    // --- FUNGSI LEADERBOARD (DIPERBAIKI SESUAI VIEW SQL) ---
     async function getLeaderboardData() {
-      // Mengambil data dari tabel `user_profiles`
-      // Asumsi: Tabel 'user_profiles' memiliki kolom 'username' dan 'total_score'
+      // Mengambil data dari VIEW 'leaderboard' yang sudah Anda buat
+      // dan memilih kolom yang relevan.
       const { data, error } = await supabaseClient
-        .from('user_profiles')
-        .select('username, total_score')
-        .order('total_score', { ascending: false })
-        .limit(10); // Ambil 10 data teratas
+        .from('leaderboard') // DIUBAH: Mengambil dari VIEW 'leaderboard'
+        .select('rank, username, total_score') // DIUBAH: Memilih kolom dari VIEW
+        .limit(3); // Ambil 10 data teratas
 
       if (error) {
         console.error('Error fetching leaderboard data:', error.message);
+        // Tampilkan error jika VIEW tidak ditemukan atau ada masalah lain
+        document.getElementById('leaderboard-body').innerHTML = `<tr><td colspan="3" class="py-4 text-center text-red-500">Error: ${error.message}</td></tr>`;
         return null;
       }
 
@@ -127,6 +133,11 @@
     function renderLeaderboard(users) {
       document.getElementById('leaderboard-loading').classList.add('hidden');
       const leaderboardBody = document.getElementById('leaderboard-body');
+
+      // Jangan hapus isi tabel jika sudah ada pesan error dari fungsi getLeaderboardData
+      if (leaderboardBody.innerHTML.includes('Error:')) {
+        return;
+      }
       leaderboardBody.innerHTML = '';
 
       if (!users || users.length === 0) {
@@ -134,10 +145,10 @@
         return;
       }
 
-      users.forEach((user, index) => {
+      users.forEach(user => { // DIUBAH: tidak perlu 'index' lagi
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.rank}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">${user.username}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.total_score || 0}</td>
         `;
@@ -148,7 +159,9 @@
     // Fungsi utama untuk mengambil dan menampilkan data saat halaman dimuat
     async function fetchAndRenderLeaderboard() {
       const leaderboardData = await getLeaderboardData();
-      renderLeaderboard(leaderboardData);
+      if (leaderboardData) {
+        renderLeaderboard(leaderboardData);
+      }
     }
 
     // Jalankan fungsi utama saat konten DOM sudah dimuat
