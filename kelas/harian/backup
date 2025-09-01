@@ -47,7 +47,7 @@
   </footer>
 
     <<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
@@ -70,17 +70,40 @@ let selectedOption = null;
 let questionStartTime = null;
 let timerInterval = null;
 
-// Dummy user untuk testing tanpa login
-const dummyUser = { id: 'test-user-1' };
-
 // --- Load kuis ---
 async function loadQuizFromSupabase() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    questionText.textContent = 'Silakan masuk untuk mengerjakan kuis.';
+    nextButton.disabled = true;
+    return;
+  }
+
   const today = new Date().toISOString().split('T')[0];
 
+  // Ambil ID soal yang sudah dikerjakan user hari ini
+  const { data: attempted, error: attemptError } = await supabase
+    .from('dashboard_quiz_attempts')
+    .select('quiz_question_id')
+    .eq('user_id', user.id)
+    .gte('submitted_at', today + 'T00:00:00')
+    .lte('submitted_at', today + 'T23:59:59');
+
+  if (attemptError) {
+    console.error("Gagal fetch jawaban user:", attemptError);
+    questionText.textContent = 'Terjadi error saat memuat kuis.';
+    nextButton.disabled = true;
+    return;
+  }
+
+  const attemptedIds = attempted.map(a => a.quiz_question_id);
+
+  // Ambil soal hari ini yang belum dikerjakan user
   const { data, error } = await supabase
     .from('dashboard_quiz_questions')
     .select('id, question_text, options, correct_answer')
-    .eq('quiz_date', today);
+    .eq('quiz_date', today)
+    .not('id', 'in', `(${attemptedIds.join(',') || 0})`);
 
   if (error) {
     console.error('Gagal fetch kuis:', error);
@@ -89,9 +112,12 @@ async function loadQuizFromSupabase() {
     return;
   }
 
+  // --- CEK JIKA SEMUA SOAL SUDAH DIKERJAKAN ---
   if (!data || data.length === 0) {
-    questionText.textContent = 'Tidak ada soal hari ini.';
+    questionText.textContent = 'Soal hari ini sudah selesai dikerjakan.';
+    optionsList.innerHTML = '';
     nextButton.disabled = true;
+    timerSpan.textContent = "00:00"; // reset timer
     return;
   }
 
@@ -112,10 +138,10 @@ async function loadQuizFromSupabase() {
 function loadQuestion() {
   selectedOption = null;
   optionsList.innerHTML = '';
+  timerSpan.textContent = "00:00"; // reset timer tiap soal
 
   if (timerInterval) clearInterval(timerInterval);
   questionStartTime = Date.now();
-  timerSpan.textContent = "00:00"; // reset timer tiap soal
 
   if (currentQuestionIndex >= quizData.length) {
     showResults();
@@ -152,7 +178,9 @@ function loadQuestion() {
 
 // --- Submit jawaban ---
 async function submitAnswer(currentQuestion, timeTakenSec) {
-  const user = dummyUser;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
   const isCorrect = selectedOption === currentQuestion.correct_answer;
   const scoreThis = isCorrect ? 10 : 0;
 
@@ -197,6 +225,7 @@ function showResults() {
   resultsUI.style.display = 'block';
   finalScoreSpan.textContent = score;
   scoreMessage.textContent = score === quizData.length * 10 ? 'Skor sempurna!' : 'Selesai';
+  timerSpan.textContent = "00:00"; // reset timer
 }
 
 // --- Event ---
