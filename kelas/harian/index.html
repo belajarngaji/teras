@@ -82,7 +82,6 @@ async function loadQuizFromSupabase() {
     .from('dashboard_quiz_questions')
     .select('id, question_text, options, correct_answer')
     .eq('quiz_date', today)
-    .limit(10);
 
   if (error) {
     console.error('Gagal fetch kuis:', error);
