@@ -6,114 +6,133 @@
 <title>Manajemen Pengguna - Dashboard Admin</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-    body { background-color: #f3f4f6; color: #1f2937; font-family: 'Poppins', sans-serif; }
-    .user-card { background-color: #ffffff; border: 1px solid #e5e7eb; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
-    .user-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
-    .history-table-container::-webkit-scrollbar { width: 8px; height: 8px; }
-    .history-table-container::-webkit-scrollbar-track { background: #f9fafb; }
-    .history-table-container::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 20px; border: 3px solid #f9fafb; }
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+body { background-color: #f3f4f6; color: #1f2937; font-family: 'Poppins', sans-serif; }
+.user-card { background-color: #ffffff; border: 1px solid #e5e7eb; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+.user-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+.history-table-container::-webkit-scrollbar { width: 8px; height: 8px; }
+.history-table-container::-webkit-scrollbar-track { background: #f9fafb; }
+.history-table-container::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 20px; border: 3px solid #f9fafb; }
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 </style>
 </head>
 <body class="antialiased">
 
 <header class="bg-blue-600 shadow-md p-4 sticky top-0 z-10">
-    <div class="max-w-7xl mx-auto flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-white flex items-center gap-3">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-            Kartu Tanda Pengguna
-        </h1>
-        <a href="../" class="text-sm bg-white hover:bg-gray-200 text-blue-600 font-semibold py-2 px-4 rounded-lg transition">
-            &larr; Kembali ke Dashboard
-        </a>
-    </div>
+  <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-white flex items-center gap-3">
+      Kartu Tanda Pengguna
+    </h1>
+    <a href="../" class="text-sm bg-white hover:bg-gray-200 text-blue-600 font-semibold py-2 px-4 rounded-lg transition">
+      &larr; Kembali ke Dashboard
+    </a>
+  </div>
 </header>
 
 <main class="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
-    <!-- Loading -->
-    <div id="loading-state" class="text-left py-20 flex items-center gap-3">
-        <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <p class="mt-1 text-lg text-gray-500">Memuat data pengguna...</p>
-    </div>
+  <div id="loading-state" class="text-left py-10">
+    <svg class="animate-spin h-8 w-8 text-blue-500 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+    <span class="ml-2 text-lg text-gray-500">Memuat data pengguna...</span>
+  </div>
 
-    <!-- Container Kartu -->
-    <div id="user-cards-container" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+  <div id="user-cards-container" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-8"></div>
 </main>
 
 <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co"; 
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; // ganti dengan anon key
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function fetchUserDashboard() {
-        const { data, error } = await supabase
-            .from('user_dashboard_summary')
-            .select('*');
+async function fetchUsers() {
+  const { data: users } = await supabase.from('profiles').select('id, username');
+  return users || [];
+}
 
-        if (error) {
-            console.error("Gagal mengambil data:", error.message);
-            return [];
-        }
-        return data;
-    }
+async function fetchUserStats(username) {
+  // Ambil total skor dan jumlah soal dari dashboard_quiz_attempts
+  const { data: attempts } = await supabase.from('dashboard_quiz_attempts').select('score').eq('user_id', username);
+  const totalScore = attempts.reduce((a,b) => a + b.score, 0);
+  const totalCount = attempts.length;
+  return { totalScore, totalCount };
+}
 
-    function renderUserCards(users) {
-        const container = document.getElementById('user-cards-container');
-        if (!users || users.length === 0) {
-            container.innerHTML = `<p class="text-gray-500 col-span-full text-left">Belum ada pengguna yang terdaftar.</p>`;
-            return;
-        }
+async function fetchUserHistory(username) {
+  const { data: profile } = await supabase.from('profiles').select('id').eq('username', username).single();
+  if(!profile) return [];
+  const { data: history } = await supabase.from('quiz_attempts').select('quiz_id, score, submitted_at').eq('user_id', profile.id).order('submitted_at', { ascending: false });
+  return history || [];
+}
 
-        container.innerHTML = users.map(user => `
-            <div class="user-card rounded-xl shadow-lg p-6 flex flex-col">
-                <div class="flex gap-6 items-start">
-                    <div class="flex-shrink-0 w-24 h-24 bg-blue-500 rounded-lg flex items-center justify-center text-5xl font-bold text-white">
-                        ${user.username.charAt(0).toUpperCase()}
-                    </div>
-                    <div class="flex-grow text-left">
-                        <p class="text-sm text-gray-500">Nama Pengguna</p>
-                        <h3 class="text-2xl font-bold text-gray-800">${user.username}</h3>
+async function renderUsers() {
+  const container = document.getElementById('user-cards-container');
+  const users = await fetchUsers();
+  container.innerHTML = '';
 
-                        <div class="grid grid-cols-2 gap-4 mt-4 text-left">
-                            <div>
-                                <p class="text-gray-500 text-sm">Total Skor</p>
-                                <p class="text-xl font-bold text-blue-600">${user.total_score || 0}</p>
-                            </div>
-                            <div>
-                                <p class="text-gray-500 text-sm">Skor Tantangan</p>
-                                <p class="text-xl font-bold text-amber-500">${user.dashboard_score || 0}</p>
-                            </div>
-                            <div>
-                                <p class="text-gray-500 text-sm">Kuis Dikerjakan</p>
-                                <p class="font-semibold">${user.quizzes_taken || 0}</p>
-                            </div>
-                            <div>
-                                <p class="text-gray-500 text-sm">Total Soal</p>
-                                <p class="font-semibold">${user.dashboard_count || 0}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
+  for(const user of users) {
+    const stats = await fetchUserStats(user.username);
+    const history = await fetchUserHistory(user.username);
 
-    document.addEventListener('DOMContentLoaded', async () => {
-        const users = await fetchUserDashboard();
-        document.getElementById('loading-state').classList.add('hidden');
-        document.getElementById('user-cards-container').classList.remove('hidden');
-        renderUserCards(users);
-    });
+    const card = document.createElement('div');
+    card.className = 'user-card rounded-xl shadow-lg p-6 flex flex-col gap-4';
+
+    const historyHtml = history.length > 0
+      ? history.map(a => `<tr class="border-b border-gray-200">
+          <td class="py-2 px-3 text-gray-700 capitalize">${a.quiz_id}</td>
+          <td class="py-2 px-3 text-center font-semibold text-blue-600">${a.score}</td>
+          <td class="py-2 px-3 text-xs text-gray-500 whitespace-nowrap">${new Date(a.submitted_at).toLocaleString('id-ID')}</td>
+        </tr>`).join('')
+      : `<tr><td colspan="3" class="py-4 text-center text-gray-400">Belum ada riwayat.</td></tr>`;
+
+    card.innerHTML = `
+      <h3 class="text-xl font-bold">${user.username}</h3>
+      <div class="grid grid-cols-2 gap-4 text-sm font-semibold mt-2">
+        <div>
+          <p class="text-gray-500">Total Skor</p>
+          <p class="text-amber-500 text-lg">${stats.totalScore}</p>
+        </div>
+        <div>
+          <p class="text-gray-500">Skor Tantangan</p>
+          <p class="text-lg">${stats.totalScore}</p>
+        </div>
+        <div>
+          <p class="text-gray-500">Kuis Dikerjakan</p>
+          <p class="text-lg">${stats.totalCount}</p>
+        </div>
+        <div>
+          <p class="text-gray-500">Total Soal</p>
+          <p class="text-lg">${stats.totalCount}</p>
+        </div>
+      </div>
+      <div class="mt-6 pt-4 border-t border-gray-200 flex-grow flex flex-col">
+        <h4 class="font-semibold mb-2 text-left text-gray-600">Riwayat Lengkap:</h4>
+        <div class="history-table-container overflow-auto flex-grow h-48 border rounded-lg">
+          <table class="w-full text-sm text-left">
+            <thead class="sticky top-0 bg-gray-50">
+              <tr>
+                <th class="py-2 px-3 text-xs uppercase font-medium text-gray-500">Kuis</th>
+                <th class="py-2 px-3 text-xs uppercase font-medium text-gray-500 text-center">Skor</th>
+                <th class="py-2 px-3 text-xs uppercase font-medium text-gray-500">Waktu</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              ${historyHtml}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  }
+
+  document.getElementById('loading-state').classList.add('hidden');
+  container.classList.remove('hidden');
+}
+
+document.addEventListener('DOMContentLoaded', renderUsers);
 </script>
 </body>
 </html>
