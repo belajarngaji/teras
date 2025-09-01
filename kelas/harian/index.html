@@ -82,6 +82,7 @@ async function loadQuizFromSupabase() {
 
   const today = new Date().toISOString().split('T')[0];
 
+  // Ambil ID soal yang sudah dikerjakan user hari ini
   const { data: attempted, error: attemptError } = await supabase
     .from('dashboard_quiz_attempts')
     .select('quiz_question_id')
@@ -97,6 +98,7 @@ async function loadQuizFromSupabase() {
 
   const attemptedIds = attempted.map(a => a.quiz_question_id);
 
+  // Ambil soal hari ini yang belum dikerjakan user
   const { data, error } = await supabase
     .from('dashboard_quiz_questions')
     .select('id, question_text, options, correct_answer')
