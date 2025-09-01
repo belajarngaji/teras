@@ -31,7 +31,12 @@
           ?
         </div>
         <h2 id="username-display" class="text-2xl font-bold">Memuat...</h2>
-        <p class="text-gray-500 dark:text-gray-400 mt-2">Total Skor: <span id="total-score-display" class="font-bold text-lg">0</span></p>
+        <p class="text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-4">
+          Total Skor: <span id="total-score-display" class="font-bold text-lg">0</span>
+          <span class="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 font-semibold px-2 py-1 rounded-lg text-sm">
+            Tantangan: <span id="dashboard-score-display">0</span>
+          </span>
+        </p>
       </div>
 
       <div class="mt-6">
@@ -73,6 +78,7 @@
     const profileInitial = document.getElementById('profile-initial');
     const usernameDisplay = document.getElementById('username-display');
     const totalScoreDisplay = document.getElementById('total-score-display');
+    const dashboardScoreDisplay = document.getElementById('dashboard-score-display');
     const historyTableBody = document.getElementById('history-table-body');
     const authButtons = document.getElementById('auth-buttons');
     const loadingContainer = document.getElementById('loading-container');
@@ -95,12 +101,13 @@
     async function loadUserProfile(userId) {
       const { data: profile, error } = await supabaseClient
         .from('profiles')
-        .select('username')
+        .select('username, dashboard_score_total')
         .eq('id', userId)
         .single();
       if (profile) {
         usernameDisplay.textContent = profile.username;
         profileInitial.textContent = profile.username.charAt(0).toUpperCase();
+        dashboardScoreDisplay.textContent = profile.dashboard_score_total || 0;
       } else {
         console.error('Gagal memuat profil:', error);
         usernameDisplay.textContent = 'Gagal Memuat';
