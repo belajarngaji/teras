@@ -16,9 +16,7 @@
       transition: transform 0.3s;
       cursor: pointer;
     }
-    .card:hover {
-      transform: translateY(-5px);
-    }
+    .card:hover { transform: translateY(-5px); }
     .loading-spinner {
       border: 4px solid rgba(0, 0, 0, 0.1);
       border-left-color: #3b82f6;
@@ -27,26 +25,27 @@
       height: 24px;
       animation: spin 1s linear infinite;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-gray-50">
   <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
     <div>
-      <a href=".">
-        <img src="..png" alt="Belajar Ngaji" class="h-7 w-auto">
-      </a>
+      <a href="."><img src="..png" alt="Belajar Ngaji" class="h-7 w-auto"></a>
     </div>
-    <a href="../profil/" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
-      👤
-    </a>
+    <a href="../profil/" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">👤</a>
   </nav>
 
-  <div class="container mx-auto px-4 py-10 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+  <div class="container mx-auto px-4 py-10 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 
-    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition col-span-1 md:col-span-2 lg:col-span-3">
+    <!-- LEADERBOARD TANTANGAN TOP 1 -->
+    <div id="leaderboard-dashboard" class="card bg-amber-200 dark:bg-amber-800 rounded-xl shadow-lg p-4 text-center col-span-1 md:col-span-2 lg:col-span-3">
+      <h2 class="text-xl font-bold text-amber-900 dark:text-amber-200 mb-2 uppercase tracking-wide">TOP 1 TANTANGAN</h2>
+      <div id="leaderboard-dashboard-single" class="text-lg font-semibold text-amber-800 dark:text-amber-200 tracking-wide">Memuat...</div>
+    </div>
+
+    <!-- LEADERBOARD UMUM TOP 3 -->
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center col-span-1 md:col-span-2 lg:col-span-3">
       <h2 class="text-2xl font-semibold text-gray-800 mb-4">Papan Peringkat</h2>
       <div id="leaderboard-loading" class="flex justify-center py-4">
         <div class="loading-spinner"></div>
@@ -55,13 +54,12 @@
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peringkat</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Pengguna</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Skor</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peringkat</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Pengguna</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Skor</th>
             </tr>
           </thead>
-          <tbody id="leaderboard-body" class="bg-white divide-y divide-gray-200">
-            </tbody>
+          <tbody id="leaderboard-body" class="bg-white divide-y divide-gray-200"></tbody>
         </table>
       </div>
     </div>
@@ -75,22 +73,18 @@
       <h2 class="text-xl font-semibold mb-2">Kelas 1</h2>
       <a href="1/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Masuk</a>
     </div>
-
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
       <h2 class="text-xl font-semibold mb-2">Kelas 2</h2>
       <a href="2/bab/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Masuk</a>
     </div>
-
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
       <h2 class="text-xl font-semibold mb-2">Kelas 3</h2>
       <a href="3/bab/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Masuk</a>
     </div>
-
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
       <h2 class="text-xl font-semibold mb-2">Kelas 4</h2>
       <a href="4/bab/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Masuk</a>
     </div>
-
     <div class="card bg-yellow-400 text-yellow-900 rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
       <h2 class="text-xl font-semibold mb-2">SUPER QUIZ</h2>
       <a href="superquiz/" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700">Masuk</a>
@@ -104,102 +98,82 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module">
-  // --- KONEKSI SUPABASE ---
-  const { createClient } = supabase;
-  const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
-  const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const { createClient } = supabase;
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // --- LEADERBOARD UMUM ---
-  async function getLeaderboardData() {
-    const { data, error } = await supabaseClient
-      .from('leaderboard')
-      .select('rank, username, total_score')
-      .limit(3);
-
-    if (error) {
-      console.error('Error fetching leaderboard data:', error.message);
-      document.getElementById('leaderboard-body').innerHTML = `<tr><td colspan="3" class="py-4 text-center text-red-500">Error: ${error.message}</td></tr>`;
-      return null;
-    }
-    return data;
-  }
-
-  function renderLeaderboard(users) {
-    document.getElementById('leaderboard-loading').classList.add('hidden');
-    const leaderboardBody = document.getElementById('leaderboard-body');
-
-    if (leaderboardBody.innerHTML.includes('Error:')) return;
-
-    leaderboardBody.innerHTML = '';
-
-    if (!users || users.length === 0) {
-      leaderboardBody.innerHTML = '<tr><td colspan="3" class="py-4 text-center text-gray-500">Belum ada skor yang tercatat.</td></tr>';
-      return;
+    // --- LEADERBOARD UMUM ---
+    async function getLeaderboardData() {
+      const { data, error } = await supabaseClient
+        .from('leaderboard')
+        .select('rank, username, total_score')
+        .limit(3);
+      if (error) {
+        console.error('Error fetching leaderboard data:', error.message);
+        document.getElementById('leaderboard-body').innerHTML = `<tr><td colspan="3" class="py-4 text-center text-red-500">Error: ${error.message}</td></tr>`;
+        return null;
+      }
+      return data;
     }
 
-    users.forEach(user => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.rank}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">${user.username}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.total_score || 0}</td>
+    function renderLeaderboard(users) {
+      document.getElementById('leaderboard-loading').classList.add('hidden');
+      const leaderboardBody = document.getElementById('leaderboard-body');
+      if (leaderboardBody.innerHTML.includes('Error:')) return;
+      leaderboardBody.innerHTML = '';
+      if (!users || users.length === 0) {
+        leaderboardBody.innerHTML = '<tr><td colspan="3" class="py-4 text-center text-gray-500">Belum ada skor yang tercatat.</td></tr>';
+        return;
+      }
+      users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.rank}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">${user.username}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.total_score || 0}</td>
+        `;
+        leaderboardBody.appendChild(row);
+      });
+    }
+
+    async function fetchAndRenderLeaderboard() {
+      const leaderboardData = await getLeaderboardData();
+      if (leaderboardData) renderLeaderboard(leaderboardData);
+    }
+
+    // --- LEADERBOARD TANTANGAN TOP 1 ---
+    async function loadTopDashboardUser() {
+      const { data: leaderboard, error } = await supabaseClient
+        .from('profiles')
+        .select('username, dashboard_score_total')
+        .order('dashboard_score_total', { ascending: false })
+        .limit(1);
+
+      const container = document.getElementById('leaderboard-dashboard-single');
+
+      if (error) {
+        console.error("Gagal load leaderboard Tantangan:", error);
+        container.textContent = "Gagal memuat leaderboard";
+        return;
+      }
+
+      if (!leaderboard || leaderboard.length === 0 || leaderboard[0].dashboard_score_total === null) {
+        container.textContent = "Belum ada skor Tantangan";
+        return;
+      }
+
+      const user = leaderboard[0];
+      container.innerHTML = `
+        <span class="block text-2xl font-bold">${user.username}</span>
+        <span class="block mt-1 text-lg font-semibold text-amber-900 dark:text-amber-200">${user.dashboard_score_total} poin</span>
       `;
-      leaderboardBody.appendChild(row);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadTopDashboardUser();  // Leaderboard Tantangan top 1
+      fetchAndRenderLeaderboard(); // Leaderboard umum top 3
     });
-  }
-
-  async function fetchAndRenderLeaderboard() {
-    const leaderboardData = await getLeaderboardData();
-    if (leaderboardData) renderLeaderboard(leaderboardData);
-  }
-
-  // --- LEADERBOARD TANTANGAN TOP 1 ---
-  function createDashboardLeaderboardDiv() {
-    const container = document.querySelector('.container');
-    const div = document.createElement('div');
-    div.id = 'leaderboard-dashboard';
-    div.className = 'card bg-amber-200 dark:bg-amber-800 rounded-2xl shadow-2xl p-6 sm:p-8 text-center hover:scale-105 transition col-span-1 md:col-span-2 lg:col-span-3 mt-4';
-    div.innerHTML = `
-      <h2 class="text-2xl font-extrabold text-amber-900 dark:text-amber-200 mb-4 tracking-wider uppercase">TOP 1 TANTANGAN</h2>
-      <div id="leaderboard-dashboard-single" class="text-3xl font-bold text-amber-800 dark:text-amber-200 tracking-wide">Memuat...</div>
-    `;
-    container.insertBefore(div, container.firstChild);
-  }
-
-  async function loadTopDashboardUser() {
-    const { data: leaderboard, error } = await supabaseClient
-      .from('profiles')
-      .select('username, dashboard_score_total')
-      .order('dashboard_score_total', { ascending: false })
-      .limit(1);
-
-    const container = document.getElementById('leaderboard-dashboard-single');
-
-    if (error) {
-      console.error("Gagal load leaderboard Tantangan:", error);
-      container.textContent = "Gagal memuat leaderboard";
-      return;
-    }
-
-    if (!leaderboard || leaderboard.length === 0 || leaderboard[0].dashboard_score_total === null) {
-      container.textContent = "Belum ada skor Tantangan";
-      return;
-    }
-
-    const user = leaderboard[0];
-    container.innerHTML = `
-      <span class="block text-5xl font-extrabold">${user.username}</span>
-      <span class="block mt-2 text-2xl font-semibold text-amber-900 dark:text-amber-200">${user.dashboard_score_total} poin</span>
-    `;
-  }
-
-  // --- INIT SEMUA ---
-  document.addEventListener('DOMContentLoaded', () => {
-    createDashboardLeaderboardDiv(); // leaderboard Tantangan top 1
-    loadTopDashboardUser();
-    fetchAndRenderLeaderboard();     // leaderboard umum
-  });
-</script>
+  </script>
 </body>
 </html>
