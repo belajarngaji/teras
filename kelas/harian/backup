@@ -46,7 +46,7 @@
     <p>&copy; 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
   </footer>
 
-    <script type="module">
+    <<script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
@@ -61,8 +61,7 @@ const optionsList = document.getElementById('options-list');
 const nextButton = document.getElementById('next-button');
 const finalScoreSpan = document.getElementById('final-score');
 const scoreMessage = document.getElementById('score-message');
-const statusMessage = document.getElementById('status-message');
-const saveStatusMessage = document.getElementById('save-status-message');
+const timerSpan = document.getElementById('timer');
 
 let quizData = [];
 let currentQuestionIndex = 0;
@@ -112,11 +111,11 @@ async function loadQuizFromSupabase() {
 // --- Load pertanyaan ---
 function loadQuestion() {
   selectedOption = null;
-  hideStatusMessage();
   optionsList.innerHTML = '';
 
   if (timerInterval) clearInterval(timerInterval);
   questionStartTime = Date.now();
+  timerSpan.textContent = "00:00"; // reset timer tiap soal
 
   if (currentQuestionIndex >= quizData.length) {
     showResults();
@@ -139,18 +138,15 @@ function loadQuestion() {
     optionsList.appendChild(li);
   });
 
-  nextButton.textContent = currentQuestionIndex === quizData.length-1 ? 'Selesai' : 'Selanjutnya';
-  optionsList.classList.remove('no-pointer-events');
+  nextButton.textContent = currentQuestionIndex === quizData.length - 1 ? 'Selesai' : 'Selanjutnya';
   nextButton.disabled = false;
 
-  // --- Timer real-time tanpa mengubah layout ---
+  // --- Timer real-time di span ---
   timerInterval = setInterval(() => {
-    const elapsed = Math.floor((Date.now() - questionStartTime)/1000);
-    const minutes = String(Math.floor(elapsed / 60)).padStart(2,'0');
-    const seconds = String(elapsed % 60).padStart(2,'0');
-    // Tetap tampil di statusMessage tapi jaga class asli
-    statusMessage.textContent = `Waktu: ${minutes}:${seconds}`;
-    statusMessage.classList.remove('hidden');
+    const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+    const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const seconds = String(elapsed % 60).padStart(2, '0');
+    timerSpan.textContent = `${minutes}:${seconds}`;
   }, 500);
 }
 
@@ -184,11 +180,10 @@ function giveFeedback() {
   const selectedLi = document.querySelector('.option-item.selected');
   if (!selectedLi) return;
 
-  const timeTakenSec = Math.floor((Date.now() - questionStartTime)/1000);
+  const timeTakenSec = Math.floor((Date.now() - questionStartTime) / 1000);
   clearInterval(timerInterval);
 
-  const isCorrect = selectedOption === currentQuestion.correct_answer;
-  if (isCorrect) score += 10;
+  if (selectedOption === currentQuestion.correct_answer) score += 10;
 
   submitAnswer(currentQuestion, timeTakenSec);
 
@@ -203,9 +198,6 @@ function showResults() {
   finalScoreSpan.textContent = score;
   scoreMessage.textContent = score === quizData.length * 10 ? 'Skor sempurna!' : 'Selesai';
 }
-
-// --- Helper UI ---
-function hideStatusMessage() { statusMessage.classList.add('hidden'); }
 
 // --- Event ---
 nextButton.addEventListener('click', () => {
