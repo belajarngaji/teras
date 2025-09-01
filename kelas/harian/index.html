@@ -50,7 +50,7 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9uIjoidXNlciIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -62,7 +62,6 @@ const nextButton = document.getElementById('next-button');
 const finalScoreSpan = document.getElementById('final-score');
 const scoreMessage = document.getElementById('score-message');
 const statusMessage = document.getElementById('status-message');
-const saveStatusMessage = document.getElementById('save-status-message');
 
 let quizData = [];
 let currentQuestionIndex = 0;
@@ -71,20 +70,21 @@ let selectedOption = null;
 let questionStartTime = null;
 let timerInterval = null;
 
-// Dummy user untuk testing tanpa login
-const dummyUser = { id: 'test-user-1', email: 'dummy@example.com' };
+// Dummy user untuk testing
+const dummyUser = { id: 'test-user-1' };
 
-// --- Load kuis dari Supabase ---
+// Load kuis dari Supabase
 async function loadQuizFromSupabase() {
   const today = new Date().toISOString().split('T')[0];
 
   const { data, error } = await supabase
     .from('dashboard_quiz_questions')
     .select('id, question_text, options, correct_answer')
-    .eq('quiz_date', today)
+    .eq('quiz_date', today);
+
+  console.log("Fetch kuis:", data, error);
 
   if (error) {
-    console.error('Gagal fetch kuis:', error);
     questionText.textContent = 'Gagal memuat kuis.';
     nextButton.disabled = true;
     return;
@@ -99,7 +99,7 @@ async function loadQuizFromSupabase() {
   quizData = data.map(q => ({
     id: q.id,
     question_text: q.question_text,
-    options: Object.entries(q.options).map(([key, value]) => ({ key, value })),
+    options: typeof q.options === 'object' ? Object.entries(q.options).map(([key, value]) => ({ key, value })) : [],
     correct_answer: q.correct_answer,
     correct_text: q.options[q.correct_answer]
   }));
@@ -109,10 +109,9 @@ async function loadQuizFromSupabase() {
   loadQuestion();
 }
 
-// --- Load pertanyaan ---
+// Load pertanyaan
 function loadQuestion() {
   selectedOption = null;
-  hideStatusMessage();
   optionsList.innerHTML = '';
 
   if (timerInterval) clearInterval(timerInterval);
@@ -130,7 +129,7 @@ function loadQuestion() {
     const li = document.createElement('li');
     li.textContent = opt.value;
     li.dataset.optionKey = opt.key;
-    li.className = 'option-item border-2 border-gray-200 dark:border-slate-600 font-semibold py-3 px-4 rounded-lg cursor-pointer transition hover:bg-blue-100 dark:hover:bg-slate-700';
+    li.className = 'option-item border p-2 rounded cursor-pointer';
     li.addEventListener('click', () => {
       document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
       li.classList.add('selected');
@@ -139,24 +138,20 @@ function loadQuestion() {
     optionsList.appendChild(li);
   });
 
-  nextButton.textContent = currentQuestionIndex === quizData.length-1 ? 'Selesai' : 'Selanjutnya';
-  optionsList.classList.remove('no-pointer-events');
+  nextButton.textContent = currentQuestionIndex === quizData.length - 1 ? 'Selesai' : 'Selanjutnya';
   nextButton.disabled = false;
 
-  // Timer tampil di statusMessage
   timerInterval = setInterval(() => {
     const elapsed = Math.floor((Date.now() - questionStartTime)/1000);
-    const minutes = String(Math.floor(elapsed/60)).padStart(2,'0');
+    const minutes = String(Math.floor(elapsed / 60)).padStart(2,'0');
     const seconds = String(elapsed % 60).padStart(2,'0');
     statusMessage.textContent = `Waktu: ${minutes}:${seconds}`;
-    statusMessage.classList.remove('hidden');
   }, 500);
 }
 
-// --- Submit jawaban ---
+// Submit jawaban
 async function submitAnswer(currentQuestion, timeTakenSec) {
-  const user = dummyUser; // gunakan dummy user
-
+  const user = dummyUser;
   const isCorrect = selectedOption === currentQuestion.correct_answer;
   const scoreThis = isCorrect ? 10 : 0;
 
@@ -178,7 +173,7 @@ async function submitAnswer(currentQuestion, timeTakenSec) {
   if (error) console.error("Gagal menyimpan jawaban:", error);
 }
 
-// --- Feedback dan next ---
+// Feedback & next
 function giveFeedback() {
   const currentQuestion = quizData[currentQuestionIndex];
   const selectedLi = document.querySelector('.option-item.selected');
@@ -188,52 +183,25 @@ function giveFeedback() {
   clearInterval(timerInterval);
 
   const isCorrect = selectedOption === currentQuestion.correct_answer;
-  if (isCorrect) {
-    score += 10;
-    selectedLi.classList.add('correct');
-    showStatusMessage('Jawaban Benar!', 'text-green-800 dark:text-green-300', 'bg-green-100 dark:bg-green-900/50');
-  } else {
-    selectedLi.classList.add('incorrect');
-    showStatusMessage('Jawaban Salah.', 'text-red-800 dark:text-red-300', 'bg-red-100 dark:bg-red-900/50');
-  }
+  if (isCorrect) score += 10;
 
   submitAnswer(currentQuestion, timeTakenSec);
 
-  setTimeout(() => {
-    currentQuestionIndex++;
-    loadQuestion();
-  }, 1200);
+  currentQuestionIndex++;
+  loadQuestion();
 }
 
-// --- Results ---
+// Hasil
 function showResults() {
   quizUI.style.display = 'none';
   resultsUI.style.display = 'block';
   finalScoreSpan.textContent = score;
-  if (score === quizData.length * 10) scoreMessage.textContent = 'Skor sempurna!';
-  else if (score >= quizData.length * 7) scoreMessage.textContent = 'Bagus, Anda lulus!';
-  else scoreMessage.textContent = 'Terus belajar, coba lagi ya!';
+  scoreMessage.textContent = score === quizData.length * 10 ? 'Skor sempurna!' : 'Selesai';
 }
 
-// --- Helper UI ---
-function showStatusMessage(msg, textColor, bgColor) {
-  statusMessage.textContent = msg;
-  if (textColor && bgColor) statusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
-  statusMessage.classList.remove('hidden');
-}
-function hideStatusMessage() { statusMessage.classList.add('hidden'); }
-function showSaveStatusMessage(msg, textColor, bgColor) {
-  saveStatusMessage.textContent = msg;
-  saveStatusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
-  saveStatusMessage.classList.remove('hidden');
-}
-
-// --- Event ---
+// Event
 nextButton.addEventListener('click', () => {
-  if (!selectedOption) {
-    showStatusMessage('Silakan pilih jawaban terlebih dahulu.', 'text-red-800 dark:text-red-300', 'bg-red-100 dark:bg-red-900/50');
-    return;
-  }
+  if (!selectedOption) return;
   giveFeedback();
 });
 
