@@ -244,7 +244,9 @@ function giveFeedback() {
     : 'Jawaban kurang tepat.';
   
   showStatusMessage(feedbackMessage,
-    selectedOption === currentQuestion.correct_answer ? 'text-green-800 dark:text-green-300', 'bg-green-100 dark:bg-green-900/50' : 'text-orange-800 dark:text-orange-300, 'bg-orange-100 dark:bg-orange-900/50',
+    selectedOption === currentQuestion.correct_answer
+  ? 'text-green-800 dark:text-green-300 bg-green-100 dark:bg-green-900/50'
+  : 'text-orange-800 dark:text-orange-300 bg-orange-100 dark:bg-orange-900/50'
     'bg-gray-100 rounded-md p-2 text-center font-semibold');
 
   if (selectedOption === currentQuestion.correct_answer) score += 10;
