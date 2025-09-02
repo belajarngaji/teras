@@ -140,8 +140,10 @@ const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const quizNameMap = { 'kelas01_bab01_hijaiyah': 'Kelas 1 Bab 1 Hijaiyah' }; { 'kelas01_bab02_hijaiyah': 'Kelas 1 Bab 2 Hijaiyah' };
-
+// Format nama kuis rapi
+function formatQuizName(quizId) {
+  return quizId.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+}
 // Sidebar
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('overlay');
