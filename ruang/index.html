@@ -8,7 +8,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 @import url('https://rsms.me/inter/inter.css');
-
 body { font-family: 'Inter', sans-serif; background-color: #f0f8ff; color: #1f2937; margin:0; overflow-x:hidden; }
 .kpi-card { background:white; border:1px solid #e2e8f0; border-radius:.5rem; transition: transform .2s, box-shadow .2s;}
 .kpi-card:hover { transform: translateY(-3px); box-shadow:0 6px 10px rgba(0,0,0,.1);}
@@ -58,6 +57,7 @@ header { position:sticky; top:0; z-index:10; }
 </header>
 
 <main class="p-6 flex-1 overflow-y-auto">
+
 <!-- KPI Cards -->
 <section class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
   <div class="kpi-card rounded-lg p-6">
@@ -72,26 +72,51 @@ header { position:sticky; top:0; z-index:10; }
 
 <!-- Charts and leaderboard -->
 <section class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
-<div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-6 overflow-x-auto">
-<h3 class="font-semibold text-gray-700 mb-4">🏆 Leaderboard - Top 10 Pengguna</h3>
-<table class="w-full text-sm text-left text-gray-600">
-<thead class="text-xs text-gray-500 uppercase bg-gray-100">
-<tr>
-<th class="py-3 px-6">Peringkat</th>
-<th class="py-3 px-6">Pengguna</th>
-<th class="py-3 px-6">Total Skor</th>
-</tr>
-</thead>
-<tbody id="leaderboard-body"></tbody>
-</table>
-</div>
+  <!-- Leaderboard -->
+  <div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-6 overflow-x-auto">
+    <h3 class="font-semibold text-gray-700 mb-4">🏆 Leaderboard - Top 10 Pengguna</h3>
+    <table class="w-full text-sm text-left text-gray-600">
+      <thead class="text-xs text-gray-500 uppercase bg-gray-100">
+        <tr>
+          <th class="py-3 px-6">Peringkat</th>
+          <th class="py-3 px-6">Pengguna</th>
+          <th class="py-3 px-6">Total Skor</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+  </div>
 
-<div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center">
-<h3 class="font-semibold text-gray-700 mb-4">Kuis Terpopuler</h3>
-<div class="w-full max-w-[300px] h-[300px]">
-<canvas id="popular-quizzes-chart"></canvas>
-</div>
-</div>
+  <!-- Popular Quizzes -->
+  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center">
+    <h3 class="font-semibold text-gray-700 mb-4">Kuis Terpopuler</h3>
+    <div class="w-full max-w-[300px] h-[300px]">
+      <canvas id="popular-quizzes-chart"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- New Charts Section -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+  <div class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center">
+    <h3 class="font-semibold text-gray-700 mb-4">Tren Skor / Week</h3>
+    <canvas id="lineChartWeek"></canvas>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center">
+    <h3 class="font-semibold text-gray-700 mb-4">Persentase Jawaban</h3>
+    <canvas id="doughnutChartAnswer"></canvas>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center">
+    <h3 class="font-semibold text-gray-700 mb-4">Benar vs Salah Keseluruhan</h3>
+    <canvas id="pieChartTotal"></canvas>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center">
+    <h3 class="font-semibold text-gray-700 mb-4">Benar vs Salah Harian</h3>
+    <canvas id="pieChartDaily"></canvas>
+  </div>
 </section>
 
 <!-- Aktivitas Terbaru -->
@@ -111,6 +136,7 @@ header { position:sticky; top:0; z-index:10; }
 </table>
 </div>
 </section>
+
 </main>
 </div>
 
@@ -170,19 +196,12 @@ async function fetchRecentActivities() {
   return data || [];
 }
 
-function createChart(ctx, type, labels, data, label, backgroundColor) {
-  new Chart(ctx, {
+// Fungsi umum untuk membuat chart
+function createSimpleChart(ctx, type, labels, data, colors, title) {
+  return new Chart(ctx, {
     type,
-    data: { labels, datasets: [{ label, data, backgroundColor, borderWidth: 1, tension: 0.3 }] },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#1f2937' } } },
-      scales: {
-        y: { display: false, grid: { display: false } },
-        x: { display: false, grid: { display: false } }
-      }
-    }
+    data: { labels, datasets:[{ label: title, data, backgroundColor: colors, borderWidth:1 }] },
+    options: { responsive:true, plugins:{ legend:{ position:'bottom' }, title:{ display:true, text:title } } }
   });
 }
 
@@ -219,7 +238,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Popular quizzes chart
   const quizCtx = document.getElementById('popular-quizzes-chart').getContext('2d');
-  createChart(quizCtx, 'doughnut', popularQuizData.labels, popularQuizData.data, 'Pengerjaan', ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#e0f2fe']);
+  createSimpleChart(quizCtx, 'doughnut', popularQuizData.labels, popularQuizData.data, ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'], 'Pengerjaan');
 
   // Recent activity (5 row awal)
   const tbody = document.getElementById('recent-activity-body');
@@ -234,6 +253,75 @@ document.addEventListener('DOMContentLoaded', async () => {
         </tr>
       `).join('')
     : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
+
+  // --- Ambil semua quiz_attempts untuk chart baru ---
+  const { data: attempts } = await supabase.from('quiz_attempts').select('*');
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Benar vs Salah Keseluruhan
+  let totalCorrect=0, totalQuestions=0;
+  attempts.forEach(a=>{ totalCorrect+=a.score; totalQuestions+=a.total_questions; });
+  const totalWrong = totalQuestions - totalCorrect;
+  createSimpleChart(
+    document.getElementById('pieChartTotal').getContext('2d'),
+    'pie',
+    ['Benar','Salah'],
+    [totalCorrect,totalWrong],
+    ['#4CAF50','#F44336'],
+    'Benar vs Salah Keseluruhan'
+  );
+
+  // Benar vs Salah Harian (kosong sementara)
+  createSimpleChart(
+    document.getElementById('pieChartDaily').getContext('2d'),
+    'pie',
+    ['Benar','Salah'],
+    [0,0],
+    ['#4CAF50','#F44336'],
+    'Benar vs Salah Hari Ini'
+  );
+
+  // Tren Skor / Week
+  const weeksMap = {};
+  attempts.forEach(a=>{
+    const d = new Date(a.submitted_at);
+    const year = d.getFullYear();
+    const week = Math.ceil((((d - new Date(year,0,1))/86400000)+1)/7);
+    const key = `${year}-W${week}`;
+    if(!weeksMap[key]) weeksMap[key]=[];
+    weeksMap[key].push(a.score);
+  });
+  const weekLabels = Object.keys(weeksMap).sort();
+  const weekAvgScores = weekLabels.map(w=>{
+    const arr = weeksMap[w];
+    return arr.reduce((s,v)=>s+v,0)/arr.length;
+  });
+  createSimpleChart(
+    document.getElementById('lineChartWeek').getContext('2d'),
+    'line',
+    weekLabels,
+    weekAvgScores,
+    ['#3b82f6'],
+    'Rata-rata Skor / Week'
+  );
+
+  // Persentase Jawaban per Quiz
+  const quizMap = {};
+  attempts.forEach(a=>{
+    if(!quizMap[a.quiz_id]) quizMap[a.quiz_id]=[0,0]; // [benar, salah]
+    quizMap[a.quiz_id][0]+=a.score;
+    quizMap[a.quiz_id][1]+=a.total_questions - a.score;
+  });
+  const quizLabels = Object.keys(quizMap).map(q=>quizNameMap[q]||q);
+  const quizCorrect = Object.values(quizMap).map(v=>v[0]);
+  createSimpleChart(
+    document.getElementById('doughnutChartAnswer').getContext('2d'),
+    'doughnut',
+    quizLabels,
+    quizCorrect,
+    ['#60a5fa','#3b82f6','#2563eb','#1e40af','#93c5fd'],
+    'Persentase Jawaban Benar per Quiz'
+  );
 });
 </script>
 </body>
