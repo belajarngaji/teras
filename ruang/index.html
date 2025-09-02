@@ -141,7 +141,7 @@ header { position:sticky; top:0; z-index:10; }
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-const SUPABASE_KEY = "YOUR_SERVICE_KEY_HERE"; // ganti sesuai keymu
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; // ganti sesuai keymu
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const quizNameMap = { 'kelas01_bab01_hijaiyah': 'Kuis Hijaiyah Bab 1' };
@@ -195,4 +195,137 @@ function createChart(ctx, type, labels, data, colors, label) {
   return new Chart(ctx, {
     type,
     data: { labels, datasets:[{ label, data, backgroundColor: colors, borderWidth:1, fill: type==='line'?false:true }] },
-    options
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' }, title: { display: !!label, text: label } },
+      scales: {
+        y: { beginAtZero: true },
+      }
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const [
+    totalUsers,
+    quizAttemptsToday,
+    leaderboardData,
+    popularQuizData,
+    recentActivities,
+    allAttempts
+  ] = await Promise.all([
+    fetchTotalUsers(),
+    fetchQuizAttemptsToday(),
+    fetchLeaderboardData(),
+    fetchPopularQuizzes(),
+    fetchRecentActivities(),
+    supabase.from('quiz_attempts').select('*').then(r => r.data || [])
+  ]);
+
+  // Update KPI
+  document.getElementById('total-users').textContent = totalUsers;
+  document.getElementById('quiz-attempts-today').textContent = quizAttemptsToday;
+
+  // Leaderboard
+  const leaderboardBody = document.getElementById('leaderboard-body');
+  leaderboardBody.innerHTML = leaderboardData.length > 0
+    ? leaderboardData.map(user => `
+        <tr class="border-b border-gray-200 hover:bg-gray-50">
+          <td class="py-3 px-6 font-medium">${user.rank}</td>
+          <td class="py-3 px-6">${user.username}</td>
+          <td class="py-3 px-6 font-bold text-blue-600">${user.total_score || 0}</td>
+        </tr>
+      `).join('')
+    : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
+
+  // Recent Activity (tampilkan semua, scroll otomatis)
+  const tbody = document.getElementById('recent-activity-body');
+  tbody.innerHTML = recentActivities.length > 0
+    ? recentActivities.map(act => `
+        <tr class="${act.is_correct ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
+          <td class="py-4 px-6">${act.username || 'Tanpa Nama'}</td>
+          <td class="py-4 px-6">${quizNameMap[act.quiz_id] || act.quiz_id}</td>
+          <td class="py-4 px-6 font-medium">${act.score}</td>
+          <td class="py-4 px-6 text-sm text-gray-500">${new Date(act.submitted_at).toLocaleString('id-ID')}</td>
+        </tr>
+      `).join('')
+    : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
+
+  // --- KUIS TERPOPULER ---
+  createChart(
+    document.getElementById('popular-quizzes-chart').getContext('2d'),
+    'doughnut',
+    popularQuizData.labels,
+    popularQuizData.data,
+    ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'],
+    'Pengerjaan'
+  );
+
+  // --- Tren Skor / Week ---
+  const weeksMap = {};
+  allAttempts.forEach(a=>{
+    const d = new Date(a.submitted_at);
+    const year = d.getFullYear();
+    const week = Math.ceil((((d - new Date(year,0,1))/86400000)+1)/7);
+    const key = `${year}-W${week}`;
+    if(!weeksMap[key]) weeksMap[key]=[];
+    weeksMap[key].push(a.score);
+  });
+  const weekLabels = Object.keys(weeksMap).sort();
+  const weekAvgScores = weekLabels.map(w=>{
+    const arr = weeksMap[w];
+    return arr.reduce((s,v)=>s+v,0)/arr.length;
+  });
+  createChart(
+    document.getElementById('lineChartWeek').getContext('2d'),
+    'line',
+    weekLabels,
+    weekAvgScores,
+    ['#3b82f6'],
+    'Rata-rata Skor / Week'
+  );
+
+  // --- Persentase Jawaban per Quiz ---
+  const quizMap = {};
+  allAttempts.forEach(a=>{
+    if(!quizMap[a.quiz_id]) quizMap[a.quiz_id]=[0,0]; // [benar, salah]
+    quizMap[a.quiz_id][0]+=Number(a.score)||0;
+    quizMap[a.quiz_id][1]+=Number(a.total_questions||0) - Number(a.score||0);
+  });
+  const quizLabels = Object.keys(quizMap).map(q=>quizNameMap[q]||q);
+  const quizCorrect = Object.values(quizMap).map(v=>v[0]);
+  createChart(
+    document.getElementById('barChartAnswer').getContext('2d'),
+    'bar',
+    quizLabels,
+    quizCorrect,
+    ['#3b82f6','#60a5fa','#93c5fd','#2563eb','#1e40af'],
+    'Persentase Jawaban Benar per Quiz'
+  );
+
+  // --- Benar vs Salah Keseluruhan ---
+  const totalCorrect = allAttempts.reduce((s,a)=>s+Number(a.score||0),0);
+  const totalQuestions = allAttempts.reduce((s,a)=>s+Number(a.total_questions||0),0);
+  createChart(
+    document.getElementById('pieChartTotal').getContext('2d'),
+    'pie',
+    ['Benar','Salah'],
+    [totalCorrect, Math.max(totalQuestions-totalCorrect,0)],
+    ['#4CAF50','#F44336'],
+    'Benar vs Salah Keseluruhan'
+  );
+
+  // --- Benar vs Salah Harian (kosong sementara) ---
+  createChart(
+    document.getElementById('pieChartDaily').getContext('2d'),
+    'pie',
+    ['Benar','Salah'],
+    [0,0],
+    ['#4CAF50','#F44336'],
+    'Benar vs Salah Hari Ini'
+  );
+});
+</script>
+</body>
+</html>
