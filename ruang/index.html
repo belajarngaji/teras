@@ -22,7 +22,6 @@ canvas { max-width:100%; height:auto;}
 *, *::before, *::after { box-sizing:border-box; max-width:100%; }
 header { position:sticky; top:0; z-index:10; }
 #overlay { position:fixed; inset:0; background:rgba(0,0,0,.3); z-index:20; display:none;}
-.flex-container { flex-wrap:wrap; }
 </style>
 </head>
 <body class="antialiased flex">
@@ -32,10 +31,10 @@ header { position:sticky; top:0; z-index:10; }
 <div class="p-6">
   <h2 class="text-xl font-bold mb-6 text-blue-600">Menu Admin</h2>
   <ul class="space-y-4">
-    <li><a href="#" class="block">Dashboard</a></li>
-    <li><a href="users/" class="block">Users</a></li>
-    <li><a href="management/" class="block">Koreksi</a></li>
-    <li><a href="harian/" class="block">Buat Tantangan</a></li>
+    <li><a href="#">Dashboard</a></li>
+    <li><a href="users/">Users</a></li>
+    <li><a href="management/">Koreksi</a></li>
+    <li><a href="harian/">Buat Tantangan</a></li>
   </ul>
 </div>
 </aside>
@@ -73,7 +72,7 @@ header { position:sticky; top:0; z-index:10; }
 <!-- Charts + Leaderboard Section -->
 <section class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
 
-  <!-- Row 1 -->
+  <!-- Leaderboard -->
   <div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-6 overflow-x-auto">
     <h3 class="font-semibold text-gray-700 mb-4">🏆 Leaderboard - Top 10 Pengguna</h3>
     <table class="w-full text-sm text-left text-gray-600">
@@ -88,30 +87,34 @@ header { position:sticky; top:0; z-index:10; }
     </table>
   </div>
 
-  <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center">
+  <!-- Kuis Terpopuler -->
+  <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4">
     <h3 class="font-semibold text-gray-700 mb-4">Kuis Terpopuler</h3>
-    <canvas id="popular-quizzes-chart" class="w-full h-[250px]"></canvas>
+    <canvas id="popular-quizzes-chart" class="w-full aspect-[4/3]"></canvas>
   </div>
 
-  <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center">
+  <!-- Tren Skor / Week -->
+  <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4">
     <h3 class="font-semibold text-gray-700 mb-4">Tren Skor / Week</h3>
-    <canvas id="lineChartWeek" class="w-full h-[250px]"></canvas>
+    <canvas id="lineChartWeek" class="w-full aspect-[4/3]"></canvas>
   </div>
 
-  <!-- Row 2 -->
-  <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center">
+  <!-- Persentase Jawaban -->
+  <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4">
     <h3 class="font-semibold text-gray-700 mb-4">Persentase Jawaban</h3>
-    <canvas id="barChartAnswer" class="w-full h-[250px]"></canvas>
+    <canvas id="barChartAnswer" class="w-full aspect-[4/3]"></canvas>
   </div>
 
-  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center">
+  <!-- Benar vs Salah -->
+  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4">
     <h3 class="font-semibold text-gray-700 mb-4">Benar vs Salah</h3>
-    <canvas id="pieChartTotal" class="w-full h-[250px]"></canvas>
+    <canvas id="pieChartTotal" class="w-full aspect-[4/3]"></canvas>
   </div>
 
-  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center">
+  <!-- Benar vs Salah Harian -->
+  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4">
     <h3 class="font-semibold text-gray-700 mb-4">Benar vs Salah Harian</h3>
-    <canvas id="pieChartDaily" class="w-full h-[250px]"></canvas>
+    <canvas id="pieChartDaily" class="w-full aspect-[4/3]"></canvas>
   </div>
 
 </section>
@@ -141,7 +144,7 @@ header { position:sticky; top:0; z-index:10; }
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; // ganti sesuai keymu
+const SUPABASE_KEY = "PASTE_KEY_MU_DI_SINI"; // ganti sesuai keymu
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const quizNameMap = { 'kelas01_bab01_hijaiyah': 'Kuis Hijaiyah Bab 1' };
@@ -149,14 +152,13 @@ const quizNameMap = { 'kelas01_bab01_hijaiyah': 'Kuis Hijaiyah Bab 1' };
 // Sidebar toggle
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('overlay');
-const toggleBtn = document.getElementById('sidebar-toggle');
-toggleBtn.addEventListener('click', () => {
- sidebar.classList.toggle('-translate-x-full');
- overlay.style.display = sidebar.classList.contains('-translate-x-full') ? 'none':'block';
+document.getElementById('sidebar-toggle').addEventListener('click', () => {
+  sidebar.classList.toggle('-translate-x-full');
+  overlay.style.display = sidebar.classList.contains('-translate-x-full') ? 'none':'block';
 });
 overlay.addEventListener('click', () => {
- sidebar.classList.add('-translate-x-full');
- overlay.style.display = 'none';
+  sidebar.classList.add('-translate-x-full');
+  overlay.style.display = 'none';
 });
 
 // Fetch functions
@@ -170,7 +172,7 @@ async function fetchQuizAttemptsToday() {
   return count || 0;
 }
 async function fetchLeaderboardData() {
-  const { data } = await supabase.from('leaderboard').select('rank, username, total_score').limit(10);
+  const { data } = await supabase.from('leaderboard').select('rank, username, total_score').limit(10).order('total_score',{ascending:false});
   return data || [];
 }
 async function fetchPopularQuizzes() {
@@ -199,9 +201,7 @@ function createChart(ctx, type, labels, data, colors, label) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: { legend: { position: 'bottom' }, title: { display: !!label, text: label } },
-      scales: {
-        y: { beginAtZero: true },
-      }
+      scales: { y: { beginAtZero: true } }
     }
   });
 }
@@ -234,12 +234,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         <tr class="border-b border-gray-200 hover:bg-gray-50">
           <td class="py-3 px-6 font-medium">${user.rank}</td>
           <td class="py-3 px-6">${user.username}</td>
-          <td class="py-3 px-6 font-bold text-blue-600">${user.total_score || 0}</td>
+          <td class="py-3 px-6 font-bold text-yellow-500">${user.total_score || 0}</td>
         </tr>
       `).join('')
     : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
 
-  // Recent Activity (tampilkan semua, scroll otomatis)
+  // Recent Activity
   const tbody = document.getElementById('recent-activity-body');
   tbody.innerHTML = recentActivities.length > 0
     ? recentActivities.map(act => `
@@ -316,12 +316,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     'Benar vs Salah Keseluruhan'
   );
 
-  // --- Benar vs Salah Harian (kosong sementara) ---
+  // --- Benar vs Salah Harian ---
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dailyAttempts = allAttempts.filter(a => new Date(a.submitted_at) >= today);
+  const dailyCorrect = dailyAttempts.reduce((s,a)=>s+Number(a.score||0),0);
+  const dailyTotalQuestions = dailyAttempts.reduce((s,a)=>s+Number(a.total_questions||0),0);
+
   createChart(
     document.getElementById('pieChartDaily').getContext('2d'),
     'pie',
     ['Benar','Salah'],
-    [0,0],
+    [dailyCorrect, Math.max(dailyTotalQuestions-dailyCorrect,0)],
     ['#4CAF50','#F44336'],
     'Benar vs Salah Hari Ini'
   );
