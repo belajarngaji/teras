@@ -8,55 +8,41 @@
   <style>
     @import url('https://rsms.me/inter/inter.css');
     :root{
-      --brand:#2563eb;
-      --brand-50:#eff6ff;
-      --ink:#0f172a;
-      --muted:#64748b;
-      --line:#e6eef8;
+      --brand:#2563eb; --brand-50:#eff6ff; --ink:#0f172a; --muted:#64748b; --line:#e6eef8;
       --card-shadow:0 10px 30px rgba(15,23,42,0.06);
     }
     html,body{height:100%}
     body{
       font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,'Noto Sans',sans-serif;
-      background: linear-gradient(180deg,#f8fbff,#f0f7ff);
-      color:var(--ink); margin:0;
+      background: linear-gradient(180deg,#f8fbff,#f0f7ff); color:var(--ink); margin:0;
     }
-    header { position: sticky; top:0; z-index:40; backdrop-filter: saturate(180%) blur(6px) }
-    .card { background:white; border:1px solid var(--line); border-radius:12px; box-shadow:var(--card-shadow); }
-    .small { font-size:.92rem; }
-    .btn { display:inline-flex; gap:.5rem; align-items:center; border-radius:10px; padding:.55rem .9rem; font-weight:600; cursor:pointer; }
-    .btn-primary{ background:var(--brand); color:#fff; }
-    .btn-primary:hover{ background:#1e54c6; }
-    .btn-soft{ background:#f1f5ff; color:#1e40af; border:1px solid #dbeafe; }
-    .btn-ghost{ background:white; border:1px solid var(--line); color:#0b2a6b; }
-    .input, .select, textarea { width:100%; border:1px solid #e5edf6; background:white; border-radius:10px; padding:.6rem .75rem; outline:none; }
-    .input:focus, textarea:focus, .select:focus { border-color:#bdd3ff; box-shadow:0 0 0 6px #e8f0ff; }
-    .table-wrap { overflow-x:auto; max-height:56vh; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-    .badge { font-size:.73rem; background:var(--brand-50); color:var(--brand); padding:.25rem .5rem; border-radius:.6rem; border:1px solid #dbeafe; }
-    .toast { position: fixed; right: 1rem; bottom: 1rem; background: white; border: 1px solid var(--line); padding: .8rem 1rem; border-radius: 12px; box-shadow: var(--card-shadow); display:none; z-index:60; }
-    @media (max-width:640px){
-      .px-lg{padding-left:1rem;padding-right:1rem}
-      .table-wrap{ max-height: 50vh; }
-    }
+    header{position:sticky;top:0;z-index:40;backdrop-filter:saturate(180%) blur(6px)}
+    .card{background:white;border:1px solid var(--line);border-radius:12px;box-shadow:var(--card-shadow)}
+    .btn{display:inline-flex;gap:.5rem;align-items:center;border-radius:10px;padding:.55rem .9rem;font-weight:600;cursor:pointer}
+    .btn-primary{background:var(--brand);color:#fff}
+    .btn-soft{background:#f1f5ff;color:#1e40af;border:1px solid #dbeafe}
+    .btn-ghost{background:white;border:1px solid var(--line);color:#0b2a6b}
+    .input,.select,textarea{width:100%;border:1px solid #e5edf6;background:white;border-radius:10px;padding:.6rem .75rem;outline:none}
+    .input:focus,.select:focus,textarea:focus{border-color:#bdd3ff;box-shadow:0 0 0 6px #e8f0ff}
+    .table-wrap{overflow-x:auto;max-height:56vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .badge{font-size:.73rem;background:var(--brand-50);color:var(--brand);padding:.25rem .5rem;border-radius:.6rem;border:1px solid #dbeafe}
+    .toast{position:fixed;right:1rem;bottom:1rem;background:white;border:1px solid var(--line);padding:.8rem 1rem;border-radius:12px;box-shadow:var(--card-shadow);display:none;z-index:60}
+    @media (max-width:640px){.table-wrap{max-height:50vh}}
   </style>
 </head>
 <body>
 
-  <!-- NAVBAR -->
   <header class="bg-white/80 border-b border-[var(--line)]">
     <div class="max-w-5xl mx-auto flex items-center justify-between gap-3 px-4 sm:px-6 py-3">
       <div class="flex items-center gap-3">
         <button id="btn-back" class="btn btn-soft">← Kembali</button>
         <h1 class="text-lg sm:text-xl font-bold text-slate-800">Admin — Kelola Batch & Soal</h1>
       </div>
-      <div class="hidden sm:flex items-center gap-2 text-sm text-slate-500">
-        Mode: <span class="font-semibold text-slate-700">Soal Sekali Jawab</span>
-      </div>
+      <div class="hidden sm:flex items-center gap-2 text-sm text-slate-500">Mode: <span class="font-semibold text-slate-700">Soal Sekali Jawab</span></div>
     </div>
   </header>
 
   <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 pb-28 sm:pb-24">
-    <!-- KPI -->
     <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
       <div class="card p-4 small">
         <div class="text-xs text-slate-500">Batch Aktif</div>
@@ -64,22 +50,19 @@
           <span id="activeBatch" class="text-sm font-semibold text-slate-800">— belum dimuat —</span>
           <span id="batchSavedBadge" class="badge" style="display:none">Tersimpan</span>
         </div>
-        <div class="text-xs text-slate-400 mt-1">Generate atau pilih riwayat batch, lalu klik <em>Muat</em>.</div>
+        <div class="text-xs text-slate-400 mt-1">Generate atau pilih riwayat batch, lalu klik Muat.</div>
       </div>
-
       <div class="card p-4 small">
         <div class="text-xs text-slate-500">Jumlah Soal</div>
         <div id="countBatch" class="text-xl font-semibold text-slate-800 mt-1">0</div>
         <div class="text-xs text-slate-400 mt-1">Dalam batch yang sedang dimuat.</div>
       </div>
-
       <div class="card p-4 small">
         <div class="text-xs text-slate-500">Petunjuk</div>
         <div class="text-sm text-slate-800">Satu batch = beberapa soal. Batch dicatat ke database sehingga tidak hilang saat refresh.</div>
       </div>
     </section>
 
-    <!-- BATCH CONTROLS -->
     <section class="card p-5 mb-6">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div class="lg:col-span-2">
@@ -93,7 +76,6 @@
           </div>
           <p class="text-xs text-slate-500 mt-2">Klik Generate untuk membuat batch baru lalu Muat untuk mengaktifkannya.</p>
         </div>
-
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Riwayat Batch (20 terakhir)</label>
           <div class="flex gap-2">
@@ -105,7 +87,6 @@
       </div>
     </section>
 
-    <!-- FORM -->
     <section class="card p-5 mb-6">
       <form id="quizForm" class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -120,22 +101,10 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Opsi A</label>
-            <input id="optA" class="input" type="text" placeholder="Teks opsi A" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Opsi B</label>
-            <input id="optB" class="input" type="text" placeholder="Teks opsi B" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Opsi C</label>
-            <input id="optC" class="input" type="text" placeholder="Teks opsi C" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Opsi D</label>
-            <input id="optD" class="input" type="text" placeholder="Teks opsi D" />
-          </div>
+          <div><label class="block text-sm font-medium text-slate-700 mb-1">Opsi A</label><input id="optA" class="input" type="text" /></div>
+          <div><label class="block text-sm font-medium text-slate-700 mb-1">Opsi B</label><input id="optB" class="input" type="text" /></div>
+          <div><label class="block text-sm font-medium text-slate-700 mb-1">Opsi C</label><input id="optC" class="input" type="text" /></div>
+          <div><label class="block text-sm font-medium text-slate-700 mb-1">Opsi D</label><input id="optD" class="input" type="text" /></div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
@@ -143,10 +112,7 @@
             <label class="block text-sm font-medium text-slate-700 mb-1">Jawaban Benar</label>
             <select id="correctAns" class="select">
               <option value="">— pilih —</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="C">C</option>
-              <option value="D">D</option>
+              <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
             </select>
           </div>
           <div class="sm:col-span-2 flex gap-2 justify-end">
@@ -159,13 +125,11 @@
       </form>
     </section>
 
-    <!-- TABLE -->
     <section class="card p-4">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-sm font-semibold text-slate-800">Daftar Soal (Batch yang dimuat)</h2>
         <div class="text-xs text-slate-500">Klik baris untuk cepat Edit</div>
       </div>
-
       <div class="table-wrap border border-slate-100 rounded-md">
         <table class="min-w-[980px] w-full text-sm text-slate-700">
           <thead class="bg-slate-50 sticky top-0 z-10">
@@ -190,23 +154,19 @@
 
   </main>
 
-  <footer class="max-w-5xl mx-auto px-6 py-6 text-center text-xs text-slate-400">
-    © 2025 — Dashboard
-  </footer>
+  <footer class="max-w-5xl mx-auto px-6 py-6 text-center text-xs text-slate-400">© 2025 — Dashboard</footer>
 
   <div id="toast" class="toast"></div>
 
-  <!-- SCRIPT -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-    // ======= KONFIG SUPABASE (ganti jika perlu) =======
+    // GANTI KONFIG SUPABASE DI SINI
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; // gunakan anon key/edge key sesuai setup
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-    // ================================================
 
-    // UI refs
+    // Refs
     const btnBack = document.getElementById('btn-back');
     const batchIdInput = document.getElementById('batchId');
     const genBatchBtn = document.getElementById('genBatch');
@@ -236,7 +196,6 @@
     let editMode = false;
     let editId = null;
 
-    // --- Helpers ---
     function showToast(msg){
       toast.textContent = msg;
       toast.style.display = 'block';
@@ -245,7 +204,7 @@
 
     function genBatchId(){
       const tz = 'Asia/Jakarta';
-      const d = new Date(new Date().toLocaleString('en-US', { timeZone: tz }));
+      const d = new Date(new Date().toLocaleString('en-US',{timeZone:tz}));
       const y = d.getFullYear();
       const m = String(d.getMonth()+1).padStart(2,'0');
       const day = String(d.getDate()).padStart(2,'0');
@@ -253,17 +212,17 @@
       const mm = String(d.getMinutes()).padStart(2,'0');
       const ss = String(d.getSeconds()).padStart(2,'0');
       const r = Math.random().toString(36).slice(2,6);
-      return `batch_${y}${m}${day}_${hh}${mm}${ss}_${r}`;
+      return `batch_${y}${m}${day}_${hh}${mm}_${r}`;
     }
 
     function escapeHtml(s){ return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
     function resetForm(){
-      editMode = false; editId = null;
-      submitBtn.textContent = 'Simpan Soal';
-      modeBadge.textContent = 'Tambah Soal';
+      editMode=false; editId=null;
+      submitBtn.textContent='Simpan Soal';
+      modeBadge.textContent='Tambah Soal';
       quizForm.reset();
-      formMessage.textContent = '';
+      formMessage.textContent='';
     }
 
     function setActiveBatchUI(code, savedInDB){
@@ -272,86 +231,74 @@
       batchIdInput.value = code || '';
       if(code){
         localStorage.setItem('activeBatch', code);
-        if(savedInDB) batchSavedBadge.style.display = 'inline-block';
-        else batchSavedBadge.style.display = 'none';
-      } else {
-        batchSavedBadge.style.display = 'none';
-      }
+        batchSavedBadge.style.display = savedInDB ? 'inline-block' : 'none';
+      } else batchSavedBadge.style.display='none';
     }
 
-    // Pastikan batch tercatat di DB — return boolean sukses
     async function ensureBatchExistsInDB(batchCode){
       if(!batchCode) return false;
-      try {
+      try{
         const { data, error } = await supabase
           .from('dashboard_quiz_batches')
           .select('id, batch_code')
           .eq('batch_code', batchCode)
           .limit(1);
-        if(error){ console.warn('check batch exists error', error); return false; }
-        if(data && data.length > 0) return true;
-
+        if(error){ console.warn(error); return false; }
+        if(data && data.length>0) return true;
         const ins = await supabase
           .from('dashboard_quiz_batches')
           .insert([{ batch_code: batchCode }])
           .select();
-        if(ins.error){ console.warn('insert batch error', ins.error); return false; }
+        if(ins.error){ console.warn(ins.error); return false; }
         return true;
-      } catch(e) {
-        console.warn('ensureBatchExistsInDB error', e);
-        return false;
-      }
+      }catch(e){ console.warn(e); return false; }
     }
 
-    // Load history options (20 terakhir)
     async function loadHistoryOptions(){
-      historySelect.innerHTML = `<option value="">Memuat...</option>`;
-      try {
+      historySelect.innerHTML=`<option value="">Memuat...</option>`;
+      try{
         const { data, error } = await supabase
           .from('dashboard_quiz_batches')
           .select('batch_code, created_at')
-          .order('created_at', { ascending: false })
+          .order('created_at',{ascending:false})
           .limit(20);
-        if(error){ historySelect.innerHTML = `<option value="">Gagal memuat riwayat</option>`; return; }
-        if(!data || data.length === 0){ historySelect.innerHTML = `<option value="">Belum ada batch</option>`; return; }
-        historySelect.innerHTML = data.map(row => `<option value="${escapeHtml(row.batch_code)}">${escapeHtml(row.batch_code)}</option>`).join('');
-      } catch(e){
-        console.error('loadHistoryOptions', e);
-        historySelect.innerHTML = `<option value="">Gagal memuat riwayat</option>`;
-      }
+        if(error){ historySelect.innerHTML=`<option value="">Gagal memuat riwayat</option>`; return; }
+        if(!data || data.length===0){ historySelect.innerHTML=`<option value="">Belum ada batch</option>`; return; }
+        historySelect.innerHTML = data.map(r=>`<option value="${escapeHtml(r.batch_code)}">${escapeHtml(r.batch_code)}</option>`).join('');
+      }catch(e){ console.error(e); historySelect.innerHTML=`<option value="">Gagal memuat riwayat</option>`; }
     }
 
-    // --- Navigation ---
     btnBack.addEventListener('click', ()=> {
-      if(document.referrer) window.history.back();
-      else window.location.href = '/';
+      if(document.referrer) window.history.back(); else window.location.href='/';
     });
 
-    // --- Batch: Generate (save to DB) ---
+    // Generate batch (save to DB)
     genBatchBtn.addEventListener('click', async () => {
+      genBatchBtn.disabled = true;
       const newBatch = genBatchId();
-      // insert ke DB
-      try {
+      try{
         const { data, error } = await supabase
           .from('dashboard_quiz_batches')
           .insert([{ batch_code: newBatch }])
           .select();
         if(error){
-          console.error('Error insert batch:', error);
-          alert('Gagal membuat batch di database!');
+          console.error('Insert batch error:', error);
+          // likely RLS/permission: show clear message
+          alert('Gagal membuat batch di database. Periksa policy RLS/permission di Supabase (console).');
+          genBatchBtn.disabled = false;
           return;
         }
         setActiveBatchUI(newBatch, true);
         await loadHistoryOptions();
         showToast('Batch dibuat & diaktifkan.');
-        renderQuestions([]); countBatch.textContent = '0';
-      } catch(err){
-        console.error('genBatch error', err);
-        alert('Gagal membuat batch.');
-      }
+        renderQuestions([]); countBatch.textContent='0';
+      }catch(e){
+        console.error('genBatch err', e);
+        alert('Gagal membuat batch: ' + (e.message || e));
+      }finally{ genBatchBtn.disabled = false; }
     });
 
-    // --- Load batch (manual) ---
+    // Load batch
     loadBatchBtn.addEventListener('click', async () => {
       const batch = batchIdInput.value.trim();
       if(!batch){ alert('Isi Batch ID terlebih dahulu (atau Generate).'); return; }
@@ -362,8 +309,7 @@
       showToast('Batch dimuat.');
     });
 
-    // use history button
-    useHistoryBtn?.addEventListener('click', async (e) => {
+    if(useHistoryBtn) useHistoryBtn.addEventListener('click', async (e)=>{
       e?.preventDefault();
       const sel = historySelect.value;
       if(!sel){ alert('Pilih satu batch dari riwayat.'); return; }
@@ -372,77 +318,95 @@
       showToast('Batch riwayat dimuat.');
     });
 
-    // --- Fetch batch questions ---
+    // Fetch batch questions
     async function fetchBatch(batch){
       questionsBody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-slate-400">Memuat...</td></tr>`;
-      try {
+      try{
         const { data, error } = await supabase
           .from('dashboard_quiz_questions')
           .select('id, question_text, options, correct_answer, created_at, updated_at, batch_id')
           .eq('batch_id', batch)
-          .order('created_at', { ascending: false });
-
+          .order('created_at',{ascending:false});
         if(error) throw error;
         renderQuestions(data || []);
-      } catch(err){
+      }catch(err){
         console.error('fetchBatch err', err);
         questionsBody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-red-500">${escapeHtml(err.message || 'Gagal memuat')}</td></tr>`;
-        activeBatch.textContent = '— error —';
-        countBatch.textContent = '0';
+        activeBatch.textContent='— error —'; countBatch.textContent='0';
       }
     }
 
     function renderQuestions(rows){
-      if(!rows || rows.length === 0){
+      if(!rows || rows.length===0){
         questionsBody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-slate-400">Belum ada soal dalam batch ini.</td></tr>`;
-        countBatch.textContent = '0';
-        return;
+        countBatch.textContent='0'; return;
       }
       countBatch.textContent = String(rows.length);
-      questionsBody.innerHTML = rows.map((r, idx) => {
-        const opts = r.options || {};
-        const created = new Date(r.created_at || r.updated_at || Date.now()).toLocaleString('id-ID');
+      questionsBody.innerHTML = rows.map((r,idx)=>{
+        const opts = r.options||{};
+        const created = new Date(r.created_at||r.updated_at||Date.now()).toLocaleString('id-ID');
         return `
           <tr class="border-b hover:bg-slate-50/60 cursor-pointer" data-row-id="${r.id}">
             <td class="px-3 py-2 text-xs text-slate-500">${idx+1}</td>
             <td class="px-3 py-2 text-xs text-slate-500">${created}</td>
-            <td class="px-3 py-2">${escapeHtml(r.question_text || '')}</td>
-            <td class="px-3 py-2">${escapeHtml(opts.A || '')}</td>
-            <td class="px-3 py-2">${escapeHtml(opts.B || '')}</td>
-            <td class="px-3 py-2">${escapeHtml(opts.C || '')}</td>
-            <td class="px-3 py-2">${escapeHtml(opts.D || '')}</td>
-            <td class="px-3 py-2 font-semibold">${escapeHtml(r.correct_answer || '')}</td>
+            <td class="px-3 py-2">${escapeHtml(r.question_text||'')}</td>
+            <td class="px-3 py-2">${escapeHtml(opts.A||'')}</td>
+            <td class="px-3 py-2">${escapeHtml(opts.B||'')}</td>
+            <td class="px-3 py-2">${escapeHtml(opts.C||'')}</td>
+            <td class="px-3 py-2">${escapeHtml(opts.D||'')}</td>
+            <td class="px-3 py-2 font-semibold">${escapeHtml(r.correct_answer||'')}</td>
             <td class="px-3 py-2 text-right">
               <button class="btn-quick btn btn-soft" data-id="${r.id}">Edit</button>
               <button class="btn-delete btn btn-ghost" data-id="${r.id}">Hapus</button>
             </td>
-          </tr>
-        `;
+          </tr>`;
       }).join('');
-
-      // attach handlers
-      document.querySelectorAll('.btn-quick').forEach(b => b.addEventListener('click', (e) => {
-        e.stopPropagation(); startEdit(b.dataset.id);
-      }));
-      document.querySelectorAll('.btn-delete').forEach(b => b.addEventListener('click', (e) => {
-        e.stopPropagation(); confirmDelete(b.dataset.id);
-      }));
-      // row click to edit
-      document.querySelectorAll('tr[data-row-id]').forEach(row => {
-        row.addEventListener('click', () => startEdit(row.dataset.rowId));
+      // handlers
+      document.querySelectorAll('.btn-quick').forEach(b=>{
+        b.addEventListener('click',(e)=>{ e.stopPropagation(); startEdit(b.dataset.id); });
+      });
+      document.querySelectorAll('.btn-delete').forEach(b=>{
+        b.addEventListener('click',(e)=>{ e.stopPropagation(); confirmDelete(b.dataset.id); });
+      });
+      document.querySelectorAll('tr[data-row-id]').forEach(row=>{
+        row.addEventListener('click', ()=> startEdit(row.dataset.rowId));
       });
     }
 
-    // --- Submit form (create/update) ---
-    quizForm.addEventListener('submit', async (ev) => {
-      ev.preventDefault();
-      formMessage.textContent = '';
-
+    // Submit create/update
+    quizForm.addEventListener('submit', async (ev)=>{
+      ev.preventDefault(); formMessage.textContent='';
       const batch = batchIdInput.value.trim();
       if(!batch){ alert('Batch ID wajib diisi.'); return; }
       const qtext = questionText.value.trim();
       if(!qtext){ alert('Pertanyaan tidak boleh kosong.'); return; }
-
       const options = { A: optA.value.trim(), B: optB.value.trim(), C: optC.value.trim(), D: optD.value.trim() };
       const corr = correctAns.value;
-      if(!['A','B','C','D'].includes(corr)){ alert('Pilih jawaban benar.
+      if(!['A','B','C','D'].includes(corr)){ alert('Pilih jawaban benar.'); return; }
+      const payload = { batch_id: batch, question_text: qtext, options, correct_answer: corr, correct_text: options[corr]||null };
+
+      try{
+        submitBtn.disabled = true;
+        submitBtn.textContent = editMode ? 'Updating...' : 'Menyimpan...';
+        if(editMode && editId){
+          const { error } = await supabase.from('dashboard_quiz_questions').update({...payload, updated_at: new Date().toISOString()}).eq('id', editId);
+          if(error) throw error;
+          formMessage.textContent = 'Berhasil diperbarui.'; showToast('Soal diperbarui.');
+        } else {
+          await ensureBatchExistsInDB(batch);
+          const { error } = await supabase.from('dashboard_quiz_questions').insert([payload]);
+          if(error) throw error;
+          formMessage.textContent = 'Soal tersimpan.'; showToast('Soal ditambahkan.');
+        }
+        await fetchBatch(batch); resetForm(); setActiveBatchUI(batch, true);
+      }catch(err){
+        console.error('submit error', err);
+        alert('Gagal simpan: ' + (err.message || err));
+      }finally{ submitBtn.disabled=false; submitBtn.textContent='Simpan Soal'; }
+    });
+
+    resetFormBtn.addEventListener('click', ()=> resetForm());
+
+    async function startEdit(id){
+      try{
+        const { data, error } = await supabase.from('dashboard
