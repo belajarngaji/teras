@@ -8,6 +8,7 @@
   <link rel="icon" href="https://placehold.co/32x32/3B82F6/FFFFFF?text=BN" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Diubah: Menggunakan CDN Supabase langsung di head -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     /* Diubah: Style disamakan sepenuhnya dengan Bab 1 */
@@ -36,6 +37,7 @@
 </head>
 <body class="bg-gray-100 dark:bg-slate-900">
 
+  <!-- Diubah: Navbar disamakan dengan Bab 1 -->
   <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md sticky top-0 z-10">
     <div>
       <a href=".">
@@ -47,28 +49,35 @@
     </button>
   </nav>
 
+  <!-- Diubah: Layout main container disamakan -->
   <main class="mx-auto px-4 py-10 w-full max-w-2xl">
+    <!-- Diubah: UI Kuis disamakan (padding, font, dll) -->
     <div id="quiz-ui" class="bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center dark:bg-slate-800 dark:text-gray-100">
       <h2 id="question-text" class="text-2xl font-semibold mb-6">Memuat pertanyaan...</h2>
       <ul id="options-list" class="flex flex-col gap-4 text-xl"></ul>
+      <!-- Ditambahkan: Elemen status message untuk feedback -->
       <div id="status-message" class="mt-4 p-3 rounded-lg text-sm font-semibold text-center hidden"></div>
       <button id="next-button" class="mt-6 w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">Selanjutnya</button>
     </div>
 
+    <!-- Diubah: UI Hasil Kuis disamakan (skor besar, pesan, tombol) -->
     <div id="results-ui" class="bg-white rounded-xl shadow-lg p-6 sm:p-8 mt-8 text-center dark:bg-slate-800 dark:text-gray-100" style="display: none;">
       <h2 class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-4">Hasil Kuis</h2>
       <p class="text-lg mb-2">Skor Akhir Anda:</p>
       <p id="final-score" class="font-bold text-6xl text-green-600 dark:text-green-400">0</p>
       <p id="score-message" class="mt-4 text-lg"></p>
+      <!-- Ditambahkan: Elemen status untuk notifikasi penyimpanan skor -->
       <div id="save-status-message" class="mt-4 p-3 rounded-lg text-sm font-semibold text-center hidden"></div>
       <a href="../../1/" class="mt-8 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">Kembali ke Kelas</a>
     </div>
   </main>
 
+  <!-- Diubah: Footer disamakan -->
   <footer class="bg-gray-200 text-center py-6 dark:bg-slate-950 dark:text-gray-500 mt-10">
     <p>&copy; 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
   </footer>
 
+  <!-- Diubah: Seluruh script dirombak agar sesuai dengan standar Bab 1 -->
   <script type="module">
     // --- KONEKSI SUPABASE (CARA MODERN) ---
     const { createClient } = supabase; 
@@ -78,7 +87,7 @@
 
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- DATA KUIS BAB 2 (TETAP) ---
+    // --- DATA KUIS BAB 2 ---
     const quizData = [
       { question: "Huruf apakah yang berubah bentuk paling banyak antara posisi awal, tengah, dan akhir?", options: ["ع", "م", "هـ", "ك"], answer: "هـ" },
       { question: "Huruf hijaiyah yang berbentuk seperti cangkir bila di posisi akhir kata adalah...", options: ["م", "س", "ش", "ي"], answer: "م" },
@@ -184,10 +193,10 @@
         return;
       }
 
-      // Diubah: quiz_id dibuat statis untuk bab ini
+      // Diubah: quiz_id dibuat statis untuk bab ini, menggantikan fungsi getQuizIdFromUrl()
       const quiz_id = 'kelas01_bab02_hijaiyah'; 
 
-      // Diubah: Menyimpan ke tabel 'quiz_attempts' agar konsisten
+      // Diubah: Menyimpan ke tabel 'quiz_attempts' agar konsisten dengan Bab 1
       const { error } = await supabaseClient
         .from('quiz_attempts')
         .insert([{ user_id: user.id, quiz_id: quiz_id, score: finalScore }]);
