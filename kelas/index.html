@@ -143,33 +143,35 @@
     }
 
     // --- LEADERBOARD TANTANGAN TOP 1 ---
-    async function loadTopDashboardUser() {
-      const { data: leaderboard, error } = await supabaseClient
-        .from('profiles')
-        .select('username, dashboard_score_total')
-        .order('dashboard_score_total', { ascending: false })
-        .limit(1);
+async function loadTopDashboardUser() {
+  const { data: leaderboard, error } = await supabaseClient
+    .from('profiles')
+    .select('username, dashboard_score_total')
+    .order('dashboard_score_total', { ascending: false })
+    .limit(1);
 
-      const container = document.getElementById('leaderboard-dashboard-single');
+  const container = document.getElementById('leaderboard-dashboard-single');
 
-      if (error) {
-        console.error("Gagal load leaderboard Tantangan:", error);
-        container.textContent = "Gagal memuat leaderboard";
-        return;
-      }
+  if (error) {
+    console.error("Gagal load leaderboard Tantangan:", error);
+    container.textContent = "Gagal memuat leaderboard";
+    return;
+  }
 
-      if (!leaderboard || leaderboard.length === 0 || leaderboard[0].dashboard_score_total === null) {
-        container.textContent = "Belum ada skor Tantangan";
-        return;
-      }
+  if (!leaderboard || leaderboard.length === 0) {
+    container.textContent = "Belum ada skor Tantangan";
+    return;
+  }
 
-      const user = leaderboard[0];
-      container.innerHTML = `
-        <span class="block text-2xl font-bold">${user.username}</span>
-        <span class="block mt-1 text-lg font-semibold text-amber-900 dark:text-amber-200">${user.dashboard_score_total} poin</span>
-      `;
-    }
+  // Ambil user pertama (top 1)
+  const user = leaderboard[0];
+  const score = user.dashboard_score_total ?? 0; // fallback ke 0 jika null
 
+  container.innerHTML = `
+    <span class="block text-2xl font-bold">${user.username}</span>
+    <span class="block mt-1 text-lg font-semibold text-amber-900 dark:text-amber-200">${score} poin</span>
+  `;
+}
     document.addEventListener('DOMContentLoaded', () => {
       loadTopDashboardUser();  // Leaderboard Tantangan top 1
       fetchAndRenderLeaderboard(); // Leaderboard umum top 3
