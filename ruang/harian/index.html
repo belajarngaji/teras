@@ -163,7 +163,7 @@
 
     // GANTI KONFIG SUPABASE DI SINI
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; // gunakan anon key/edge key sesuai setup
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI..."; // gunakan anon key/edge key sesuai setup
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Refs
@@ -409,4 +409,67 @@
 
     async function startEdit(id){
       try{
-        const { data, error } = await supabase.from('dashboard
+        const { data, error } = await supabase.from('dashboard_quiz_questions').select('id,batch_id,question_text,options,correct_answer').eq('id', id).single();
+        if(error) throw error;
+        if(data.batch_id && data.batch_id !== loadedBatch) setActiveBatchUI(data.batch_id, true);
+        questionText.value = data.question_text||''; const ops = data.options||{};
+        optA.value = ops.A||''; optB.value = ops.B||''; optC.value = ops.C||''; optD.value = ops.D||'';
+        correctAns.value = data.correct_answer||'';
+        editMode=true; editId=data.id; submitBtn.textContent='Update Soal'; modeBadge.textContent='Edit Soal'; window.scrollTo({top:0,behavior:'smooth'});
+      }catch(err){ console.error('startEdit err', err); alert('Gagal load soal untuk edit: ' + (err.message || err)); }
+    }
+
+    async function confirmDelete(id){
+      if(!confirm('Hapus soal ini? Tindakan tidak dapat dikembalikan.')) return;
+      try{
+        const { error } = await supabase.from('dashboard_quiz_questions').delete().eq('id', id);
+        if(error) throw error;
+        showToast('Soal dihapus.'); if(loadedBatch) await fetchBatch(loadedBatch);
+      }catch(err){ console.error('confirmDelete err', err); alert('Gagal hapus: ' + (err.message || err)); }
+    }
+
+    // Restore batch on load
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      const fromHash = (location.hash || '').replace('#','');
+      let initialBatch = '';
+      if(fromHash) initialBatch = decodeURIComponent(fromHash);
+      else {
+        const saved = localStorage.getItem('activeBatch');
+        if(saved) initialBatch = saved;
+      }
+      if(initialBatch){
+        const saved = await ensureBatchExistsInDB(initialBatch);
+        setActiveBatchUI(initialBatch, !!saved); await fetchBatch(initialBatch);
+      } else {
+        try{
+          const { data, error } = await supabase.from('dashboard_quiz_batches').select('batch_code').order('created_at',{ascending:false}).limit(1);
+          if(!error && data && data.length>0){
+            const latest = data[0].batch_code; setActiveBatchUI(latest, true); await fetchBatch(latest);
+          }
+        }catch(e){ console.warn('fetch latest batch error', e); }
+      }
+      await loadHistoryOptions();
+
+      // realtime subscription (optional)
+      try{
+        const channel = supabase.channel('realtime-questions')
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'dashboard_quiz_questions' }, payload => {
+            if(payload.new?.batch_id === loadedBatch) fetchBatch(loadedBatch);
+          })
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'dashboard_quiz_questions' }, payload => {
+            if(payload.new?.batch_id === loadedBatch) fetchBatch(loadedBatch);
+          })
+          .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'dashboard_quiz_questions' }, payload => {
+            if(payload.old?.batch_id === loadedBatch) fetchBatch(loadedBatch);
+          });
+        await channel.subscribe();
+      }catch(e){ console.warn('realtime subscribe failed', e); }
+    });
+
+    // fixed: use batchIdInput (not batchId)
+    batchIdInput.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){ e.preventDefault(); loadBatchBtn.click(); }
+    });
+  </script>
+</body>
+</html>
