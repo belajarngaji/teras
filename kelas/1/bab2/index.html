@@ -3,121 +3,96 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kuis Kelas 1 Bab 2</title>
-  <meta name="description" content="Kuis Hijaiyah untuk Belajar Ngaji.">
-  <link rel="icon" href="../../favicon.ico" type="image/x-icon">
+  <title>Kuis Kelas 1 Bab 2 - Huruf Sambung</title>
+  <meta name="description" content="Kuis Huruf Sambung untuk Belajar Ngaji.">
+  <link rel="icon" href="https://placehold.co/32x32/3B82F6/FFFFFF?text=BN" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: 'Poppins', sans-serif; transition: background 0.3s, color 0.3s; }
-    .dark-mode { background: #1e293b; color: #f1f5f9; }
-    .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    /* Diubah: Style disamakan sepenuhnya dengan Bab 1 */
+    body { 
+      font-family: 'Poppins', sans-serif; 
     }
     .option-item.selected {
-      background-color: #2a698a;
-      color: #fff;
+      background-color: #3b82f6; /* bg-blue-600 */
+      color: #ffffff;
+      border-color: #2563eb; /* border-blue-700 */
+    }
+    .option-item.correct {
+      background-color: #22c55e; /* bg-green-500 */
+      color: #ffffff;
+      border-color: #16a34a; /* border-green-600 */
+    }
+    .option-item.incorrect {
+      background-color: #ef4444; /* bg-red-500 */
+      color: #ffffff;
+      border-color: #dc2626; /* border-red-600 */
+    }
+    .no-pointer-events {
+      pointer-events: none;
     }
   </style>
 </head>
-<body class="bg-gray-50 dark:bg-slate-800">
+<body class="bg-gray-100 dark:bg-slate-900">
 
-  <!-- NAVBAR -->
-  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
-    <!-- Brand / Logo -->
+  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md sticky top-0 z-10">
     <div>
-      <a href="../..">
-        <img src="..png" alt="Belajar Ngaji" class="h-7 w-auto">
+      <a href=".">
+        <span class="text-xl font-bold">Huruf Sambung</span>
       </a>
     </div>
-    <!-- Tombol Profil -->
-    <a href="profil/" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
-      👤
-    </a>
+    <button class="bg-white text-blue-600 px-3 py-1.5 rounded-full hover:bg-gray-200 text-lg font-bold">
+      🔔
+    </button>
   </nav>
 
-  <!-- KONTEN KUIS -->
-  <div class="mx-auto px-4 py-10 w-full md:w-2/3 lg:w-1/2">
-    <!-- KONTEN KUIS UTAMA -->
-    <div id="quiz-ui" class="card bg-white rounded-xl shadow-lg p-6 text-center dark:bg-slate-700 dark:text-gray-100">
-      <h2 id="question-text" class="text-xl font-semibold mb-4"></h2>
-      <ul id="options-list" class="flex flex-col gap-3"></ul>
-      <button id="next-button" class="mt-6 w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition">Selanjutnya</button>
+  <main class="mx-auto px-4 py-10 w-full max-w-2xl">
+    <div id="quiz-ui" class="bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center dark:bg-slate-800 dark:text-gray-100">
+      <h2 id="question-text" class="text-2xl font-semibold mb-6">Memuat pertanyaan...</h2>
+      <ul id="options-list" class="flex flex-col gap-4 text-xl"></ul>
+      <div id="status-message" class="mt-4 p-3 rounded-lg text-sm font-semibold text-center hidden"></div>
+      <button id="next-button" class="mt-6 w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">Selanjutnya</button>
     </div>
 
-    <!-- HASIL KUIS (HIDDEN SECARA DEFAULT) -->
-    <div id="results-ui" class="card bg-white rounded-xl shadow-lg p-6 mt-8 text-center dark:bg-slate-700 dark:text-gray-100" style="display: none;">
-      <h2 class="text-2xl font-bold text-green-600 mb-4">Hasil Kuis</h2>
-      <p class="text-lg">Skor Anda: <span id="final-score" class="font-bold text-3xl">0</span></p>
-      <p id="score-message" class="mt-2 text-md"></p>
-      <a href="../" class="mt-6 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">Kembali ke Beranda</a>
+    <div id="results-ui" class="bg-white rounded-xl shadow-lg p-6 sm:p-8 mt-8 text-center dark:bg-slate-800 dark:text-gray-100" style="display: none;">
+      <h2 class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-4">Hasil Kuis</h2>
+      <p class="text-lg mb-2">Skor Akhir Anda:</p>
+      <p id="final-score" class="font-bold text-6xl text-green-600 dark:text-green-400">0</p>
+      <p id="score-message" class="mt-4 text-lg"></p>
+      <div id="save-status-message" class="mt-4 p-3 rounded-lg text-sm font-semibold text-center hidden"></div>
+      <a href="../../1/" class="mt-8 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">Kembali ke Kelas</a>
     </div>
-  </div>
+  </main>
 
-  <!-- Footer -->
-  <footer class="bg-gray-100 text-center py-6 dark:bg-slate-900 dark:text-gray-400">
-    <p>© 2025 Belajar Ngaji- Semua Hak Dilindungi</p>
+  <footer class="bg-gray-200 text-center py-6 dark:bg-slate-950 dark:text-gray-500 mt-10">
+    <p>&copy; 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
   </footer>
 
-  <script>
-    // --- 1. DATA KUIS ---
+  <script type="module">
+    // --- KONEKSI SUPABASE (CARA MODERN) ---
+    const { createClient } = supabase; 
+
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // --- DATA KUIS BAB 2 (TETAP) ---
     const quizData = [
-      {
-        question: "Huruf apakah yang berubah bentuk paling banyak antara posisi awal, tengah, dan akhir?",
-        options: ["ع", "م", "هـ", "ك"],
-        answer: "هـ"
-      },
-      {
-        question: "Huruf hijaiyah yang berbentuk seperti cangkir bila di posisi akhir kata adalah...",
-        options: ["م", "س", "ش", "ي"],
-        answer: "م"
-      },
-      {
-        question: "Dalam kata مُحَمَّد, huruf م terletak di posisi…",
-        options: ["Awal dan Tengah", "Awal dan Akhir", "Tengah dan Akhir", "Hanya Tengah"],
-        answer: "Awal dan Tengah"
-      },
-      {
-        question: "Huruf apa saja yang tidak dapat disambung dengan huruf sesudahnya?",
-        options: ["ا، د، ذ، ر", "ب، ت، ث، ج", "ف، ق، ك، ل"],
-        answer: "ا، د، ذ، ر"
-      },
-      {
-        question: "Huruf apakah yang selalu berdiri sendiri meskipun berada di tengah kata?",
-        options: ["د", "س", "ع", "م"],
-        answer: "د"
-      },
-      {
-        question: "Bentuk huruf 'هـ' dalam keempat posisi (berdiri sendiri, awal, tengah, akhir) adalah...",
-        options: ["هـ, هـ‍, ‍هـ‍, ‍هـ", "هـ, ه‍, ـهـ, ـه", "هـ, ـهـ, ه‍, ـه"],
-        answer: "هـ, هـ‍, ‍هـ‍, ‍هـ"
-      },
-      {
-        question: "Pada kata اللّٰه, berapa huruf yang memiliki titik?",
-        options: ["0", "1", "2", "3"],
-        answer: "0"
-      },
-      {
-        question: "Huruf hijaiyah yang sering digunakan untuk memulai kata tetapi jarang digunakan di akhir kata adalah...",
-        options: ["ا", "م", "س", "ك"],
-        answer: "ا"
-      },
-      {
-        question: "Huruf apakah yang memiliki bentuk paling mirip dengan angka 7 jika ditulis di posisi awal?",
-        options: ["ح", "ل", "ك", "ن"],
-        answer: "ك"
-      },
-      {
-        question: "Huruf yang berbentuk seperti 'Waw' namun tanpa titik adalah...",
-        options: ["ع", "ل", "و", "ق"],
-        answer: "و"
-      }
+      { question: "Huruf apakah yang berubah bentuk paling banyak antara posisi awal, tengah, dan akhir?", options: ["ع", "م", "هـ", "ك"], answer: "هـ" },
+      { question: "Huruf hijaiyah yang berbentuk seperti cangkir bila di posisi akhir kata adalah...", options: ["م", "س", "ش", "ي"], answer: "م" },
+      { question: "Dalam kata مُحَمَّد, huruf م terletak di posisi…", options: ["Awal dan Tengah", "Awal dan Akhir", "Tengah dan Akhir", "Hanya Tengah"], answer: "Awal dan Tengah" },
+      { question: "Huruf apa saja yang tidak dapat disambung dengan huruf sesudahnya?", options: ["ا، د، ذ، ر", "ب، ت، ث، ج", "ف، ق، ك، ل"], answer: "ا، د، ذ، ر" },
+      { question: "Huruf apakah yang selalu berdiri sendiri meskipun berada di tengah kata?", options: ["د", "س", "ع", "م"], answer: "د" },
+      { question: "Bentuk huruf 'هـ' dalam keempat posisi (berdiri sendiri, awal, tengah, akhir) adalah...", options: ["هـ, هـ‍, ‍هـ‍, ‍هـ", "هـ, ه‍, ـهـ, ـه", "هـ, ـهـ, ه‍, ـه"], answer: "هـ, هـ‍, ‍هـ‍, ‍هـ" },
+      { question: "Pada kata اللّٰه, berapa huruf yang memiliki titik?", options: ["0", "1", "2", "3"], answer: "0" },
+      { question: "Huruf hijaiyah yang sering digunakan untuk memulai kata tetapi jarang digunakan di akhir kata adalah...", options: ["ا", "م", "س", "ك"], answer: "ا" },
+      { question: "Huruf apakah yang memiliki bentuk paling mirip dengan angka 7 jika ditulis di posisi awal?", options: ["ح", "ل", "ك", "ن"], answer: "ك" },
+      { question: "Huruf yang berbentuk seperti 'Waw' namun tanpa titik adalah...", options: ["ع", "ل", "و", "ق"], answer: "و" }
     ];
 
-    // --- 2. LOGIKA KUIS ---
+    // --- ELEMEN UI (DISESUAIKAN) ---
     const quizUI = document.getElementById('quiz-ui');
     const resultsUI = document.getElementById('results-ui');
     const questionText = document.getElementById('question-text');
@@ -125,111 +100,130 @@
     const nextButton = document.getElementById('next-button');
     const finalScoreSpan = document.getElementById('final-score');
     const scoreMessage = document.getElementById('score-message');
+    const statusMessage = document.getElementById('status-message');
+    const saveStatusMessage = document.getElementById('save-status-message');
 
+    // --- STATE KUIS ---
     let currentQuestionIndex = 0;
     let score = 0;
     let selectedOption = null;
 
+    // --- FUNGSI-FUNGSI (DISAMAKAN DENGAN BAB 1) ---
     function loadQuestion() {
-      if (currentQuestionIndex < quizData.length) {
-        const currentQuestion = quizData[currentQuestionIndex];
-        questionText.textContent = `${currentQuestionIndex + 1}. ${currentQuestion.question}`;
-        optionsList.innerHTML = '';
-        currentQuestion.options.forEach(option => {
-          const li = document.createElement('li');
-          li.textContent = option;
-          li.className = 'bg-blue-50 text-blue-800 font-semibold py-3 px-4 rounded-lg cursor-pointer transition hover:bg-blue-100 dark:bg-slate-600 dark:text-gray-100 dark:hover:bg-slate-500';
-          li.addEventListener('click', () => {
-            document.querySelectorAll('.option-item').forEach(item => {
-              item.classList.remove('bg-blue-700', 'text-white');
-              item.classList.add('bg-blue-50', 'text-blue-800');
-            });
-            li.classList.remove('bg-blue-50', 'text-blue-800');
-            li.classList.add('bg-blue-700', 'text-white', 'selected');
-            selectedOption = option;
-          });
-          li.classList.add('option-item');
-          optionsList.appendChild(li);
-        });
-        nextButton.textContent = currentQuestionIndex === quizData.length - 1 ? 'Selesai' : 'Selanjutnya';
-      } else {
+      selectedOption = null;
+      hideStatusMessage();
+
+      if (currentQuestionIndex >= quizData.length) {
         showResults();
-      }
-    }
-
-    nextButton.addEventListener('click', () => {
-      if (selectedOption !== null) {
-        const currentQuestion = quizData[currentQuestionIndex];
-        if (selectedOption === currentQuestion.answer) {
-          score++;
-        }
-        currentQuestionIndex++;
-        selectedOption = null;
-        loadQuestion();
-      } else {
-        alert('Silakan pilih jawaban terlebih dahulu.');
-      }
-    });
-
-    function showResults() {
-      quizUI.style.display = 'none';
-      resultsUI.style.display = 'block';
-      finalScoreSpan.textContent = score;
-
-      if (score === quizData.length) {
-        scoreMessage.textContent = 'Hebat! Anda mendapatkan skor sempurna!';
-      } else if (score >= quizData.length / 2) {
-        scoreMessage.textContent = 'Kerja bagus! Anda berhasil melewati kuis ini.';
-      } else {
-        scoreMessage.textContent = 'Terus belajar ya! Anda bisa coba lagi.';
-      }
-
-      saveScoreToSupabase(score);
-    }
-    
-    document.addEventListener('DOMContentLoaded', loadQuestion);
-
-    // --- INTEGRASI SUPABASE (DENGAN KUNCI LANGSUNG) ---
-    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
-    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    async function saveScoreToSupabase(finalScore) {
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        console.error('User belum login. Skor tidak dapat disimpan.');
         return;
       }
-      
-      const quiz_id = getQuizIdFromUrl();
-      const { data, error } = await supabase
-        .from('quiz_scores')
-        .insert([
-          {
-            user_id: user.id,
-            quiz_id: quiz_id,
-            score: finalScore
-          }
-        ]);
-        
-      if (error) {
-        console.error('Gagal menyimpan skor ke Supabase:', error.message);
+
+      const currentQuestion = quizData[currentQuestionIndex];
+      questionText.textContent = `${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+      optionsList.innerHTML = '';
+
+      currentQuestion.options.forEach(option => {
+        const li = document.createElement('li');
+        li.textContent = option;
+        li.className = 'option-item border-2 border-gray-200 dark:border-slate-600 font-semibold py-3 px-4 rounded-lg cursor-pointer transition hover:bg-blue-100 dark:hover:bg-slate-700';
+        li.addEventListener('click', () => {
+          document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
+          li.classList.add('selected');
+          selectedOption = option;
+        });
+        optionsList.appendChild(li);
+      });
+
+      nextButton.textContent = currentQuestionIndex === quizData.length - 1 ? 'Selesai' : 'Selanjutnya';
+    }
+
+    function giveFeedback() {
+      optionsList.classList.add('no-pointer-events');
+      nextButton.disabled = true;
+      const currentQuestion = quizData[currentQuestionIndex];
+      const selectedLi = document.querySelector('.option-item.selected');
+
+      if (selectedOption === currentQuestion.answer) {
+        score++;
+        selectedLi.classList.add('correct');
+        showStatusMessage('Jawaban Benar! Bagus sekali!', 'text-green-800 dark:text-green-300', 'bg-green-100 dark:bg-green-900/50');
       } else {
-        console.log('Skor berhasil disimpan!', data);
+        selectedLi.classList.add('incorrect');
+        showStatusMessage('Jawaban kurang tepat.', 'text-orange-800 dark:text-orange-300', 'bg-orange-100 dark:bg-orange-900/50');
+      }
+
+      setTimeout(() => {
+        currentQuestionIndex++;
+        loadQuestion();
+        optionsList.classList.remove('no-pointer-events');
+        nextButton.disabled = false;
+      }, 1500);
+    }
+
+    async function showResults() {
+      quizUI.style.display = 'none';
+      resultsUI.style.display = 'block';
+      const finalScore = score * 10; // Skor diubah jadi skala 100
+      finalScoreSpan.textContent = finalScore;
+
+      if (finalScore === 100) {
+        scoreMessage.textContent = 'Masya Allah! Anda mendapatkan skor sempurna!';
+      } else if (finalScore >= 70) {
+        scoreMessage.textContent = 'Kerja bagus! Anda berhasil melewati kuis ini.';
+      } else {
+        scoreMessage.textContent = 'Terus semangat belajar, ya! Anda bisa coba lagi.';
+      }
+      await saveScoreToSupabase(finalScore);
+    }
+
+    async function saveScoreToSupabase(finalScore) {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+
+      if (!user) {
+        showSaveStatusMessage('Anda belum masuk untuk menyimpan skor.', 'text-orange-800 dark:text-orange-300', 'bg-orange-100 dark:bg-orange-900/50');
+        return;
+      }
+
+      // Diubah: quiz_id dibuat statis untuk bab ini
+      const quiz_id = 'kelas01_bab02_hijaiyah'; 
+
+      // Diubah: Menyimpan ke tabel 'quiz_attempts' agar konsisten
+      const { error } = await supabaseClient
+        .from('quiz_attempts')
+        .insert([{ user_id: user.id, quiz_id: quiz_id, score: finalScore }]);
+
+      if (error) {
+        showSaveStatusMessage('Gagal menyimpan skor Anda.', 'text-red-800 dark:text-red-300', 'bg-red-100 dark:bg-red-900/50');
+      } else {
+        showSaveStatusMessage('Skor Anda berhasil dicatat!', 'text-green-800 dark:text-green-300', 'bg-green-100 dark:bg-green-900/50');
       }
     }
-    
-    // Kode baru yang harus Anda pakai
-function getQuizIdFromUrl() {
-  const path = window.location.pathname;
-  const pathParts = path.split('/');
-  const folderName = pathParts[pathParts.length - 2];
-  const kelas = pathParts[pathParts.length - 3];
-  const bab = folderName.split('-')[1];
-  return `${kelas}_${bab}_kuis1`;
-}
-  </script>
 
+    function showStatusMessage(message, textColor, bgColor) {
+      statusMessage.textContent = message;
+      statusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
+      statusMessage.classList.remove('hidden');
+    }
+
+    function hideStatusMessage() { statusMessage.classList.add('hidden'); }
+
+    function showSaveStatusMessage(message, textColor, bgColor) {
+      saveStatusMessage.textContent = message;
+      saveStatusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
+      saveStatusMessage.classList.remove('hidden');
+    }
+
+    // --- EVENT LISTENERS & INISIALISASI (DISAMAKAN) ---
+    nextButton.addEventListener('click', () => {
+      if (selectedOption === null) {
+        showStatusMessage('Silakan pilih jawaban terlebih dahulu.', 'text-red-800 dark:text-red-300', 'bg-red-100 dark:bg-red-900/50');
+        return;
+      }
+      giveFeedback();
+    });
+
+    document.addEventListener('DOMContentLoaded', loadQuestion);
+
+  </script>
 </body>
 </html>
