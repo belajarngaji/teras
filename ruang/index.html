@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Belajar Ngaji</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 @import url('https://rsms.me/inter/inter.css');
 body { font-family: 'Inter', sans-serif; background-color: #f0f8ff; color: #1f2937; margin:0; overflow-x:hidden; }
@@ -63,20 +62,11 @@ header { position:sticky; top:0; z-index:10; }
       <div class="kpi-card p-6"><h3 class="text-sm font-medium text-gray-500">Total Pengguna</h3><p id="total-users" class="text-3xl font-bold text-blue-600 mt-2">0</p></div>
       <div class="kpi-card p-6"><h3 class="text-sm font-medium text-gray-500">Kuis Hari Ini</h3><p id="quiz-attempts-today" class="text-3xl font-bold text-blue-600 mt-2">0</p></div>
     </section>
-    
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      <div class="lg:col-span-3 bg-white border p-6 overflow-x-auto"><h3 class="font-semibold text-gray-700 mb-4">🏆 Leaderboard - Top 10</h3><table class="w-full text-sm text-left"><thead class="text-xs uppercase bg-gray-100"><tr><th class="py-3 px-6">Peringkat</th><th class="py-3 px-6">Pengguna</th><th class="py-3 px-6">Total Skor</th></tr></thead><tbody id="leaderboard-body"></tbody></table></div>
-      <div class="lg:col-span-1 bg-white border p-4"><h3 class="font-semibold text-gray-700 mb-4">Kuis Terpopuler</h3><canvas id="popular-quizzes-chart"></canvas></div>
-      
-      <div id="superadmin-only-charts" class="lg:col-span-2 contents"> 
-        <div class="bg-white border p-4"><h3 class="font-semibold text-gray-700 mb-4">Benar vs Salah (Keseluruhan)</h3><canvas id="pieChartTotal"></canvas></div>
-      </div>
+
+    <section class="grid grid-cols-1 gap-6 mb-8">
+      <div class="bg-white border p-6 overflow-x-auto"><h3 class="font-semibold text-gray-700 mb-4">🏆 Leaderboard - Top 10</h3><table class="w-full text-sm text-left"><thead class="text-xs uppercase bg-gray-100"><tr><th class="py-3 px-6">Peringkat</th><th class="py-3 px-6">Pengguna</th><th class="py-3 px-6">Total Skor</th></tr></thead><tbody id="leaderboard-body"></tbody></table></div>
     </section>
 
-    <section id="superadmin-section" class="mb-8" style="display: none;">
-      <div class="bg-white border p-6"><h3 class="font-semibold text-gray-700 mb-4">📈 Pertumbuhan Pengguna (Superadmin)</h3><canvas id="userGrowthChart"></canvas></div>
-    </section>
-    
     <section>
     <h3 class="text-xl font-semibold text-gray-700 mb-4">Aktivitas Terbaru</h3>
     <div class="bg-white border rounded-lg overflow-x-auto overflow-y-auto max-h-[400px]">
@@ -99,16 +89,12 @@ const errorContainer = document.getElementById('error-container');
 const errorMessage = document.getElementById('error-message');
 const retryButton = document.getElementById('retry-button');
 const dashboardContent = document.getElementById('dashboard-content');
-const superadminCharts = document.getElementById('superadmin-only-charts');
-const superadminSection = document.getElementById('superadmin-section');
 
-function formatQuizName(id){ if (!id) return 'Kuis Tidak Dikenal'; return id.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); }
-let charts = {};
-function createOrUpdateChart(id,type,labels,data,colors,label){
-  const ctx = document.getElementById(id).getContext('2d');
-  if (charts[id]) { charts[id].destroy(); }
-  charts[id] = new Chart(ctx,{type,data:{labels,datasets:[{label,data,backgroundColor:colors,fill:type==='line'?!1:!0,borderColor:colors,tension:0.3}]},options:{responsive:!0,maintainAspectRatio:!0,plugins:{legend:{position:'bottom'},title:{display:!!label,text:label}},scales:{y:{beginAtZero:!0}}}});
-}
+// Removed chart-related functions and variables
+// function formatQuizName(id){ if (!id) return 'Kuis Tidak Dikenal'; return id.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); }
+// let charts = {};
+// function createOrUpdateChart(id,type,labels,data,colors,label){ ... }
+
 const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay');
 document.getElementById('sidebar-toggle').addEventListener('click',()=>{sidebar.classList.toggle('-translate-x-full'),overlay.style.display=sidebar.classList.contains('-translate-x-full')?'none':'block'});
 overlay.addEventListener('click',()=>{sidebar.classList.add('-translate-x-full'),overlay.style.display='none'});
@@ -116,24 +102,21 @@ overlay.addEventListener('click',()=>{sidebar.classList.add('-translate-x-full')
 document.addEventListener('DOMContentLoaded', () => {
   supabase.auth.onAuthStateChange(async (event, session) => {
     if (session && session.user) {
-      // ==============================================
-      // BARU: Ambil profil pengguna untuk mendapatkan role
-      // ==============================================
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', session.user.id)
         .single();
-        
+
       if (error || !profile) {
         console.error("Gagal mengambil role pengguna:", error);
         errorMessage.textContent = "Gagal memverifikasi role Anda. Silakan login kembali.";
         errorContainer.style.display = 'block';
         loaderContainer.style.display = 'none';
-        await supabase.auth.signOut(); // Logout jika gagal ambil role
+        await supabase.auth.signOut();
         return;
       }
-      
+
       loadDashboardData(session.user, profile);
     } else {
       window.location.href = '/admin-login/';
@@ -141,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   retryButton.addEventListener('click', () => {
-    window.location.reload(); // Cara termudah untuk coba lagi
+    window.location.reload();
   });
 });
 
@@ -152,69 +135,48 @@ async function loadDashboardData(user, profile) {
 
   try {
     const [
-      { data: quizAttemptsFiltered, error: quizError },
-      { data: allProfiles, error: profilesError }, // BARU: Ambil semua profil untuk chart pertumbuhan
+      { data: quizAttemptsTodayData, error: quizAttemptsError },
       { count: totalUsers, error: usersError },
-      { data: leaderboardData, error: leaderboardError }
+      { data: leaderboardData, error: leaderboardError },
+      { data: recentActivityData, error: recentActivityError } // Fetch recent activity
     ] = await Promise.all([
-      supabase.from('quiz_attempts').select('score, total_questions'),
-      supabase.from('profiles').select('created_at'),
+      supabase.from('quiz_attempts').select('submitted_at'), // Only need submitted_at for today's count
       supabase.from('profiles').select('*', { count: 'exact', head: true }),
-      supabase.from('leaderboard').select('username, total_score').order('total_score', { ascending: false }).limit(10)
+      supabase.from('leaderboard').select('username, total_score').order('total_score', { ascending: false }).limit(10),
+      supabase.from('quiz_attempts').select('profiles(username), quiz_id, score, submitted_at').order('submitted_at', { ascending: false }).limit(10) // Fetch recent activity
     ]);
 
-    const firstError = quizError || profilesError || usersError || leaderboardError;
+    const firstError = quizAttemptsError || usersError || leaderboardError || recentActivityError;
     if (firstError) throw firstError;
 
     // --- RENDER DATA UMUM (untuk semua admin) ---
     document.getElementById('total-users').textContent = totalUsers || 0;
+
     const today = new Date(); today.setHours(0,0,0,0);
-    const quizToday = (quizAttemptsFiltered || []).filter(a => new Date(a.submitted_at) >= today).length;
-    document.getElementById('quiz-attempts-today').textContent = quizToday;
+    const quizTodayCount = (quizAttemptsTodayData || []).filter(a => new Date(a.submitted_at) >= today).length;
+    document.getElementById('quiz-attempts-today').textContent = quizTodayCount;
+
     const lb = document.getElementById('leaderboard-body');
-    lb.innerHTML = leaderboardData.map((u, index) => `
+    lb.innerHTML = (leaderboardData || []).map((u, index) => `
       <tr class="border-b"><td class="py-3 px-6 text-center font-medium">${index + 1}</td><td class="py-3 px-6">${u.username}</td><td class="py-3 px-6 text-center font-bold text-yellow-500">${u.total_score || 0}</td></tr>
     `).join('') || `<tr><td colspan="3" class="py-4 px-6 text-center">Belum ada data.</td></tr>`;
-    
-    // --- RENDER GRAFIK BERDASARKAN ROLE ---
-    const userRole = profile.role;
 
-    // Grafik yang selalu tampil untuk semua admin
-    const counts = {};
-    (quizAttemptsFiltered || []).forEach(a => { const name = formatQuizName(a.quiz_id); counts[name] = (counts[name] || 0) + 1; });
-    const sortedQuizzes = Object.entries(counts).sort(([,a],[,b]) => b-a).slice(0,5);
-    createOrUpdateChart('popular-quizzes-chart','doughnut', sortedQuizzes.map(x=>x[0]), sortedQuizzes.map(x=>x[1]), ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'], 'Pengerjaan');
+    // Render Recent Activity
+    const recentActivityBody = document.getElementById('recent-activity-body');
+    recentActivityBody.innerHTML = (recentActivityData || []).map(activity => {
+      const quizName = activity.quiz_id ? activity.quiz_id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Kuis Tidak Dikenal';
+      const submittedTime = new Date(activity.submitted_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+      return `
+        <tr class="border-b">
+          <td class="py-3 px-6">${activity.profiles?.username || 'Pengguna Tidak Dikenal'}</td>
+          <td class="py-3 px-6">${quizName}</td>
+          <td class="py-3 px-6">${activity.score || 0}</td>
+          <td class="py-3 px-6">${submittedTime}</td>
+        </tr>
+      `;
+    }).join('') || `<tr><td colspan="4" class="py-4 px-6 text-center">Belum ada aktivitas terbaru.</td></tr>`;
 
-    // Tampilkan/sembunyikan elemen berdasarkan role
-    if (userRole === 'superadmin') {
-      superadminCharts.style.display = 'contents'; // 'contents' agar tidak merusak grid layout
-      superadminSection.style.display = 'block';
-      
-      // Render grafik khusus superadmin
-      const totalCorrect = (quizAttemptsFiltered || []).reduce((s,a) => s + (Number(a.score)||0),0);
-      const totalQuestions = (quizAttemptsFiltered || []).reduce((s,a) => s + (Number(a.total_questions)||0),0);
-      const totalPercent = totalQuestions ? Math.round(totalCorrect / totalQuestions * 100) : 0;
-      createOrUpdateChart('pieChartTotal', 'pie', ['Benar','Salah'], [totalPercent, 100-totalPercent], ['#4CAF50','#F44336'], 'Benar vs Salah (%)');
-
-      // BARU: Chart Pertumbuhan Pengguna
-      const userGrowth = (allProfiles || []).reduce((acc, p) => {
-        const date = new Date(p.created_at).toISOString().split('T')[0];
-        acc[date] = (acc[date] || 0) + 1;
-        return acc;
-      }, {});
-      const sortedDates = Object.keys(userGrowth).sort();
-      const cumulativeUsers = [];
-      let total = 0;
-      sortedDates.forEach(date => {
-        total += userGrowth[date];
-        cumulativeUsers.push(total);
-      });
-      createOrUpdateChart('userGrowthChart', 'line', sortedDates, cumulativeUsers, ['#1e40af'], 'Total Pengguna');
-
-    } else { // Jika role adalah 'admin' atau lainnya
-      superadminCharts.style.display = 'none';
-      superadminSection.style.display = 'none';
-    }
+    // Removed all chart rendering logic
 
     loaderContainer.style.display = 'none';
     dashboardContent.style.display = 'block';
