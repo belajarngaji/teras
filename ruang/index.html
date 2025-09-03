@@ -145,7 +145,10 @@ const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function formatQuizName(id){ return id.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); }
+function formatQuizName(id){ 
+  return id.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); 
+}
+
 function createChart(ctx,type,labels,data,colors,label){
   return new Chart(ctx,{
     type,
@@ -173,13 +176,25 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   if(!user){ window.location.href='/admin-login/'; return; }
 
   const { data: profile } = await supabase.from('profiles').select('role,username').eq('id', user.id).single();
-  if(!profile || !['admin','superadmin'].includes(profile.role)){ alert('Akses ditolak'); return; }
+  if(!profile || !['admin','superadmin','user'].includes(profile.role)){ alert('Akses ditolak'); return; }
   const isSuperAdmin = profile.role==='superadmin';
-  const profileFilter = isSuperAdmin?{}:{admin_id:user.id};
 
-  // Ambil data quiz attempts
+  // Ambil data quiz
   const { data: quizAttempts } = await supabase.from('quiz_attempts').select('*').then(r=>r.data||[]);
   const { data: dashboardAttempts } = await supabase.from('dashboard_quiz_attempts').select('*').then(r=>r.data||[]);
+
+  // Filter berdasarkan role
+  let quizAttemptsFiltered = [], dashboardAttemptsFiltered = [];
+  if(isSuperAdmin){
+    quizAttemptsFiltered = quizAttempts;
+    dashboardAttemptsFiltered = dashboardAttempts;
+  } else if(profile.role==='admin'){
+    quizAttemptsFiltered = quizAttempts.filter(a=>a.admin_id===user.id);
+    dashboardAttemptsFiltered = dashboardAttempts.filter(a=>a.admin_id===user.id);
+  } else {
+    quizAttemptsFiltered = quizAttempts.filter(a=>a.user_id===user.id);
+    dashboardAttemptsFiltered = dashboardAttempts.filter(a=>a.user_id===user.id);
+  }
 
   // Total Users
   const { count: totalUsers } = await supabase.from('profiles').select('*',{count:'exact',head:true}).then(r=>r);
@@ -187,34 +202,49 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   // Kuis Hari Ini
   const today = new Date(); today.setHours(0,0,0,0);
-  const todayISO = today.toISOString();
-  const quizToday = quizAttempts.filter(a=>new Date(a.submitted_at)>=today).length;
+  const quizToday = quizAttemptsFiltered.filter(a=>new Date(a.submitted_at)>=today).length;
   document.getElementById('quiz-attempts-today').textContent = quizToday;
 
   // Leaderboard (Top 10)
-  const leaderboardData = await supabase.from('leaderboard').select('*').order('total_score',{ascending:false}).limit(10).then(r=>r.data||[]);
+  const leaderboardData = await supabase.from('leaderboard')
+    .select('*')
+    .match(profile.role==='admin'?{admin_id:user.id}:{})
+    .order('total_score',{ascending:false})
+    .limit(10)
+    .then(r=>r.data||[]);
   const lb = document.getElementById('leaderboard-body');
-  lb.innerHTML = leaderboardData.length>0 ? leaderboardData.map(u=>`<tr class="border-b border-gray-200 hover:bg-gray-50"><td class="py-3 px-6 font-medium">${u.rank}</td><td class="py-3 px-6">${u.username}</td><td class="py-3 px-6 font-bold text-yellow-500">${u.total_score||0}</td></tr>`).join('') : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
+  lb.innerHTML = leaderboardData.length>0 ? leaderboardData.map(u=>`
+    <tr class="border-b border-gray-200 hover:bg-gray-50">
+      <td class="py-3 px-6 font-medium">${u.rank}</td>
+      <td class="py-3 px-6">${u.username}</td>
+      <td class="py-3 px-6 font-bold text-yellow-500">${u.total_score||0}</td>
+    </tr>
+  `).join('') : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
 
   // Aktivitas Terbaru
   const tbody = document.getElementById('recent-activity-body');
-  const recentActivities = [...quizAttempts,...dashboardAttempts].sort((a,b)=>new Date(b.submitted_at)-new Date(a.submitted_at));
-  tbody.innerHTML = recentActivities.length>0 ? recentActivities.map((a,i)=>`<tr class="${a.is_correct?'correct':'wrong'} border-b border-gray-200 hover:bg-gray-50">
-    <td class="py-4 px-6">${a.username||'Tanpa Nama'}</td>
-    <td class="py-4 px-6">${formatQuizName(a.quiz_id||a.quiz_question_id)}</td>
-    <td class="py-4 px-6 font-medium">${a.score||0}</td>
-    <td class="py-4 px-6 text-sm text-gray-500">${new Date(a.submitted_at).toLocaleString('id-ID')}</td>
-  </tr>`).join('') : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
+  const recentActivities = [...quizAttemptsFiltered,...dashboardAttemptsFiltered].sort((a,b)=>new Date(b.submitted_at)-new Date(a.submitted_at));
+  tbody.innerHTML = recentActivities.length>0 ? recentActivities.map((a,i)=>`
+    <tr class="${a.is_correct?'correct':'wrong'} border-b border-gray-200 hover:bg-gray-50">
+      <td class="py-4 px-6">${a.username||'Tanpa Nama'}</td>
+      <td class="py-4 px-6">${formatQuizName(a.quiz_id||a.quiz_question_id)}</td>
+      <td class="py-4 px-6 font-medium">${a.score||0}</td>
+      <td class="py-4 px-6 text-sm text-gray-500">${new Date(a.submitted_at).toLocaleString('id-ID')}</td>
+    </tr>
+  `).join('') : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
 
   // Kuis Terpopuler
   const counts = {};
-  quizAttempts.forEach(a=>{ const name=formatQuizName(a.quiz_id); counts[name]=(counts[name]||0)+1; });
+  quizAttemptsFiltered.forEach(a=>{ const name=formatQuizName(a.quiz_id); counts[name]=(counts[name]||0)+1; });
   const sortedQuizzes=Object.entries(counts).sort(([,a],[,b])=>b-a).slice(0,5);
-  createChart(document.getElementById('popular-quizzes-chart').getContext('2d'),'doughnut',sortedQuizzes.map(x=>x[0]),sortedQuizzes.map(x=>x[1]),['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'],'Pengerjaan');
+  createChart(document.getElementById('popular-quizzes-chart').getContext('2d'),'doughnut',
+    sortedQuizzes.map(x=>x[0]),sortedQuizzes.map(x=>x[1]),
+    ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'],'Pengerjaan'
+  );
 
   // Tren Skor Harian & Mingguan
   const dayMap={}, weekMap={};
-  quizAttempts.forEach(a=>{
+  quizAttemptsFiltered.forEach(a=>{
     const d=new Date(a.submitted_at);
     const dayKey=d.toISOString().split('T')[0];
     if(!dayMap[dayKey]) dayMap[dayKey]=[]; dayMap[dayKey].push(a.score||0);
@@ -239,29 +269,36 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     document.getElementById('btnDaily').classList.add('bg-gray-200','text-gray-700'); document.getElementById('btnDaily').classList.remove('bg-blue-600','text-white');
   });
 
-  // Persentase Jawaban (Semua Quiz)
+  // Persentase Jawaban Semua Quiz
   const quizMap={};
-  quizAttempts.forEach(a=>{ 
-    if(!quizMap[a.quiz_id]) quizMap[a.quiz_id]=[0,0]; 
-    quizMap[a.quiz_id][0]+=Number(a.score)||0; 
-    quizMap[a.quiz_id][1]+= (Number(a.total_questions)||0)-(Number(a.score)||0); 
+  quizAttemptsFiltered.forEach(a=>{
+    if(!quizMap[a.quiz_id]) quizMap[a.quiz_id]=[0,0];
+    quizMap[a.quiz_id][0]+=Number(a.score)||0;
+    quizMap[a.quiz_id][1]+= (Number(a.total_questions)||0)-(Number(a.score)||0);
   });
-  const quizLabels2=Object.keys(quizMap).map(formatQuizName), 
-        quizPercent=Object.values(quizMap).map(v=>{ const total=v[0]+v[1]; return total?Math.round(v[0]/total*100):0; });
-  createChart(document.getElementById('barChartAnswer').getContext('2d'),'bar',quizLabels2,quizPercent,['#3b82f6','#60a5fa','#93c5fd','#2563eb','#1e40af'],'Persentase Jawaban Benar per Quiz');
+  const quizLabels2=Object.keys(quizMap).map(formatQuizName);
+  const quizPercent=Object.values(quizMap).map(v=>{ const total=v[0]+v[1]; return total?Math.round(v[0]/total*100):0; });
+  createChart(document.getElementById('barChartAnswer').getContext('2d'),'bar',quizLabels2,quizPercent,
+    ['#3b82f6','#60a5fa','#93c5fd','#2563eb','#1e40af'],'Persentase Jawaban Benar per Quiz'
+  );
 
   // Benar vs Salah Keseluruhan (Quiz Umum)
-  const totalCorrect = quizAttempts.reduce((s,a)=>s+(Number(a.score)||0),0);
-  const totalQuestionsAll = quizAttempts.reduce((s,a)=>s+(Number(a.total_questions)||0),0);
+  const totalCorrect = quizAttemptsFiltered.reduce((s,a)=>s+(Number(a.score)||0),0);
+  const totalQuestionsAll = quizAttemptsFiltered.reduce((s,a)=>s+(Number(a.total_questions)||0),0);
   const totalPercentCorrect = totalQuestionsAll ? Math.round(totalCorrect/totalQuestionsAll*100) : 0;
-  createChart(document.getElementById('pieChartTotal').getContext('2d'),'pie',['Benar','Salah'],[totalPercentCorrect,100-totalPercentCorrect],['#4CAF50','#F44336'],'Benar vs Salah Keseluruhan (%)');
+  createChart(document.getElementById('pieChartTotal').getContext('2d'),'pie',['Benar','Salah'],
+    [totalPercentCorrect,100-totalPercentCorrect],['#4CAF50','#F44336'],'Benar vs Salah Keseluruhan (%)'
+  );
 
   // Benar vs Salah Dashboard Hari Ini
-  const todayDashboard = dashboardAttempts.filter(a=>new Date(a.submitted_at)>=today);
-  const correctDashboard = todayDashboard.reduce((s,a)=>s+(a.is_correct?1:0),0);
+  const todayDashboard = dashboardAttemptsFiltered.filter(a=>new Date(a.submitted_at)>=today);
+  const correctDashboard = todayDashboard.reduce((s,a)=>s + (a.is_correct?1:0),0);
   const totalDashboardQuestions = todayDashboard.length;
   const percentCorrectDashboard = totalDashboardQuestions?Math.round(correctDashboard/totalDashboardQuestions*100):0;
-  createChart(document.getElementById('pieChartDaily').getContext('2d'),'pie',['Benar','Salah'],[percentCorrectDashboard,100-percentCorrectDashboard],['#4CAF50','#F44336'],'Benar vs Salah Dashboard Hari Ini (%)');
+  createChart(document.getElementById('pieChartDaily').getContext('2d'),'pie',['Benar','Salah'],
+    [percentCorrectDashboard,100-percentCorrectDashboard],['#4CAF50','#F44336'],'Benar vs Salah Dashboard Hari Ini (%)'
+  );
+
 });
 </script>
 
