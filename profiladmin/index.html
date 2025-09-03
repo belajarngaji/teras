@@ -13,7 +13,7 @@
 </head>
 <body class="bg-gray-100 dark:bg-slate-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
 
-  <!-- Navigasi yang konsisten dengan halaman login -->
+  <!-- Navigasi yang konsisten -->
   <nav class="flex justify-between items-center bg-white dark:bg-slate-800/50 dark:backdrop-blur-sm px-6 py-4 shadow-md sticky top-0 z-10 border-b border-gray-200 dark:border-slate-700">
     <div>
       <a href="./">
@@ -84,7 +84,8 @@
         <h2 class="text-2xl font-bold mb-2">Akses Ditolak</h2>
         <p class="text-gray-500 dark:text-gray-400 mb-6">Anda harus masuk sebagai admin untuk melihat halaman ini.</p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="../admin/" class="w-full sm:w-auto px-6 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition text-center">Masuk</a>
+            <!-- PERBAIKAN TAUTAN -->
+            <a href="/teras/admin/" class="w-full sm:w-auto px-6 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition text-center">Masuk</a>
             <a href="../ruang/" class="w-full sm:w-auto px-6 bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-800 dark:text-gray-300 font-bold py-3 rounded-lg transition text-center">Halaman Utama</a>
         </div>
     </div>
@@ -109,7 +110,6 @@
   <script type="module">
     const { createClient } = supabase;
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    // PERBAIKAN: Kunci Supabase yang salah telah diperbaiki.
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -142,7 +142,7 @@
         }
       } catch (error) {
         console.error("Gagal menginisialisasi halaman:", error);
-        showLoginPrompt(); // Tampilkan pesan login jika ada error koneksi
+        showLoginPrompt();
       }
     }
 
@@ -181,7 +181,7 @@
         }
       } else {
         console.error("Akses ditolak. Pengguna bukan admin. Error:", error?.message);
-        await supabaseClient.auth.signOut(); // Logout pengguna non-admin
+        await supabaseClient.auth.signOut();
         showLoginPrompt();
       }
     }
@@ -193,10 +193,10 @@
       `;
       document.getElementById("logout-button").addEventListener("click", async () => {
         await supabaseClient.auth.signOut();
-        window.location.href = "../admin/";
+        // PERBAIKAN TAUTAN
+        window.location.href = "/teras/admin/";
       });
       document.getElementById("change-password-button").addEventListener("click", () => {
-        // Ganti alert dengan modal custom jika diinginkan
         alert("Fitur ubah kata sandi akan segera tersedia.");
       });
     }
@@ -208,7 +208,7 @@
 
     async function uploadAvatar(file, userId) {
       if (!file) return;
-      
+
       uploadBtn.disabled = true;
       uploadBtn.textContent = "Mengunggah...";
 
@@ -231,7 +231,6 @@
           console.error(updateError);
           alert("Gagal memperbarui URL avatar di profil.");
         } else {
-          // Muat ulang data profil untuk menampilkan gambar terbaru
           await loadUserProfile(userId, currentUser.email);
           modal.classList.add("hidden");
         }
