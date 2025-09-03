@@ -190,7 +190,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  const isSuperAdmin = profile.role === 'superadmin';
+
   // ===== Fetch semua data dashboard =====
+  // Tambahkan filter admin_id untuk user biasa
+  const profileFilter = isSuperAdmin ? {} : { admin_id: user.id };
+
   const [
     totalUsers,
     quizToday,
@@ -199,47 +204,57 @@ document.addEventListener('DOMContentLoaded', async () => {
     recentActivities,
     allAttempts
   ] = await Promise.all([
-    supabase.from('profiles').select('*', { count:'exact', head:true }).then(r => r.count || 0),
-    (()=>{
+    supabase.from('profiles').select('*', { count:'exact', head:true }).match(profileFilter).then(r => r.count || 0),
+    (() => {
       const t = new Date(); t.setHours(0,0,0,0);
       return supabase.from('quiz_attempts').select('*', { count:'exact', head:true })
         .gte('submitted_at', t.toISOString())
         .then(r => r.count || 0);
     })(),
     supabase.from('leaderboard').select('rank, username, total_score')
-      .limit(10).order('total_score', { ascending:false }).then(r => r.data || []),
-    supabase.from('quiz_attempts').select('quiz_id').then(r => {
+      .match(profileFilter)
+      .limit(10).order('total_score', { ascending:false })
+      .then(r => r.data || []),
+    supabase.from('quiz_attempts').select('quiz_id, user_id').then(r => {
       const data = r.data || [];
+      // filter data untuk admin biasa
+      const filteredData = isSuperAdmin ? data : data.filter(a => a.user_id === user.id || a.admin_id === user.id);
       const counts = {};
-      data.forEach(a => {
+      filteredData.forEach(a => {
         const name = quizNameMap[a.quiz_id] || a.quiz_id;
         counts[name] = (counts[name] || 0) + 1;
       });
       const sorted = Object.entries(counts).sort(([,a],[,b]) => b - a).slice(0,5);
       return { labels: sorted.map(x => x[0]), data: sorted.map(x => x[1]) };
     }),
-    supabase.from('latest_activity').select('*').order('submitted_at', { ascending:false }).then(r => r.data || []),
-    supabase.from('quiz_attempts').select('*').then(r => r.data || [])
+    supabase.from('latest_activity').select('*').order('submitted_at', { ascending:false }).then(r => {
+      const data = r.data || [];
+      return isSuperAdmin ? data : data.filter(a => a.admin_id === user.id);
+    }),
+    supabase.from('quiz_attempts').select('*').then(r => {
+      const data = r.data || [];
+      return isSuperAdmin ? data : data.filter(a => a.admin_id === user.id);
+    })
   ]);
 
-// Update KPI
-  document.getElementById('total-users').textContent=totalUsers;
-  document.getElementById('quiz-attempts-today').textContent=quizToday;
+  // ===== Update KPI =====
+  document.getElementById('total-users').textContent = totalUsers;
+  document.getElementById('quiz-attempts-today').textContent = quizToday;
 
-  // Leaderboard
-  const lb=document.getElementById('leaderboard-body');
-  lb.innerHTML=leaderboardData.length>0?
-    leaderboardData.map(u=>`<tr class="border-b border-gray-200 hover:bg-gray-50">
+  // ===== Leaderboard =====
+  const lb = document.getElementById('leaderboard-body');
+  lb.innerHTML = leaderboardData.length > 0 ?
+    leaderboardData.map(u => `<tr class="border-b border-gray-200 hover:bg-gray-50">
       <td class="py-3 px-6 font-medium">${u.rank}</td>
       <td class="py-3 px-6">${u.username}</td>
       <td class="py-3 px-6 font-bold text-yellow-500">${u.total_score||0}</td>
     </tr>`).join('') :
     `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
 
-  // Recent Activity
-  const tbody=document.getElementById('recent-activity-body');
-  tbody.innerHTML=recentActivities.length>0?
-    recentActivities.map(a=>`<tr class="${a.is_correct?'correct':'wrong'} border-b border-gray-200 hover:bg-gray-50">
+  // ===== Recent Activity =====
+  const tbody = document.getElementById('recent-activity-body');
+  tbody.innerHTML = recentActivities.length > 0 ?
+    recentActivities.map(a => `<tr class="${a.is_correct?'correct':'wrong'} border-b border-gray-200 hover:bg-gray-50">
       <td class="py-4 px-6">${a.username||'Tanpa Nama'}</td>
       <td class="py-4 px-6">${quizNameMap[a.quiz_id]||a.quiz_id}</td>
       <td class="py-4 px-6 font-medium">${a.score}</td>
