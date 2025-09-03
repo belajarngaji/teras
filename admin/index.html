@@ -4,60 +4,175 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login Admin</title>
+<!-- Impor Supabase Client -->
 <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"></script>
 <style>
-  body { font-family: sans-serif; display:flex; justify-content:center; align-items:center; height:100vh; background:#f0f2f5; }
-  .login-box { background:#fff; padding:40px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); width:300px; }
-  input, button { width:100%; padding:10px; margin:10px 0; border-radius:5px; border:1px solid #ccc; }
-  button { background:#007bff; color:white; border:none; cursor:pointer; }
-  button:hover { background:#0056b3; }
+  /* Gaya dasar untuk tata letak dan tampilan */
+  body { 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+    margin: 0;
+    background-color: #f0f2f5; 
+  }
+  .login-box { 
+    background-color: #ffffff; 
+    padding: 40px; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+    width: 100%;
+    max-width: 320px;
+    box-sizing: border-box;
+  }
+  .login-box h2 {
+    text-align: center;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 24px;
+  }
+  /* Gaya untuk input field dan tombol */
+  input, button { 
+    width: 100%; 
+    padding: 12px; 
+    margin-bottom: 16px; 
+    border-radius: 6px; 
+    border: 1px solid #ccc; 
+    box-sizing: border-box;
+    font-size: 16px;
+  }
+  input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+  }
+  button { 
+    background-color: #007bff; 
+    color: white; 
+    border: none; 
+    cursor: pointer; 
+    font-weight: bold;
+    transition: background-color 0.2s ease-in-out;
+  }
+  button:hover { 
+    background-color: #0056b3; 
+  }
+  button:active {
+    background-color: #004494;
+  }
+  /* Gaya untuk pesan error */
+  #msg {
+    color: #dc3545;
+    font-size: 14px;
+    text-align: center;
+    min-height: 20px; /* Jaga ruang agar layout tidak bergeser */
+  }
 </style>
 </head>
 <body>
+
 <div class="login-box">
   <h2>Login Admin</h2>
-  <input type="email" id="email" placeholder="Email" />
-  <input type="password" id="password" placeholder="Password" />
+  <!-- Form diubah untuk menggunakan username, bukan email -->
+  <input type="text" id="username" placeholder="Username" required />
+  <input type="password" id="password" placeholder="Password" required />
   <button id="loginBtn">Login</button>
-  <p id="msg" style="color:red;"></p>
+  <p id="msg"></p>
 </div>
 
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  
+  // --- KONFIGURASI SUPABASE ---
   const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
+  // PENTING! Ganti dengan kunci 'anon' (public) Anda. JANGAN gunakan service_role.
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // --- ELEMEN DOM ---
   const loginBtn = document.getElementById('loginBtn');
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
   const msg = document.getElementById('msg');
 
-  loginBtn.addEventListener('click', async () => {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+  // --- FUNGSI LOGIN ---
+  const handleLogin = async () => {
+    // Reset pesan dan status
+    msg.textContent = '';
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Memproses...';
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
 
-    if (error) {
+    if (!username || !password) {
+      msg.textContent = 'Username dan password tidak boleh kosong.';
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Login';
+      return;
+    }
+
+    try {
+      // 1. Cari email yang terkait dengan username dari tabel 'profiles'
+      const { data: userData, error: userError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('username', username)
+        .single();
+
+      if (userError || !userData) {
+        throw new Error("Username atau password salah.");
+      }
+
+      const email = userData.email;
+
+      // 2. Gunakan email yang ditemukan untuk proses login
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (signInError) {
+        throw new Error("Username atau password salah.");
+      }
+
+      // 3. Verifikasi role pengguna setelah berhasil login
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profileError || !profile) {
+        await supabase.auth.signOut(); // Pastikan logout jika verifikasi gagal
+        throw new Error("Gagal memverifikasi role Anda.");
+      }
+      
+      // 4. Cek apakah role sesuai (admin atau superadmin)
+      if (profile.role !== 'admin' && profile.role !== 'superadmin') {
+        await supabase.auth.signOut();
+        throw new Error("Anda tidak memiliki hak akses ke dashboard.");
+      }
+
+      // 5. Jika semua berhasil, arahkan ke dashboard
+      window.location.href = '/teras/ruang/';
+
+    } catch (error) {
+      // Tangani semua kemungkinan error di sini
       msg.textContent = error.message;
-      return;
+      console.error('Login process failed:', error);
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Login';
     }
-
-    // cek role admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', data.user.id)
-      .single();
-
-    if (profile.role !== 'admin' && profile.role !== 'superadmin') {
-      msg.textContent = "Anda tidak memiliki akses ke dashboard.";
-      await supabase.auth.signOut();
-      return;
+  };
+  
+  // --- EVENT LISTENERS ---
+  loginBtn.addEventListener('click', handleLogin);
+  // Tambahkan listener agar bisa login dengan menekan tombol 'Enter'
+  passwordInput.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+      handleLogin();
     }
-
-    // login berhasil → arahkan ke dashboard
-    window.location.href = '/teras/ruang/';
   });
 </script>
+
 </body>
 </html>
