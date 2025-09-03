@@ -152,24 +152,14 @@ function createChart(ctx,type,labels,data,colors,label){
 
 // Main function
 document.addEventListener('DOMContentLoaded', async () => {
-  // ===== Pengecekan login & role admin =====
+  // ===== Pengecekan login =====
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    window.location.href = '/admin-login/';
+    console.warn("Pengguna belum masuk. Data tidak akan dimuat.");
     return;
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile || (profile.role !== 'admin' && profile.role !== 'superadmin')) {
-    alert('Anda tidak memiliki akses ke dashboard ini.');
-    window.location.href = '/';
-    return;
-  }
+  // ===== Logika pengecekan role dihapus =====
 
   // ===== Fetch semua data dashboard =====
   const [
