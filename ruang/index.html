@@ -122,7 +122,27 @@ const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const quizNameMap = { 'kelas01_bab01_hijaiyah': 'Kelas 1 Bab 1 Hijaiyah' };
+// Fungsi untuk memformat nama kuis
+function formatQuizName(quizId) {
+  if (!quizId) return 'Kuis Tidak Dikenal';
+
+  // Format: kelas01_bab01_hijaiyah -> 1.1.Hijaiyah
+  const parts = quizId.split('_');
+  if (parts.length >= 3 && parts[0].startsWith('kelas') && parts[1].startsWith('bab')) {
+    try {
+      const kelas = parseInt(parts[0].replace('kelas', ''), 10);
+      const bab = parseInt(parts[1].replace('bab', ''), 10);
+      const name = parts[2].charAt(0).toUpperCase() + parts[2].slice(1);
+      return `${kelas}.${bab}.${name}`;
+    } catch (e) {
+      // Biarkan jika parsing gagal
+    }
+  }
+  
+  // Fallback: ganti underscore dengan spasi
+  return quizId.replace(/_/g, ' ');
+}
+
 
 // Sidebar
 const sidebar = document.getElementById('sidebar');
@@ -186,7 +206,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         .gte('submitted_at', t.toISOString())
         .then(r => r.count || 0);
     })(),
-    // PERBAIKAN: Mengambil data dari view 'leaderboard'
     supabase.from('leaderboard')
       .select('rank, username, total_score, avatar_url')
       .order('rank', { ascending: true })
@@ -196,7 +215,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const data = r.data || [];
       const counts = {};
       data.forEach(a => {
-        const name = quizNameMap[a.quiz_id] || a.quiz_id;
+        const name = formatQuizName(a.quiz_id); // PERBAIKAN: Menggunakan fungsi format
         counts[name] = (counts[name] || 0) + 1;
       });
       const sorted = Object.entries(counts).sort(([,a],[,b]) => b - a).slice(0,5);
@@ -209,7 +228,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('total-users').textContent=totalUsers;
   document.getElementById('quiz-attempts-today').textContent=quizToday;
 
-  // PERBAIKAN: Render leaderboard dengan avatar
+  // Render leaderboard dengan avatar
   const lb=document.getElementById('leaderboard-body');
   lb.innerHTML=leaderboardData.length > 0 ?
     leaderboardData.map(u => {
@@ -232,7 +251,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   tbody.innerHTML=recentActivities.length>0?
     recentActivities.map(a=>`<tr class="${a.is_correct?'correct':'wrong'} border-b border-gray-200 hover:bg-gray-50">
       <td class="py-4 px-6">${a.username||'Tanpa Nama'}</td>
-      <td class="py-4 px-6">${quizNameMap[a.quiz_id]||a.quiz_id}</td>
+      <td class="py-4 px-6">${formatQuizName(a.quiz_id)}</td> <!-- PERBAIKAN: Menggunakan fungsi format -->
       <td class="py-4 px-6 font-medium">${a.score}</td>
       <td class="py-4 px-6 text-sm text-gray-500">${new Date(a.submitted_at).toLocaleString('id-ID')}</td>
     </tr>`).join('') :
