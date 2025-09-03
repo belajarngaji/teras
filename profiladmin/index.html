@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profil Pengguna - Belajar Ngaji</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>Profil Admin - Belajar Ngaji</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -13,142 +13,140 @@
 </head>
 <body class="bg-gray-100 dark:bg-slate-900 text-gray-800 dark:text-gray-200">
 
-  <!-- Navbar -->
   <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md sticky top-0 z-10">
     <div>
-      <a href=".">
-        <span class="text-xl font-bold">Halaman Profil</span>
+      <a href="../">
+        <span class="text-xl font-bold">Profil Administrator</span>
       </a>
     </div>
-    <button onclick="history.back()" 
-  class="bg-white text-blue-600 p-2 rounded-full hover:bg-gray-200">
-  <!-- Heroicons chevron-left -->
-  <svg xmlns="http://www.w3.org/2000/svg" 
-       fill="none" viewBox="0 0 24 24" 
-       stroke-width="2" stroke="currentColor" 
-       class="w-6 h-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-  </svg>
-</button>
+    <a href="../" 
+      class="bg-white text-blue-600 p-2 rounded-full hover:bg-gray-200 transition-colors"
+      title="Kembali ke Dashboard">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" />
+      </svg>
+    </a>
   </nav>
 
-  <!-- Main -->
   <main class="mx-auto px-4 py-10 w-full max-w-2xl">
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 sm:p-8">
-      <!-- Profil Header -->
-      <div class="flex flex-col items-center text-center border-b pb-6 dark:border-gray-700">
-        <!-- Foto / Inisial -->
-        <div id="profile-photo-wrapper" class="relative cursor-pointer">
-          <div id="profile-initial" class="w-24 h-24 bg-blue-500 text-white flex items-center justify-center rounded-full text-4xl font-bold mb-4">
-            ?
-          </div>
-          <img id="profile-photo" src="" alt="Foto Profil" class="hidden w-24 h-24 rounded-full object-cover border mb-4" />
-        </div>
+    <div id="admin-profile-view" class="hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 sm:p-8">
+            <div class="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 border-b pb-6 dark:border-gray-700">
+                <div id="profile-photo-wrapper" class="relative cursor-pointer flex-shrink-0" title="Klik untuk ubah foto">
+                    <div id="profile-initial" class="w-24 h-24 bg-blue-500 text-white flex items-center justify-center rounded-full text-4xl font-bold">?</div>
+                    <img id="profile-photo" src="" alt="Foto Profil" class="hidden w-24 h-24 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-md" />
+                </div>
+                <div class="flex-grow">
+                    <h2 id="username-display" class="text-3xl font-bold">Memuat...</h2>
+                    <p class="text-blue-500 font-semibold mt-1">Administrator</p>
+                    <p id="email-display" class="text-gray-500 dark:text-gray-400 mt-2">memuat email...</p>
+                </div>
+            </div>
 
-        <h2 id="username-display" class="text-2xl font-bold">Memuat...</h2>
-        <p class="text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-4">
-          Total Skor: <span id="total-score-display" class="font-bold text-lg">0</span>
-          <span class="bg-amber-300 dark:bg-amber-800 text-amber-900 dark:text-amber-200 font-semibold px-2 py-1 rounded-lg text-sm">
-            Skor Tantangan: <span id="dashboard-score-display">0</span>
-          </span>
-        </p>
-      </div>
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold mb-4">Aksi Cepat</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <a href="../management/" class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 rounded-lg transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-blue-500"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span class="font-semibold">Koreksi Jawaban</span>
+                    </a>
+                    <a href="../harian/" class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 rounded-lg transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-500"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                        <span class="font-semibold">Buat Tantangan Baru</span>
+                    </a>
+                    <a href="../users/" class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 rounded-lg transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-purple-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-4.67c.12-.318.239-.636.354-.961" /></svg>
+                        <span class="font-semibold">Kelola Pengguna</span>
+                    </a>
+                    <a href="../riwayat/" class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 rounded-lg transition-colors">
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-yellow-500"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h12A2.25 2.25 0 0020.25 14.25V3.75M3.75 3h-1.5m1.5 0h16.5m-16.5 0h16.5M3.75 6h16.5M3.75 9h16.5M3.75 12h16.5m-16.5 3.75h16.5M3.75 3.75h16.5" /></svg>
+                        <span class="font-semibold">Riwayat Tantangan</span>
+                    </a>
+                </div>
+            </div>
 
-      <!-- Riwayat -->
-      <div class="mt-6">
-        <h3 class="text-xl font-semibold mb-4">Riwayat Kuis</h3>
-        <div id="loading-container" class="text-center py-4 text-gray-500">
-          Memuat riwayat...
+            <div id="auth-buttons" class="mt-8 pt-6 border-t dark:border-gray-700 flex flex-col sm:flex-row gap-4">
+                </div>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead class="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th class="py-2 px-2 text-center font-semibold">No.</th>
-                <th class="py-2 px-2 text-left font-semibold">Nama Kuis</th>
-                <th class="py-2 px-2 text-center font-semibold">Skor</th>
-                <th class="py-2 px-2 text-center font-semibold">Tanggal</th>
-              </tr>
-            </thead>
-            <tbody id="history-table-body"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div id="auth-buttons" class="mt-8 flex flex-col sm:flex-row gap-4"></div>
     </div>
+    
+    <div id="login-prompt-view" class="hidden text-center bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8">
+        <h2 class="text-2xl font-bold mb-2">Akses Ditolak</h2>
+        <p class="text-gray-500 dark:text-gray-400 mb-6">Anda harus masuk sebagai admin untuk melihat halaman ini.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="../masuk/" class="w-full sm:w-auto px-6 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition text-center">Masuk</a>
+            <a href="../" class="w-full sm:w-auto px-6 bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition text-center">Halaman Utama</a>
+        </div>
+    </div>
+
   </main>
 
-  <!-- Footer -->
   <footer class="bg-gray-200 text-center py-6 dark:bg-slate-950 dark:text-gray-500 mt-10">
     <p>&copy; 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
   </footer>
 
-  <!-- Modal Upload -->
-  <div id="avatar-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 w-96 text-center relative">
-      <button id="close-modal" class="absolute top-2 right-2 text-gray-500 hover:text-red-600">✕</button>
-      <img id="preview" src="" alt="Foto Profil" class="w-40 h-40 rounded-full object-cover border mx-auto mb-4" />
-      <input type="file" id="avatarInput" accept="image/*" class="mb-3" />
-      <button id="uploadBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Upload Foto Baru</button>
+  <div id="avatar-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 w-full max-w-md text-center relative">
+      <h3 class="text-xl font-semibold mb-4">Ubah Foto Profil</h3>
+      <button id="close-modal" class="absolute top-3 right-4 text-gray-500 hover:text-red-600 text-2xl">×</button>
+      <img id="preview" src="" alt="Pratinjau Foto" class="w-40 h-40 rounded-full object-cover border-2 dark:border-slate-600 mx-auto mb-4" />
+      <input type="file" id="avatarInput" accept="image/*" class="mb-4 w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+      <button id="uploadBtn" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-transform active:scale-95">Upload & Simpan</button>
     </div>
   </div>
 
-  <!-- Script -->
   <script type="module">
     const { createClient } = supabase;
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // DOM Elements
+    const adminProfileView = document.getElementById("admin-profile-view");
+    const loginPromptView = document.getElementById("login-prompt-view");
     const profileInitial = document.getElementById("profile-initial");
     const profilePhoto = document.getElementById("profile-photo");
     const usernameDisplay = document.getElementById("username-display");
-    const totalScoreDisplay = document.getElementById("total-score-display");
-    const dashboardScoreDisplay = document.getElementById("dashboard-score-display");
-    const historyTableBody = document.getElementById("history-table-body");
+    const emailDisplay = document.getElementById("email-display");
     const authButtons = document.getElementById("auth-buttons");
-    const loadingContainer = document.getElementById("loading-container");
-
+    
+    // Modal Elements
     const modal = document.getElementById("avatar-modal");
     const closeModalBtn = document.getElementById("close-modal");
     const preview = document.getElementById("preview");
     const avatarInput = document.getElementById("avatarInput");
     const uploadBtn = document.getElementById("uploadBtn");
-
+    
     let currentUser = null;
 
-    // --- Profil Initialization ---
     async function initializeProfilePage() {
       const { data: { user } } = await supabaseClient.auth.getUser();
       if (user) {
         currentUser = user;
-        loadingContainer.style.display = "block";
-        historyTableBody.innerHTML = "";
-        await Promise.all([
-          loadUserProfile(user.id),
-          loadQuizHistory(user.id)
-        ]);
-        setupLogoutButton();
+        adminProfileView.classList.remove("hidden");
+        loginPromptView.classList.add("hidden");
+        await loadUserProfile(user.id, user.email);
+        setupActionButtons();
       } else {
         showLoginPrompt();
       }
     }
 
-    async function loadUserProfile(userId) {
+    async function loadUserProfile(userId, userEmail) {
       const { data: profile, error } = await supabaseClient
         .from("profiles")
-        .select("username, dashboard_score_total, avatar_url")
+        .select("username, avatar_url")
         .eq("id", userId)
         .single();
 
       if (profile) {
         usernameDisplay.textContent = profile.username;
-        dashboardScoreDisplay.textContent = profile.dashboard_score_total || 0;
+        emailDisplay.textContent = userEmail; // Get email from auth session
 
         if (profile.avatar_url) {
-          profilePhoto.src = profile.avatar_url;
-          preview.src = profile.avatar_url;
+          const publicURL = `${profile.avatar_url}?t=${new Date().getTime()}`;
+          profilePhoto.src = publicURL;
+          preview.src = publicURL;
           profilePhoto.classList.remove("hidden");
           profileInitial.classList.add("hidden");
         } else {
@@ -159,68 +157,40 @@
       } else {
         console.error("Gagal memuat profil:", error);
         usernameDisplay.textContent = "Gagal Memuat";
+        emailDisplay.textContent = "Tidak tersedia";
       }
     }
 
-    async function loadQuizHistory(userId) {
-      const { data: history, error } = await supabaseClient
-        .from("quiz_attempts")
-        .select("quiz_id, score, submitted_at")
-        .eq("user_id", userId)
-        .order("submitted_at", { ascending: false });
-
-      loadingContainer.style.display = "none";
-      if (history && history.length > 0) {
-        let totalScore = 0;
-        const historyHtml = history.map((attempt, index) => {
-          totalScore += attempt.score;
-          const date = new Date(attempt.submitted_at).toLocaleDateString("id-ID");
-          return `
-            <tr class="border-b border-gray-200 dark:border-gray-700">
-              <td class="py-3 px-2 text-center">${index + 1}</td>
-              <td class="py-3 px-2 capitalize">${attempt.quiz_id.replace(/_/g, " ")}</td>
-              <td class="py-3 px-2 text-center font-semibold">${attempt.score}</td>
-              <td class="py-3 px-2 text-center">${date}</td>
-            </tr>
-          `;
-        }).join("");
-        historyTableBody.innerHTML = historyHtml;
-        totalScoreDisplay.textContent = totalScore;
-      } else {
-        historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">Belum ada riwayat kuis.</td></tr>`;
-      }
-      if (error) {
-        console.error("Gagal memuat riwayat kuis:", error);
-      }
-    }
-
-    function setupLogoutButton() {
-      authButtons.innerHTML = `<button id="logout-button" class="w-full bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition">Keluar</button>`;
+    function setupActionButtons() {
+      authButtons.innerHTML = `
+        <button id="change-password-button" class="w-full sm:w-auto flex-1 bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition">Ubah Kata Sandi</button>
+        <button id="logout-button" class="w-full sm:w-auto flex-1 bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700 transition">Keluar</button>
+      `;
       document.getElementById("logout-button").addEventListener("click", async () => {
         await supabaseClient.auth.signOut();
-        window.location.href = "../../masuk/";
+        window.location.href = "../masuk/"; // Redirect to login page after logout
+      });
+      // Placeholder for change password functionality
+      document.getElementById("change-password-button").addEventListener("click", () => {
+        alert("Fitur ubah kata sandi akan segera tersedia.");
       });
     }
 
     function showLoginPrompt() {
-      loadingContainer.style.display = "none";
-      usernameDisplay.textContent = "Anda Belum Masuk";
-      profileInitial.textContent = "?";
-      historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">Masuk untuk melihat riwayat.</td></tr>`;
-      authButtons.innerHTML = `
-        <a href="../daftar/" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition text-center">Daftar</a>
-        <a href="../masuk/" class="w-full bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition text-center">Masuk</a>
-      `;
+      adminProfileView.classList.add("hidden");
+      loginPromptView.classList.remove("hidden");
     }
 
-    // --- Upload Avatar ---
+    // --- Upload Avatar Logic ---
     async function uploadAvatar(file, userId) {
       if (!file) {
-        alert("Pilih file dulu!");
+        alert("Silakan pilih sebuah file gambar.");
         return;
       }
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = "Mengunggah...";
 
-      const fileName = `${userId}_${Date.now()}_${file.name}`;
+      const fileName = `public/${userId}`; // Overwrite the same file for the user
       const { error } = await supabaseClient.storage
         .from("avatars")
         .upload(fileName, file, { upsert: true });
@@ -228,6 +198,8 @@
       if (error) {
         console.error(error);
         alert("Upload gagal: " + error.message);
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = "Upload & Simpan";
         return;
       }
 
@@ -241,34 +213,55 @@
 
       if (updateError) {
         console.error(updateError);
-        alert("Gagal simpan avatar.");
+        alert("Gagal memperbarui URL avatar di profil.");
       } else {
-        profilePhoto.src = publicUrl;
-        preview.src = publicUrl;
+        // Append a timestamp to break cache
+        const newUrl = `${publicUrl}?t=${new Date().getTime()}`;
+        profilePhoto.src = newUrl;
+        preview.src = newUrl;
         profilePhoto.classList.remove("hidden");
         profileInitial.classList.add("hidden");
         modal.classList.add("hidden");
         alert("Foto profil berhasil diperbarui!");
       }
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = "Upload & Simpan";
     }
 
-    // --- Modal Events ---
+    // --- Modal Event Listeners ---
     document.getElementById("profile-photo-wrapper").addEventListener("click", () => {
       if (!currentUser) return;
+      avatarInput.value = ''; // Reset file input
+      preview.src = profilePhoto.src;
       modal.classList.remove("hidden");
+      modal.classList.add("flex");
     });
 
     closeModalBtn.addEventListener("click", () => {
       modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    });
+    
+    avatarInput.addEventListener('change', (event) => {
+        if (event.target.files && event.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
     });
 
     uploadBtn.addEventListener("click", async () => {
       const file = avatarInput.files[0];
-      if (currentUser) {
+      if (currentUser && file) {
         await uploadAvatar(file, currentUser.id);
+      } else if (!file) {
+        alert("Pilih file terlebih dahulu.");
       }
     });
 
+    // --- Initialize on Page Load ---
     document.addEventListener("DOMContentLoaded", initializeProfilePage);
   </script>
 </body>
