@@ -171,7 +171,7 @@ function createChart(ctx,type,labels,data,colors,label){
 
 // Main function
 document.addEventListener('DOMContentLoaded', async () => {
-  // ======= REVISI: Tambahkan pengecekan login & role admin di sini =======
+  // ===== Pengecekan login & role admin =====
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     window.location.href = '/admin-login/';
@@ -189,9 +189,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.location.href = '/';
     return;
   }
-  // ======= REVISI SELESAI =======
 
-  // Kode dashboard: fetch semua data sekaligus
+  // ===== Fetch semua data dashboard =====
   const [
     totalUsers,
     quizToday,
@@ -222,9 +221,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     supabase.from('latest_activity').select('*').order('submitted_at', { ascending:false }).then(r => r.data || []),
     supabase.from('quiz_attempts').select('*').then(r => r.data || [])
   ]);
-
-  // Lanjutkan render dashboard seperti biasa...
-});  
 
 // Update KPI
   document.getElementById('total-users').textContent=totalUsers;
