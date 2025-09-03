@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="flex items-center justify-center h-screen bg-gray-100">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+    <h1 class="text-2xl font-bold mb-6 text-center">Login Admin</h1>
+    <input type="email" id="email" placeholder="Email" class="w-full p-3 mb-4 border rounded"/>
+    <input type="password" id="password" placeholder="Password" class="w-full p-3 mb-6 border rounded"/>
+    <button id="loginBtn" class="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700">Login</button>
+    <p id="errorMsg" class="text-red-500 mt-4 text-center hidden"></p>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const loginBtn = document.getElementById('loginBtn');
+    const errorMsg = document.getElementById('errorMsg');
+
+    loginBtn.addEventListener('click', async () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        errorMsg.textContent = error.message;
+        errorMsg.style.display = 'block';
+        return;
+      }
+
+      // ambil role dari profiles
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profile.role === 'admin' || profile.role === 'superadmin') {
+        window.location.href = '/admin/dashboard.html';
+      } else {
+        errorMsg.textContent = 'Anda bukan admin!';
+        errorMsg.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
