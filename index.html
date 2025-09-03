@@ -1,102 +1,120 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Selamat Datang!</title>
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#007bff">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selamat Datang!</title>
 
-<style>
-  body {
-    font-family: 'Poppins', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    background: linear-gradient(135deg, #eaf3ff, #f8fbff);
-  }
-  .container {
-    text-align: center;
-    background: #fff;
-    padding: 50px 60px;
-    border-radius: 15px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-    max-width: 400px;
-    width: 100%;
-    animation: fadeIn 0.8s ease;
-  }
-  .icon {
-    font-size: 64px;
-    color: #007bff;
-    margin-bottom: 15px;
-  }
-  h1 {
-    color: #0056b3;
-    margin-bottom: 10px;
-    font-size: 2em;
-  }
-  p {
-    margin-bottom: 30px;
-    font-size: 1.1em;
-    color: #555;
-  }
-  .button {
-    display: inline-block;
-    padding: 14px 30px;
-    background-color: #007bff;
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 1.1em;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin: 10px 0;
-  }
-  .button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px);}
-    to { opacity: 1; transform: translateY(0);}
-  }
-</style>
+  <!-- PWA manifest -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#007bff">
+
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #eaf3ff, #f8fbff);
+      color: #333;
+    }
+
+    .container {
+      text-align: center;
+      background: #fff;
+      padding: 50px 60px;
+      border-radius: 15px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+      animation: fadeIn 0.8s ease;
+    }
+
+    .icon {
+      font-size: 64px;
+      color: #007bff;
+      margin-bottom: 15px;
+      display: inline-block;
+    }
+
+    h1 {
+      color: #0056b3;
+      margin-bottom: 10px;
+      font-size: 2em;
+    }
+
+    p {
+      margin-bottom: 30px;
+      font-size: 1.1em;
+      color: #555;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 14px 30px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1.1em;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      margin: 10px 0;
+    }
+
+    .button:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-  <span class="material-icons icon">menu_book</span>
-  <h1>Selamat Datang!</h1>
-  <p>Silakan klik tombol di bawah ini untuk masuk ke kelas Anda.</p>
-  <a href="kelas/" class="button">Masuk</a>
-  <button id="installBtn" class="button">Install Aplikasi</button>
-</div>
+  <div class="container">
+    <span class="material-icons icon">menu_book</span>
+    <h1>Selamat Datang!</h1>
+    <p>Silakan klik tombol di bawah ini untuk masuk ke kelas Anda.</p>
+    <a href="kelas/" class="button">Masuk</a>
+    <button id="installBtn" class="button" style="display:none;">Install Aplikasi</button>
+  </div>
 
-<script>
-let deferredPrompt;
-const installBtn = document.getElementById('installBtn');
+  <!-- Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('SW registered', reg))
+          .catch(err => console.error('SW failed', err));
+      });
+    }
 
-// Selalu tampilkan tombol, tapi prompt hanya muncul jika tersedia
-installBtn.addEventListener('click', async () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const choiceResult = await deferredPrompt.userChoice;
-    console.log(choiceResult.outcome === 'accepted' ? 'User accepted install' : 'User dismissed install');
-    deferredPrompt = null;
-    installBtn.style.display = 'none';
-  } else {
-    alert('Install tidak tersedia. Pastikan menggunakan Chrome/Edge di Android dan halaman HTTPS.');
-  }
-});
+    // PWA install
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
 
-// Tangkap event sebelum install (Android)
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault(); 
-  deferredPrompt = e;
-  console.log('beforeinstallprompt fired');
-});
-</script>
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'inline-block';
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const choiceResult = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        installBtn.style.display = 'none';
+      }
+    });
+  </script>
 </body>
 </html>
