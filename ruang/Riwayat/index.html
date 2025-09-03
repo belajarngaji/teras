@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riwayat Tantangan - Belajar Ngaji</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+  <!-- NAVBAR -->
+  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md sticky top-0 z-10">
+    <div>
+      <a href="../../">
+        <span class="text-xl font-bold">Belajar Ngaji</span>
+      </a>
+    </div>
+    <a href="../../profil/" class="bg-white text-blue-600 px-3 py-1.5 rounded-full hover:bg-gray-200 text-lg font-bold">
+      👤
+    </a>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="mx-auto px-4 py-10 w-full max-w-4xl">
+    <div class="bg-white rounded-xl shadow-lg p-6 sm:p-8">
+      
+      <!-- Header -->
+      <div class="flex justify-between items-center border-b pb-4 mb-6">
+        <h1 class="text-2xl font-bold text-blue-700">Riwayat Tantangan</h1>
+        <a href="../" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition">
+          ⬅ Kembali ke Dashboard
+        </a>
+      </div>
+
+      <!-- Tabel Riwayat -->
+      <div id="loading-container" class="text-center py-6 text-gray-500">
+        Memuat riwayat tantangan...
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border rounded-lg overflow-hidden">
+          <thead class="bg-blue-50 text-blue-700">
+            <tr>
+              <th class="py-3 px-3 text-center font-semibold">No.</th>
+              <th class="py-3 px-3 text-left font-semibold">Username</th>
+              <th class="py-3 px-3 text-center font-semibold">Skor</th>
+              <th class="py-3 px-3 text-center font-semibold">Tanggal</th>
+            </tr>
+          </thead>
+          <tbody id="history-table-body" class="divide-y divide-gray-200">
+            <!-- Data akan dimuat lewat JS -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-gray-200 text-center py-6 mt-10 text-gray-600">
+    <p>&copy; 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
+  </footer>
+
+  <!-- SCRIPT -->
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const historyTableBody = document.getElementById("history-table-body");
+    const loadingContainer = document.getElementById("loading-container");
+
+    async function loadRecentActivity() {
+      const { data, error } = await supabase
+        .from("dashboard_recent_activity")
+        .select("*")
+        .order("submitted_at", { ascending: false })
+        .limit(20);
+
+      loadingContainer.style.display = "none";
+
+      if (error) {
+        console.error(error);
+        historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-500">Gagal memuat data.</td></tr>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">Belum ada aktivitas.</td></tr>`;
+        return;
+      }
+
+      historyTableBody.innerHTML = data.map((row, index) => {
+        const date = new Date(row.submitted_at).toLocaleString("id-ID");
+        return `
+          <tr>
+            <td class="py-3 px-3 text-center">${index + 1}</td>
+            <td class="py-3 px-3 flex items-center gap-2">
+              <img src="${row.avatar_url || 'https://via.placeholder.com/40'}" 
+                   class="w-8 h-8 rounded-full border object-cover" />
+              <span class="font-semibold">${row.username}</span>
+            </td>
+            <td class="py-3 px-3 text-center font-bold text-blue-700">${row.score}</td>
+            <td class="py-3 px-3 text-center">${date}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    document.addEventListener("DOMContentLoaded", loadRecentActivity);
+  </script>
+</body>
+</html>
