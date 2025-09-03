@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Belajar Ngaji</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@import url('https://rsms.me/inter/inter.css');
+body { font-family: 'Inter', sans-serif; background-color: #f0f8ff; color: #1f2937; margin:0; overflow-x:hidden; }
+.kpi-card { background:white; border:1px solid #e2e8f0; border-radius:.5rem; transition: transform .2s, box-shadow .2s;}
+.kpi-card:hover { transform: translateY(-3px); box-shadow:0 6px 10px rgba(0,0,0,.1);}
+.sidebar { background:white; border-right:1px solid #e2e8f0;}
+.sidebar a { display:block; color:#1e3a8a; transition: all .2s; padding:.5rem 0; }
+.sidebar a:hover { color:#2563eb; font-weight:600; }
+.correct { background-color:#d1fae5;}
+.wrong { background-color:#fee2e2;}
+.overflow-x-auto { overflow-x:auto;}
+table { border-collapse:collapse; width:100%; min-width:600px;}
+*, *::before, *::after { box-sizing:border-box; max-width:100%; }
+header { position:sticky; top:0; z-index:10; }
+#overlay { position:fixed; inset:0; background:rgba(0,0,0,.3); z-index:20; display:none;}
+</style>
+</head>
+<body class="antialiased flex">
+
+<!-- Sidebar -->
+<aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30">
+<div class="p-6">
+  <h2 class="text-xl font-bold mb-6 text-blue-600">Menu Admin</h2>
+  <ul class="space-y-4">
+    <li><a href="#">Dashboard</a></li>
+    <li><a href="users/">Users</a></li>
+    <li><a href="management/">Koreksi</a></li>
+    <li><a href="harian/">Buat Tantangan</a></li>
+    <li><a href="Riwayat/">Riwayat Tantangan</a></li>
+  </ul>
+</div>
+</aside>
+
+<div id="overlay" class="lg:hidden"></div>
+
+<div class="flex-1 min-h-screen flex flex-col lg:ml-64">
+<header class="bg-white shadow-md p-4 flex items-center justify-between sticky top-0 z-10">
+<div class="flex items-center gap-3">
+  <button id="sidebar-toggle" class="text-blue-600 hover:text-blue-500 focus:outline-none lg:hidden">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+  </button>
+  <h1 class="text-2xl font-bold text-blue-600">Dashboard Belajar Ngaji</h1>
+</div>
+</header>
+
+<main class="p-6 flex-1 overflow-y-auto">
+
+<!-- KPI Cards -->
+<section class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+  <div class="kpi-card rounded-lg p-6">
+    <h3 class="text-sm font-medium text-gray-500">Total Pengguna</h3>
+    <p id="total-users" class="text-3xl font-bold text-blue-600 mt-2">0</p>
+  </div>
+  <div class="kpi-card rounded-lg p-6">
+    <h3 class="text-sm font-medium text-gray-500">Kuis Hari Ini</h3>
+    <p id="quiz-attempts-today" class="text-3xl font-bold text-blue-600 mt-2">0</p>
+  </div>
+</section>
+
+<!-- Charts + Leaderboard -->
+<section class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
+
+  <!-- Leaderboard -->
+  <div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-6 overflow-x-auto">
+    <h3 class="font-semibold text-gray-700 mb-4">🏆 Leaderboard - Top 10</h3>
+    <table class="w-full text-sm text-left text-gray-600">
+      <thead class="text-xs text-gray-500 uppercase bg-gray-100">
+        <tr>
+          <th class="py-3 px-6">Peringkat</th>
+          <th class="py-3 px-6">Pengguna</th>
+          <th class="py-3 px-6">Total Skor</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Charts -->
+  <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4">
+    <h3 class="font-semibold text-gray-700 mb-4">Kuis Terpopuler</h3>
+    <canvas id="popular-quizzes-chart" class="w-full aspect-[4/3]"></canvas>
+  </div>
+
+  <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4">
+    <h3 class="font-semibold text-gray-700 mb-4">Tren Skor / Week</h3>
+    <canvas id="lineChartWeek" class="w-full aspect-[4/3]"></canvas>
+  </div>
+
+  <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4">
+    <h3 class="font-semibold text-gray-700 mb-4">Persentase Jawaban</h3>
+    <canvas id="barChartAnswer" class="w-full aspect-[4/3]"></canvas>
+  </div>
+
+  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4">
+    <h3 class="font-semibold text-gray-700 mb-4">Benar vs Salah</h3>
+    <canvas id="pieChartTotal" class="w-full aspect-[4/3]"></canvas>
+  </div>
+
+  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4">
+    <h3 class="font-semibold text-gray-700 mb-4">Benar vs Salah Hari Ini</h3>
+    <canvas id="pieChartDaily" class="w-full aspect-[4/3]"></canvas>
+  </div>
+
+</section>
+
+<!-- Aktivitas Terbaru -->
+<section>
+<h3 class="text-xl font-semibold text-gray-700 mb-4">Aktivitas Terbaru</h3>
+<div class="bg-white border border-gray-200 rounded-lg overflow-x-auto overflow-y-auto max-h-[400px]">
+<table class="w-full text-sm text-left text-gray-600 min-w-[600px]">
+<thead class="text-xs text-gray-500 uppercase bg-gray-100">
+<tr>
+<th class="py-3 px-6">Pengguna</th>
+<th class="py-3 px-6">Nama Kuis</th>
+<th class="py-3 px-6">Skor</th>
+<th class="py-3 px-6">Waktu</th>
+</tr>
+</thead>
+<tbody id="recent-activity-body"></tbody>
+</table>
+</div>
+</section>
+
+</main>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; 
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Fungsi helper: format quiz id → rapi
+function formatQuizName(quiz_id){
+  return quiz_id
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+// Sidebar toggle
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+document.getElementById('sidebar-toggle').addEventListener('click', ()=>{
+  sidebar.classList.toggle('-translate-x-full');
+  overlay.style.display = sidebar.classList.contains('-translate-x-full')?'none':'block';
+});
+overlay.addEventListener('click', ()=>{ sidebar.classList.add('-translate-x-full'); overlay.style.display='none'; });
+
+// Chart helper
+function createChart(ctx,type,labels,data,colors,label){
+  return new Chart(ctx,{
+    type,
+    data:{labels,datasets:[{label,data,backgroundColor:colors,fill:type==='line'?false:true}]},
+    options:{
+      responsive:true,
+      maintainAspectRatio:true,
+      plugins:{legend:{position:'bottom'},title:{display:!!label,text:label}},
+      scales:{y:{beginAtZero:true,max:100}} // Untuk persentase
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  // ===== Pengecekan login & role admin =====
+  const { data: { user } } = await supabase.auth.getUser();
+  if(!user){ window.location.href='/admin-login/'; return; }
+
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  if(!profile || !['admin','superadmin'].includes(profile.role)){
+    alert('Anda tidak memiliki akses ke dashboard ini.');
+    window.location.href='/';
+    return;
+  }
+  const isSuperAdmin = profile.role==='superadmin';
+
+  // ===== Fetch data dashboard =====
+  const profileFilter = isSuperAdmin?{}:{admin_id:user.id};
+
+  const [
+    totalUsers,
+    quizToday,
+    leaderboardData,
+    quizAttempts,
+    recentActivities
+  ] = await Promise.all([
+    // Total users
+    supabase.from('profiles').select('*',{count:'exact',head:true}).match(profileFilter).then(r=>r.count||0),
+
+    // Kuis hari ini
+    (()=>{
+      const t = new Date(); t.setHours(0,0,0,0);
+      return supabase.from('quiz_attempts').select('*',{count:'exact',head:true})
+        .gte('submitted_at',t.toISOString())
+        .then(r=>r.count||0);
+    })(),
+
+    // Leaderboard
+    supabase.from('leaderboard').select('rank, username, total_score')
+      .match(profileFilter)
+      .limit(10).order('total_score',{ascending:false})
+      .then(r=>r.data||[]),
+
+    // Semua quiz attempts untuk chart
+    supabase.from('quiz_attempts').select('*').then(r=>{
+      const data = r.data||[];
+      return isSuperAdmin?data:data.filter(a=>a.admin_id===user.id);
+    }),
+
+    // Recent activity
+    supabase.from('latest_activity').select('*').order('submitted_at',{ascending:false}).then(r=>{
+      const data = r.data||[];
+      return isSuperAdmin?data:data.filter(a=>a.admin_id===user.id);
+    })
+  ]);
+
+  // ===== Update KPI =====
+  document.getElementById('total-users').textContent = totalUsers;
+  document.getElementById('quiz-attempts-today').textContent = quizToday;
+
+  // ===== Leaderboard =====
+  const lb = document.getElementById('leaderboard-body');
+  lb.innerHTML = leaderboardData.length>0 ?
+    leaderboardData.map(u=>`<tr class="border-b border-gray-200 hover:bg-gray-50">
+      <td class="py-3 px-6 font-medium">${u.rank}</td>
+      <td class="py-3 px-6">${u.username}</td>
+      <td class="py-3 px-6 font-bold text-yellow-500">${u.total_score||0}</td>
+    </tr>`).join('') :
+    `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
+
+  // ===== Recent Activity =====
+  const tbody = document.getElementById('recent-activity-body');
+  tbody.innerHTML = recentActivities.length>0 ?
+    recentActivities.map(a=>`<tr class="${a.is_correct?'correct':'wrong'} border-b border-gray-200 hover:bg-gray-50">
+      <td class="py-4 px-6">${a.username||'Tanpa Nama'}</td>
+      <td class="py-4 px-6">${formatQuizName(a.quiz_id)}</td>
+      <td class="py-4 px-6 font-medium">${a.score}</td>
+      <td class="py-4 px-6 text-sm text-gray-500">${new Date(a.submitted_at).toLocaleString('id-ID')}</td>
+    </tr>`).join('') :
+    `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
+
+  // ===== Kuis Terpopuler =====
+  const counts = {};
+  quizAttempts.forEach(a=>{
+    const name=formatQuizName(a.quiz_id);
+    counts[name]=(counts[name]||0)+1;
+  });
+  const sortedQuizzes=Object.entries(counts).sort(([,a],[,b])=>b-a).slice(0,5);
+  createChart(
+    document.getElementById('popular-quizzes-chart').getContext('2d'),
+    'doughnut',
+    sortedQuizzes.map(x=>x[0]),
+    sortedQuizzes.map(x=>x[1]),
+    ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'],
+    'Pengerjaan'
+  );
+
+  // ===== Tren Skor / Week =====
+  const weeks={};
+  quizAttempts.forEach(a=>{
+    const d=new Date(a.submitted_at);
+    const year=d.getFullYear();
+    const week=Math.ceil((((d - new Date(year,0,1))/86400000)+1)/7);
+    const key=`${year}-W${week}`;
+    if(!weeks[key]) weeks[key]=[];
+    weeks[key].push(a.score);
+  });
+  const weekLabels=Object.keys(weeks).sort();
+  const weekAvgScores=weekLabels.map(w=>{
+    const arr=weeks[w]; return arr.reduce((s,v)=>s+v,0)/arr.length;
+  });
+  createChart(document.getElementById('lineChartWeek').getContext('2d'),'line',weekLabels,weekAvgScores,['#3b82f6'],'Rata-rata Skor / Week');
+
+  // ===== Persentase Jawaban per Quiz =====
+  const quizMap={};
+  quizAttempts.forEach(a=>{
+    if(!quizMap[a.quiz_id]) quizMap[a.quiz_id]=[0,0]; // [benar,salah]
+    quizMap[a.quiz_id][0]+=Number(a.score)||0;
+    quizMap[a.quiz_id][1]+=(Number(a.total_questions)||0)-(Number(a.score)||0);
+  });
+  const quizLabels2=Object.keys(quizMap).map(q=>formatQuizName(q));
+  const quizPercent=Object.values(quizMap).map(v=>{
+    const total=v[0]+v[1]; return total?Math.round(v[0]/total*100):0;
+  });
+  createChart(document.getElementById('barChartAnswer').getContext('2d'),'bar',quizLabels2,quizPercent,
+    ['#3b82f6','#60a5fa','#93c5fd','#2563eb','#1e40af'],'Persentase Jawaban Benar per Quiz');
+
+  // ===== Benar vs Salah Keseluruhan =====
+  const totalQuestionsAll = quizAttempts.reduce((s,a)=>s + (Number(a.total_questions)||0), 0);
+  const totalIncorrectAll = Math.max(totalQuestionsAll - totalCorrect, 0);
+  const totalPercentCorrect = totalQuestionsAll ? Math.round((totalCorrect/totalQuestionsAll)*100) : 0;
+  const totalPercentIncorrect = 100 - totalPercentCorrect;
+
+  createChart(
+    document.getElementById('pieChartTotal').getContext('2d'),
+    'pie',
+    ['Benar','Salah'],
+    [totalPercentCorrect, totalPercentIncorrect],
+    ['#4CAF50','#F44336'],
+    'Benar vs Salah Keseluruhan (%)'
+  );
+
+  // ===== Benar vs Salah Dashboard (pengganti hari ini) =====
+  const dashboardAttempts = quizAttempts.filter(a => a.quiz_id.toLowerCase().includes('dashboard'));
+  const correctDashboard = dashboardAttempts.reduce((s,a)=>s + (Number(a.score)||0),0);
+  const totalDashboardQuestions = dashboardAttempts.reduce((s,a)=>s + (Number(a.total_questions)||0),0);
+  const incorrectDashboard = Math.max(totalDashboardQuestions - correctDashboard,0);
+  const percentCorrectDashboard = totalDashboardQuestions ? Math.round((correctDashboard/totalDashboardQuestions)*100) : 0;
+  const percentIncorrectDashboard = 100 - percentCorrectDashboard;
+
+  createChart(
+    document.getElementById('pieChartDaily').getContext('2d'),
+    'pie',
+    ['Benar','Salah'],
+    [percentCorrectDashboard, percentIncorrectDashboard],
+    ['#4CAF50','#F44336'],
+    'Benar vs Salah Dashboard (%)'
+  );
+
+});
+</script>
+</body>
+</html>
