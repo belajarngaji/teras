@@ -25,7 +25,6 @@ header { position:sticky; top:0; z-index:10; }
 </head>
 <body class="antialiased flex">
 
-<!-- Sidebar -->
 <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30">
 <div class="p-6">
   <h2 class="text-xl font-bold mb-6 text-blue-600">Menu Admin</h2>
@@ -55,7 +54,6 @@ header { position:sticky; top:0; z-index:10; }
 
 <main class="p-6 flex-1 overflow-y-auto">
 
-<!-- KPI Cards -->
 <section class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
   <div class="kpi-card rounded-lg p-6">
     <h3 class="text-sm font-medium text-gray-500">Total Pengguna</h3>
@@ -67,10 +65,8 @@ header { position:sticky; top:0; z-index:10; }
   </div>
 </section>
 
-<!-- Charts + Leaderboard -->
 <section class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
 
-  <!-- Leaderboard -->
   <div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-6 overflow-x-auto">
     <h3 class="font-semibold text-gray-700 mb-4">🏆 Leaderboard - Top 10</h3>
     <table class="w-full text-sm text-left text-gray-600">
@@ -85,7 +81,6 @@ header { position:sticky; top:0; z-index:10; }
     </table>
   </div>
 
-  <!-- Charts -->
   <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4">
     <h3 class="font-semibold text-gray-700 mb-4">Kuis Terpopuler</h3>
     <canvas id="popular-quizzes-chart" class="w-full aspect-[4/3]"></canvas>
@@ -117,7 +112,6 @@ header { position:sticky; top:0; z-index:10; }
 
 </section>
 
-<!-- Aktivitas Terbaru -->
 <section>
 <h3 class="text-xl font-semibold text-gray-700 mb-4">Aktivitas Terbaru</h3>
 <div class="bg-white border border-gray-200 rounded-lg overflow-x-auto overflow-y-auto max-h-[400px]">
@@ -178,28 +172,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   const { data:{user} } = await supabase.auth.getUser();
   if(!user){ window.location.href='/admin-login/'; return; }
 
-  const { data: profile } = await supabase.from('profiles').select('role,username').eq('id', user.id).single();
-  if(!profile || !['admin','superadmin'].includes(profile.role)){
-    alert('Akses ditolak. Hanya admin atau superadmin yang dapat mengakses dashboard.');
-    window.location.href='/';
-    return;
-  }
-  const isSuperAdmin = profile.role==='superadmin';
-
-  // ===== AMBIL DATA =====
-  const { data: quizAttempts } = await supabase.from('quiz_attempts').select('*').then(r=>r.data||[]);
-  const { data: dashboardAttempts } = await supabase.from('dashboard_quiz_attempts').select('*').then(r=>r.data||[]);
-
-  // ===== FILTER DATA BERDASARKAN ROLE =====
-  let quizAttemptsFiltered = [], dashboardAttemptsFiltered = [];
-  if(isSuperAdmin){
-    quizAttemptsFiltered = quizAttempts;
-    dashboardAttemptsFiltered = dashboardAttempts;
-  } else { // admin biasa
-    quizAttemptsFiltered = quizAttempts.filter(a=>a.admin_id===user.id);
-    dashboardAttemptsFiltered = dashboardAttempts.filter(a=>a.admin_id===user.id);
-  }
-
+  // ===== AMBIL SEMUA DATA (TANPA FILTER ROLE) =====
+  const { data: quizAttemptsFiltered } = await supabase.from('quiz_attempts').select('*').then(r=>r.data||[]);
+  const { data: dashboardAttemptsFiltered } = await supabase.from('dashboard_quiz_attempts').select('*').then(r=>r.data||[]);
+  
   // ===== TOTAL USERS =====
   const { count: totalUsers } = await supabase.from('profiles').select('*',{count:'exact',head:true}).then(r=>r);
   document.getElementById('total-users').textContent = totalUsers||0;
@@ -212,7 +188,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   // ===== LEADERBOARD =====
   const leaderboardData = await supabase.from('leaderboard')
     .select('*')
-    .match(isSuperAdmin?{}:{admin_id:user.id})
     .order('total_score',{ascending:false})
     .limit(10)
     .then(r=>r.data||[]);
@@ -307,5 +282,3 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
 </body>
 </html>
-
-kenapa tidak berfungsi dan tidak menampilkan apapun
