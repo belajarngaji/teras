@@ -190,7 +190,7 @@
       `;
       document.getElementById("logout-button").addEventListener("click", async () => {
         await supabaseClient.auth.signOut();
-        window.location.href = "../masuk/";
+        window.location.href = "../admin/";
       });
       document.getElementById("change-password-button").addEventListener("click", () => {
         alert("Fitur ubah kata sandi akan segera tersedia.");
