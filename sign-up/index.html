@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Admin - Belajar Ngaji</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; background: #f0f2f5; }
+    #message-box {
+      display: none;
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+      animation: fadeIn 0.5s;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body class="bg-gray-50">
+
+  <!-- NAVBAR -->
+  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+    <div>
+      <span class="text-xl font-bold">Belajar Ngaji - Admin</span>
+    </div>
+  </nav>
+
+  <!-- FORM DAFTAR ADMIN -->
+  <div class="max-w-md mx-auto px-4 py-8">
+    <div class="bg-white rounded-xl shadow-lg p-8">
+      <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Buat Admin Baru</h1>
+      <form id="register-form" class="space-y-4">
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+          <input type="text" id="username" name="username" required class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <input type="password" id="password" name="password" required minlength="6" class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+          <label for="confirm-password" class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
+          <input type="password" id="confirm-password" name="confirm-password" required class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <button type="submit" id="submit-button" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+          Daftar Admin
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Kotak Pesan -->
+  <div id="message-box" class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full">
+    <h3 id="message-title" class="text-xl font-bold mb-2 text-center text-gray-800"></h3>
+    <p id="message-text" class="text-gray-600 text-center"></p>
+    <div class="mt-4 text-center">
+      <button onclick="document.getElementById('message-box').style.display='none'" class="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">OK</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const form = document.getElementById('register-form');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm-password');
+    const submitButton = document.getElementById('submit-button');
+
+    const messageBox = document.getElementById('message-box');
+    const messageTitle = document.getElementById('message-title');
+    const messageText = document.getElementById('message-text');
+
+    function showMessage(title, text) {
+      messageTitle.textContent = title;
+      messageText.textContent = text;
+      messageBox.style.display = 'block';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitButton.disabled = true;
+      submitButton.textContent = 'Memproses...';
+
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+      const email = `${username.toLowerCase().replace(/\s+/g, '')}@belajarngaji.admin`;
+
+      // Validasi
+      if (!username) { showMessage('Gagal', 'Username tidak boleh kosong'); resetButton(); return; }
+      if (password !== confirmPassword) { showMessage('Gagal', 'Password tidak cocok'); resetButton(); return; }
+      if (password.length < 6) { showMessage('Gagal', 'Password minimal 6 karakter'); resetButton(); return; }
+
+      // Cek username
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', username)
+        .single();
+
+      if (existingProfile) { showMessage('Gagal', 'Username sudah digunakan'); resetButton(); return; }
+
+      // Signup
+      const { data, error } = await supabase.auth.signUp({ email, password });
+
+      if (error) { showMessage('Gagal', error.message); resetButton(); return; }
+
+      if (data.user) {
+        // Simpan profil admin dengan role
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([{ id: data.user.id, username, email, role: 'admin' }]);
+
+        if (profileError) { showMessage('Gagal', profileError.message); resetButton(); return; }
+
+        // Otomatis login dan redirect
+        showMessage('Berhasil', 'Admin berhasil dibuat. Mengalihkan ke dashboard...');
+        setTimeout(() => { window.location.href = '/ruang/'; }, 1000);
+      }
+
+      function resetButton() {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Daftar Admin';
+      }
+    });
+  </script>
+</body>
+</html>
