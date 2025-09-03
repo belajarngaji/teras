@@ -125,8 +125,6 @@ const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Mapping nama kuis untuk tampilan yang lebih ramah
-const quizNameMap = { 'kelas01_bab01_hijaiyah': 'Kelas 1 Bab 1 Hijaiyah' };
 
 // --- FUNGSI UTAMA ---
 document.addEventListener('DOMContentLoaded', async () => {
@@ -153,6 +151,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 
+// --- FUNGSI-FUNGSI BANTUAN ---
+
+function formatQuizName(quizId) {
+    if (!quizId) return 'Kuis Tidak Dikenal';
+
+    const parts = quizId.split('_');
+    const kelasMatch = quizId.match(/kelas(\d+)/);
+    const babMatch = quizId.match(/bab(\d+)/);
+
+    // Cek format 'kelasXX_babXX_topic'
+    if (kelasMatch && babMatch && parts.length > 2) {
+        const kelas = parseInt(kelasMatch[1], 10);
+        const bab = parseInt(babMatch[1], 10);
+        const topic = parts[parts.length - 1];
+        const formattedTopic = topic.charAt(0).toUpperCase() + topic.slice(1);
+        return `${formattedTopic} ${kelas}.${bab}`;
+    }
+
+    // Fallback untuk format lain, misal 'iqro_jilid_1'
+    return parts
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
 // --- FUNGSI-FUNGSI PENGAMBILAN DATA ---
 
 async function fetchTotalUsers() {
@@ -169,7 +191,6 @@ async function fetchQuizAttemptsToday() {
 }
 
 async function fetchLeaderboard() {
-    // Mengambil data langsung dari view 'leaderboard'
     const { data, error } = await supabase
         .from('leaderboard')
         .select('username, avatar_url, total_score')
@@ -180,16 +201,19 @@ async function fetchLeaderboard() {
 }
 
 async function fetchPopularQuizzes() {
-    const { data } = await supabase.from('quiz_attempts').select('quiz_id');
-    const counts = (data || []).reduce((acc, attempt) => {
-        const name = quizNameMap[attempt.quiz_id] || attempt.quiz_id;
-        acc[name] = (acc[name] || 0) + 1;
-        return acc;
-    }, {});
-    const sorted = Object.entries(counts).sort(([, a], [, b]) => b - a).slice(0, 5);
+    // Mengambil data langsung dari view 'popular_quizzes'
+    const { data, error } = await supabase
+        .from('popular_quizzes')
+        .select('quiz_id, attempts_count');
+
+    if (error) {
+        console.error("Error fetching popular quizzes:", error);
+        return { labels: [], data: [] };
+    }
+    
     return {
-        labels: sorted.map(x => x[0]),
-        data: sorted.map(x => x[1])
+        labels: (data || []).map(q => formatQuizName(q.quiz_id)),
+        data: (data || []).map(q => q.attempts_count)
     };
 }
 
@@ -211,13 +235,11 @@ function updateLeaderboard(leaderboardData) {
     if (leaderboardData.length > 0) {
         leaderboardBody.innerHTML = leaderboardData.map((entry, index) => {
             const rank = index + 1;
-            // Data diambil langsung dari 'entry' karena 'leaderboard' adalah sebuah view
             const score = entry.total_score || 0;
             const username = entry.username || 'Pengguna Anonim';
             const avatarUrl = entry.avatar_url;
             const fallbackInitial = username.charAt(0).toUpperCase();
-
-            // Avatar dengan fallback jika URL gambar tidak ada
+            
             const avatarElement = avatarUrl 
                 ? `<img src="${avatarUrl}" alt="Avatar ${username}" class="w-10 h-10 rounded-full object-cover border-2 border-gray-200" onerror="this.style.display='none'; this.nextSibling.style.display='flex';">
                    <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 items-center justify-center font-bold text-lg" style="display:none;">${fallbackInitial}</div>`
@@ -255,7 +277,7 @@ function updateRecentActivity(activities) {
         tbody.innerHTML = activities.map(a => `
             <tr class="${a.is_correct ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
                 <td class="py-4 px-6">${a.username || 'Tanpa Nama'}</td>
-                <td class="py-4 px-6">${quizNameMap[a.quiz_id] || a.quiz_id}</td>
+                <td class="py-4 px-6">${formatQuizName(a.quiz_id)}</td>
                 <td class="py-4 px-6 font-medium">${a.score}</td>
                 <td class="py-4 px-6 text-sm text-gray-500">${new Date(a.submitted_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</td>
             </tr>
@@ -266,7 +288,7 @@ function updateRecentActivity(activities) {
 }
 
 function createPopularQuizzesChart(popularQuizData) {
-    const ctx = document.getElementById('popular-quizzes-chart').getContext('d');
+    const ctx = document.getElementById('popular-quizzes-chart').getContext('2d');
     new Chart(ctx, {
         type: 'doughnut',
         data: {
