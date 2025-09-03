@@ -136,11 +136,12 @@ header { position:sticky; top:0; z-index:10; }
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I"; // gunakan service key
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhWmXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I"; // gunakan service key
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ===== UTILITY =====
 function formatQuizName(id){ 
+  if (!id) return 'Kuis Tidak Dikenal';
   return id.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); 
 }
 
@@ -167,117 +168,156 @@ document.getElementById('sidebar-toggle').addEventListener('click', ()=>{
 overlay.addEventListener('click', ()=>{ sidebar.classList.add('-translate-x-full'); overlay.style.display='none'; });
 
 document.addEventListener('DOMContentLoaded', async ()=>{
+  try {
+    // ===== CEK USER =====
+    const { data:{user} } = await supabase.auth.getUser();
+    if(!user){ 
+      window.location.href='/admin-login/'; 
+      return; 
+    }
 
-  // ===== CEK USER =====
-  const { data:{user} } = await supabase.auth.getUser();
-  if(!user){ window.location.href='/admin-login/'; return; }
+    // =================================================================
+    // PERBAIKAN: Mengambil semua data di awal dengan penanganan error
+    // =================================================================
+    const [
+      { data: quizAttemptsFiltered, error: quizError },
+      { data: dashboardAttemptsFiltered, error: dashboardError },
+      { count: totalUsers, error: usersError },
+      { data: leaderboardData, error: leaderboardError }
+    ] = await Promise.all([
+      supabase.from('quiz_attempts').select('*'),
+      supabase.from('dashboard_quiz_attempts').select('*'),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('leaderboard').select('username, total_score').order('total_score', { ascending: false }).limit(10)
+    ]);
 
-  // ===== AMBIL SEMUA DATA (TANPA FILTER ROLE) =====
-  const { data: quizAttemptsFiltered } = await supabase.from('quiz_attempts').select('*').then(r=>r.data||[]);
-  const { data: dashboardAttemptsFiltered } = await supabase.from('dashboard_quiz_attempts').select('*').then(r=>r.data||[]);
-  
-  // ===== TOTAL USERS =====
-  const { count: totalUsers } = await supabase.from('profiles').select('*',{count:'exact',head:true}).then(r=>r);
-  document.getElementById('total-users').textContent = totalUsers||0;
+    // Jika ada satu saja error saat mengambil data, tampilkan di console dan hentikan eksekusi
+    if (quizError || dashboardError || usersError || leaderboardError) {
+      console.error("Gagal mengambil data dari Supabase:", { quizError, dashboardError, usersError, leaderboardError });
+      alert("Gagal memuat data dari database. Periksa console (F12) untuk detail.");
+      return;
+    }
 
-  // ===== QUIZ HARI INI =====
-  const today = new Date(); today.setHours(0,0,0,0);
-  const quizToday = quizAttemptsFiltered.filter(a=>new Date(a.submitted_at)>=today).length;
-  document.getElementById('quiz-attempts-today').textContent = quizToday;
+    // ===== TOTAL USERS =====
+    document.getElementById('total-users').textContent = totalUsers || 0;
 
-  // ===== LEADERBOARD =====
-  const leaderboardData = await supabase.from('leaderboard')
-    .select('*')
-    .order('total_score',{ascending:false})
-    .limit(10)
-    .then(r=>r.data||[]);
-  const lb = document.getElementById('leaderboard-body');
-  lb.innerHTML = leaderboardData.length>0 ? leaderboardData.map(u=>`
-    <tr class="border-b border-gray-200 hover:bg-gray-50">
-      <td class="py-3 px-6 font-medium">${u.rank}</td>
-      <td class="py-3 px-6">${u.username}</td>
-      <td class="py-3 px-6 font-bold text-yellow-500">${u.total_score||0}</td>
-    </tr>
-  `).join('') : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
+    // ===== QUIZ HARI INI =====
+    const today = new Date(); 
+    today.setHours(0,0,0,0);
+    const quizToday = (quizAttemptsFiltered || []).filter(a => new Date(a.submitted_at) >= today).length;
+    document.getElementById('quiz-attempts-today').textContent = quizToday;
 
-  // ===== AKTIVITAS TERBARU =====
-  const tbody = document.getElementById('recent-activity-body');
-  const recentActivities = [...quizAttemptsFiltered,...dashboardAttemptsFiltered].sort((a,b)=>new Date(b.submitted_at)-new Date(a.submitted_at));
-  tbody.innerHTML = recentActivities.length>0 ? recentActivities.map(a=>`
-    <tr class="${a.is_correct?'correct':'wrong'} border-b border-gray-200 hover:bg-gray-50">
-      <td class="py-4 px-6">${a.username||'Tanpa Nama'}</td>
-      <td class="py-4 px-6">${formatQuizName(a.quiz_id||a.quiz_question_id)}</td>
-      <td class="py-4 px-6 font-medium">${a.score||0}</td>
-      <td class="py-4 px-6 text-sm text-gray-500">${new Date(a.submitted_at).toLocaleString('id-ID')}</td>
-    </tr>
-  `).join('') : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
+    // =================================================================
+    // PERBAIKAN: Leaderboard dengan peringkat dinamis (index + 1)
+    // =================================================================
+    const lb = document.getElementById('leaderboard-body');
+    lb.innerHTML = leaderboardData && leaderboardData.length > 0 ? leaderboardData.map((u, index) => `
+      <tr class="border-b border-gray-200 hover:bg-gray-50">
+        <td class="py-3 px-6 text-center font-medium">${index + 1}</td>
+        <td class="py-3 px-6">${u.username}</td>
+        <td class="py-3 px-6 text-center font-bold text-yellow-500">${u.total_score || 0}</td>
+      </tr>
+    `).join('') : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
 
-  // ===== KUIS TERPOPULER =====
-  const counts = {};
-  quizAttemptsFiltered.forEach(a=>{ const name=formatQuizName(a.quiz_id); counts[name]=(counts[name]||0)+1; });
-  const sortedQuizzes=Object.entries(counts).sort(([,a],[,b])=>b-a).slice(0,5);
-  createChart(document.getElementById('popular-quizzes-chart').getContext('2d'),'doughnut',
-    sortedQuizzes.map(x=>x[0]),sortedQuizzes.map(x=>x[1]),
-    ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'],'Pengerjaan'
-  );
+    // ===== AKTIVITAS TERBARU =====
+    const tbody = document.getElementById('recent-activity-body');
+    const recentActivities = [...(quizAttemptsFiltered || []), ...(dashboardAttemptsFiltered || [])]
+        .sort((a,b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+    tbody.innerHTML = recentActivities.length > 0 ? recentActivities.map(a => `
+      <tr class="${a.is_correct ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
+        <td class="py-4 px-6">${a.username || 'Tanpa Nama'}</td>
+        <td class="py-4 px-6">${formatQuizName(a.quiz_id || a.quiz_question_id)}</td>
+        <td class="py-4 px-6 font-medium">${a.score || 0}</td>
+        <td class="py-4 px-6 text-sm text-gray-500">${new Date(a.submitted_at).toLocaleString('id-ID')}</td>
+      </tr>
+    `).join('') : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
 
-  // ===== TREND SKOR =====
-  const dayMap={}, weekMap={};
-  quizAttemptsFiltered.forEach(a=>{
-    const d=new Date(a.submitted_at);
-    const dayKey=d.toISOString().split('T')[0];
-    if(!dayMap[dayKey]) dayMap[dayKey]=[]; dayMap[dayKey].push(a.score||0);
-    const year=d.getFullYear();
-    const week=Math.ceil((((d - new Date(year,0,1))/86400000)+1)/7);
-    const weekKey=`${year}-W${week}`;
-    if(!weekMap[weekKey]) weekMap[weekKey]=[]; weekMap[weekKey].push(a.score||0);
-  });
-  const dayLabels=Object.keys(dayMap).sort(), dayAvg=dayLabels.map(d=>dayMap[d].reduce((s,v)=>s+v,0)/dayMap[d].length);
-  const weekLabels=Object.keys(weekMap).sort(), weekAvg=weekLabels.map(w=>weekMap[w].reduce((s,v)=>s+v,0)/weekMap[w].length);
-  const ctxScore=document.getElementById('lineChartScore').getContext('2d');
-  const chartScore=createChart(ctxScore,'line',dayLabels,dayAvg,['#3b82f6'],'Rata-rata Skor Harian');
+    // ===== KUIS TERPOPULER =====
+    const counts = {};
+    (quizAttemptsFiltered || []).forEach(a => { 
+      const name = formatQuizName(a.quiz_id); 
+      counts[name] = (counts[name] || 0) + 1; 
+    });
+    const sortedQuizzes = Object.entries(counts).sort(([,a],[,b]) => b-a).slice(0,5);
+    createChart(document.getElementById('popular-quizzes-chart').getContext('2d'),'doughnut',
+      sortedQuizzes.map(x => x[0]),
+      sortedQuizzes.map(x => x[1]),
+      ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'],
+      'Pengerjaan'
+    );
 
-  document.getElementById('btnDaily').addEventListener('click',()=>{
-    chartScore.data.labels=dayLabels; chartScore.data.datasets[0].data=dayAvg; chartScore.data.datasets[0].label='Rata-rata Skor Harian'; chartScore.update();
-    document.getElementById('btnDaily').classList.add('bg-blue-600','text-white'); document.getElementById('btnDaily').classList.remove('bg-gray-200','text-gray-700');
-    document.getElementById('btnWeekly').classList.add('bg-gray-200','text-gray-700'); document.getElementById('btnWeekly').classList.remove('bg-blue-600','text-white');
-  });
-  document.getElementById('btnWeekly').addEventListener('click',()=>{
-    chartScore.data.labels=weekLabels; chartScore.data.datasets[0].data=weekAvg; chartScore.data.datasets[0].label='Rata-rata Skor Mingguan'; chartScore.update();
-    document.getElementById('btnWeekly').classList.add('bg-blue-600','text-white'); document.getElementById('btnWeekly').classList.remove('bg-gray-200','text-gray-700');
-    document.getElementById('btnDaily').classList.add('bg-gray-200','text-gray-700'); document.getElementById('btnDaily').classList.remove('bg-blue-600','text-white');
-  });
+    // ===== TREND SKOR =====
+    const dayMap = {}, weekMap = {};
+    (quizAttemptsFiltered || []).forEach(a => {
+      const d = new Date(a.submitted_at);
+      if (isNaN(d.getTime())) return; // Skip if date is invalid
 
-  // ===== PERSENTASE JAWABAN =====
-  const quizMap={};
-  quizAttemptsFiltered.forEach(a=>{
-    if(!quizMap[a.quiz_id]) quizMap[a.quiz_id]=[0,0];
-    quizMap[a.quiz_id][0]+=Number(a.score)||0;
-    quizMap[a.quiz_id][1]+= (Number(a.total_questions)||0)-(Number(a.score)||0);
-  });
-  const quizLabels2=Object.keys(quizMap).map(formatQuizName);
-  const quizPercent=Object.values(quizMap).map(v=>{ const total=v[0]+v[1]; return total?Math.round(v[0]/total*100):0; });
-  createChart(document.getElementById('barChartAnswer').getContext('2d'),'bar',quizLabels2,quizPercent,
-    ['#3b82f6','#60a5fa','#93c5fd','#2563eb','#1e40af'],'Persentase Jawaban Benar per Quiz'
-  );
+      const dayKey = d.toISOString().split('T')[0];
+      if(!dayMap[dayKey]) dayMap[dayKey] = []; 
+      dayMap[dayKey].push(a.score || 0);
 
-  // ===== BENAR VS SALAH =====
-  const totalCorrect = quizAttemptsFiltered.reduce((s,a)=>s+(Number(a.score)||0),0);
-  const totalQuestionsAll = quizAttemptsFiltered.reduce((s,a)=>s+(Number(a.total_questions)||0),0);
-  const totalPercentCorrect = totalQuestionsAll ? Math.round(totalCorrect/totalQuestionsAll*100) : 0;
-  createChart(document.getElementById('pieChartTotal').getContext('2d'),'pie',['Benar','Salah'],
-    [totalPercentCorrect,100-totalPercentCorrect],['#4CAF50','#F44336'],'Benar vs Salah Keseluruhan (%)'
-  );
+      const year = d.getFullYear();
+      const week = Math.ceil((((d - new Date(year,0,1))/86400000) + 1) / 7);
+      const weekKey = `${year}-W${week}`;
+      if(!weekMap[weekKey]) weekMap[weekKey] = [];
+      weekMap[weekKey].push(a.score || 0);
+    });
+    const dayLabels = Object.keys(dayMap).sort(), dayAvg = dayLabels.map(d => dayMap[d].reduce((s,v) => s+v,0) / dayMap[d].length);
+    const weekLabels = Object.keys(weekMap).sort(), weekAvg = weekLabels.map(w => weekMap[w].reduce((s,v) => s+v,0) / weekMap[w].length);
+    const ctxScore = document.getElementById('lineChartScore').getContext('2d');
+    const chartScore = createChart(ctxScore, 'line', dayLabels, dayAvg, ['#3b82f6'], 'Rata-rata Skor Harian');
 
-  const todayDashboard = dashboardAttemptsFiltered.filter(a=>new Date(a.submitted_at)>=today);
-  const correctDashboard = todayDashboard.reduce((s,a)=>s + (a.is_correct?1:0),0);
-  const totalDashboardQuestions = todayDashboard.length;
-  const percentCorrectDashboard = totalDashboardQuestions?Math.round(correctDashboard/totalDashboardQuestions*100):0;
-  createChart(document.getElementById('pieChartDaily').getContext('2d'),'pie',['Benar','Salah'],
-    [percentCorrectDashboard,100-percentCorrectDashboard],['#4CAF50','#F44336'],'Benar vs Salah Dashboard Hari Ini (%)'
-  );
+    document.getElementById('btnDaily').addEventListener('click', () => {
+      chartScore.data.labels = dayLabels; chartScore.data.datasets[0].data = dayAvg; chartScore.data.datasets[0].label = 'Rata-rata Skor Harian'; chartScore.update();
+      document.getElementById('btnDaily').classList.add('bg-blue-600','text-white'); document.getElementById('btnDaily').classList.remove('bg-gray-200','text-gray-700');
+      document.getElementById('btnWeekly').classList.add('bg-gray-200','text-gray-700'); document.getElementById('btnWeekly').classList.remove('bg-blue-600','text-white');
+    });
+    document.getElementById('btnWeekly').addEventListener('click', () => {
+      chartScore.data.labels = weekLabels; chartScore.data.datasets[0].data = weekAvg; chartScore.data.datasets[0].label = 'Rata-rata Skor Mingguan'; chartScore.update();
+      document.getElementById('btnWeekly').classList.add('bg-blue-600','text-white'); document.getElementById('btnWeekly').classList.remove('bg-gray-200','text-gray-700');
+      document.getElementById('btnDaily').classList.add('bg-gray-200','text-gray-700'); document.getElementById('btnDaily').classList.remove('bg-blue-600','text-white');
+    });
 
+    // ===== PERSENTASE JAWABAN =====
+    const quizMap = {};
+    (quizAttemptsFiltered || []).forEach(a => {
+      if(!quizMap[a.quiz_id]) quizMap[a.quiz_id] = [0,0];
+      quizMap[a.quiz_id][0] += Number(a.score) || 0;
+      quizMap[a.quiz_id][1] += (Number(a.total_questions) || 0) - (Number(a.score) || 0);
+    });
+    const quizLabels2 = Object.keys(quizMap).map(formatQuizName);
+    const quizPercent = Object.values(quizMap).map(v => { const total=v[0]+v[1]; return total ? Math.round(v[0]/total*100):0; });
+    createChart(document.getElementById('barChartAnswer').getContext('2d'), 'bar', quizLabels2, quizPercent,
+      ['#3b82f6','#60a5fa','#93c5fd','#2563eb','#1e40af'],
+      'Persentase Jawaban Benar per Quiz'
+    );
+
+    // ===== BENAR VS SALAH =====
+    const totalCorrect = (quizAttemptsFiltered || []).reduce((s,a) => s + (Number(a.score)||0),0);
+    const totalQuestionsAll = (quizAttemptsFiltered || []).reduce((s,a) => s + (Number(a.total_questions)||0),0);
+    const totalPercentCorrect = totalQuestionsAll ? Math.round(totalCorrect / totalQuestionsAll * 100) : 0;
+    createChart(document.getElementById('pieChartTotal').getContext('2d'), 'pie', ['Benar','Salah'],
+      [totalPercentCorrect, 100-totalPercentCorrect],
+      ['#4CAF50','#F44336'],
+      'Benar vs Salah Keseluruhan (%)'
+    );
+
+    const todayDashboard = (dashboardAttemptsFiltered || []).filter(a => new Date(a.submitted_at) >= today);
+    const correctDashboard = todayDashboard.reduce((s,a) => s + (a.is_correct ? 1 : 0),0);
+    const totalDashboardQuestions = todayDashboard.length;
+    const percentCorrectDashboard = totalDashboardQuestions ? Math.round(correctDashboard / totalDashboardQuestions * 100) : 0;
+    createChart(document.getElementById('pieChartDaily').getContext('2d'), 'pie', ['Benar','Salah'],
+      [percentCorrectDashboard, 100-percentCorrectDashboard],
+      ['#4CAF50','#F44336'],
+      'Benar vs Salah Dashboard Hari Ini (%)'
+    );
+
+  } catch (error) {
+    console.error("Terjadi error yang tidak terduga:", error);
+    alert("Terjadi error. Silakan refresh halaman dan periksa console untuk detail.");
+  }
 });
+
 </script>
 
 </body>
