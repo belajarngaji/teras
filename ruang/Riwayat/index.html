@@ -62,20 +62,24 @@
   </footer>
 
   <!-- SCRIPT -->
-  <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const historyTableBody = document.getElementById("history-table-body");
-    const loadingContainer = document.getElementById("loading-container");
+  const historyTableBody = document.getElementById("history-table-body");
+  const loadingContainer = document.getElementById("loading-container");
 
-    // ===== CEK ROLE & USER =====
-    async function getUserProfile() {
+  // ===== CEK ROLE & USER =====
+  async function getUserProfile() {
+    try {
       const { data: { user } } = await supabase.auth.getUser();
-      if(!user) { window.location.href = '/login'; return null; }
+      if(!user) { 
+        window.location.href = '/login'; 
+        return null; 
+      }
 
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -83,13 +87,25 @@
         .eq('id', user.id)
         .single();
 
-      if(error || !profile) { alert('Gagal memeriksa profile.'); return null; }
+      if(error || !profile) { 
+        alert('Gagal memeriksa profile.'); 
+        return null; 
+      }
 
       return profile;
-    }
 
-    // ===== LOAD DATA BERDASARKAN ROLE =====
-    async function loadRecentActivity(profile) {
+    } catch(err) {
+      console.error(err);
+      alert('Terjadi kesalahan saat memeriksa user.');
+      return null;
+    }
+  }
+
+  // ===== LOAD DATA BERDASARKAN ROLE =====
+  async function loadRecentActivity(profile) {
+    try {
+      loadingContainer.style.display = "block";
+
       const { data, error } = await supabase
         .from("dashboard_recent_activity")
         .select("*")
@@ -97,33 +113,33 @@
 
       loadingContainer.style.display = "none";
 
-      if(error) {
-        console.error(error);
-        historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-500">Gagal memuat data.</td></tr>`;
-        return;
-      }
+      if(error) throw error;
 
       let filteredData = data;
 
+      // FILTER BERDASARKAN ROLE
       if(profile.role === 'user') {
-        filteredData = data.filter(d => d.username === profile.username); // user lihat sendiri
+        filteredData = data.filter(d => d.username === profile.username);
       } 
       else if(profile.role === 'admin') {
-        // Admin bisa filter subset tertentu (misal timnya), contoh hardcode:
-        const allowedUsers = [profile.username]; // bisa ganti sesuai logika tim
+        // Admin bisa filter subset tertentu (misal timnya)
+        // LOGIKA TIM: sesuaikan sesuai kebutuhan
+        const allowedUsers = [profile.username]; 
         filteredData = data.filter(d => allowedUsers.includes(d.username));
-      } 
+      }
       // superadmin: lihat semua → tidak difilter
 
+      // Tampilkan jika kosong
       if(!filteredData || filteredData.length === 0) {
         historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">Belum ada aktivitas.</td></tr>`;
         return;
       }
 
+      // Render tabel
       historyTableBody.innerHTML = filteredData.map((row,index)=>{
         const date = new Date(row.submitted_at).toLocaleString("id-ID");
         return `
-          <tr>
+          <tr class="border-b border-gray-200 hover:bg-gray-50">
             <td class="py-3 px-3 text-center">${index+1}</td>
             <td class="py-3 px-3 flex items-center gap-2">
               <img src="${row.avatar_url || 'https://via.placeholder.com/40'}" 
@@ -135,18 +151,24 @@
           </tr>
         `;
       }).join('');
-    }
 
-    // ===== DOM CONTENT LOADED =====
-    document.addEventListener("DOMContentLoaded", async () => {
-      const profile = await getUserProfile();
-      if(profile && ['user','admin','superadmin'].includes(profile.role)) {
-        loadRecentActivity(profile);
-      } else {
-        alert('Anda tidak memiliki akses ke halaman ini.');
-        window.location.href = '/';
-      }
-    });
-  </script>
+    } catch(err) {
+      console.error(err);
+      loadingContainer.style.display = "none";
+      historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-500">Gagal memuat data.</td></tr>`;
+    }
+  }
+
+  // ===== DOM CONTENT LOADED =====
+  document.addEventListener("DOMContentLoaded", async () => {
+    const profile = await getUserProfile();
+    if(profile && ['user','admin','superadmin'].includes(profile.role)) {
+      await loadRecentActivity(profile);
+    } else {
+      alert('Anda tidak memiliki akses ke halaman ini.');
+      window.location.href = '/';
+    }
+  });
+</script>
 </body>
 </html>
