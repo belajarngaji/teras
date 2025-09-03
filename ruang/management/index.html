@@ -16,17 +16,6 @@
       overflow-x: hidden;
     }
 
-    .sidebar a {
-      display: block;
-      color: #1e3a8a;
-      transition: all 0.2s;
-      padding: 0.5rem 0;
-    }
-    .sidebar a:hover {
-      color: #2563eb;
-      font-weight: 600;
-    }
-
     .attempt-box {
       background-color: #ffffff;
       border: 1px solid #e2e8f0;
@@ -46,47 +35,33 @@
     .wrong { color: #991b1b; font-weight: 600; }
   </style>
 </head>
-<body class="flex">
+<body class="flex flex-col min-h-screen">
 
-  <!-- Sidebar -->
-  <aside id="sidebar"
-         class="sidebar fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30 p-6">
-    <h2 class="text-xl font-bold mb-6 text-blue-600">Belajar Ngaji</h2>
-    <ul class="space-y-4">
-      <li><a href="../">Dashboard</a></li>
-      <li><a href="users/">Data Pengguna</a></li>
-      <li><a href="#">Ruang Koreksi</a></li>
-      <li><a href="harian/">Buat Tantangan</a></li>
-    </ul>
-  </aside>
+  <!-- Header -->
+  <header class="bg-blue-600 shadow-md p-4 sticky top-0 z-10 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-white flex items-center gap-3">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      Ruang Koreksi
+    </h1>
+    <a href="../" class="text-sm bg-white hover:bg-gray-200 text-blue-600 font-semibold py-2 px-4 rounded-lg transition">
+      &larr; Kembali ke Dashboard
+    </a>
+  </header>
 
-  <!-- Overlay -->
-  <div id="overlay" class="hidden lg:hidden"></div>
-
-  <!-- Main content -->
-  <div class="flex-1 min-h-screen flex flex-col lg:ml-64">
-    <!-- Header -->
-    <header class="bg-white shadow-md p-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <button id="sidebar-toggle" class="text-blue-600 hover:text-blue-500 focus:outline-none lg:hidden">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </button>
-        <h1 class="text-2xl font-bold text-blue-600">Ruang Koreksi</h1>
+  <!-- Content -->
+  <main class="p-6 flex-1 overflow-y-auto">
+    <section>
+      <h3 class="text-xl font-semibold text-gray-700 mb-4">Daftar Jawaban Salah</h3>
+      <div id="attempts-container" class="space-y-4">
+        <div class="text-gray-400">Memuat data...</div>
       </div>
-    </header>
-
-    <!-- Content -->
-    <main class="p-6 flex-1 overflow-y-auto">
-      <section>
-        <h3 class="text-xl font-semibold text-gray-700 mb-4">Daftar Jawaban Salah</h3>
-        <div id="attempts-container" class="space-y-4">
-          <div class="text-gray-400">Memuat data...</div>
-        </div>
-      </section>
-    </main>
-  </div>
+    </section>
+  </main>
 
   <!-- Script -->
   <script type="module">
@@ -96,25 +71,44 @@
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Sidebar toggle
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const toggleBtn = document.getElementById('sidebar-toggle');
+    async function checkRole() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        window.location.href = '/admin-login/';
+        return null;
+      }
 
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('-translate-x-full');
-      overlay.classList.toggle('hidden');
-    });
-    overlay.addEventListener('click', () => {
-      sidebar.classList.add('-translate-x-full');
-      overlay.classList.add('hidden');
-    });
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile || (profile.role !== 'admin' && profile.role !== 'superadmin')) {
+        alert('Anda tidak memiliki akses ke fitur ini.');
+        window.location.href = '/';
+        return null;
+      }
+
+      return profile.role;
+    }
 
     async function fetchWrongAnswers() {
-      const { data, error } = await supabase
+      const role = await checkRole();
+      if (!role) return;
+
+      let query = supabase
         .from('dashboard_wrong_answers')
         .select('attempt_id, username, question_text, selected_answer, selected_text, correct_answer, correct_text, time_taken, submitted_at')
         .order('submitted_at', { ascending: false });
+
+      // Jika admin, filter hanya data miliknya
+      if (role === 'admin') {
+        const { data: { user } } = await supabase.auth.getUser();
+        query = query.eq('username', user.user_metadata.username || user.email);
+      }
+
+      const { data, error } = await query;
 
       const container = document.getElementById('attempts-container');
 
