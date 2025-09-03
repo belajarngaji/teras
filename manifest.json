@@ -3,7 +3,7 @@
   "short_name": "Ngaji",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8fbff",
+  "background_color": "#f0f2f5",
   "theme_color": "#007bff",
   "icons": [
     {
