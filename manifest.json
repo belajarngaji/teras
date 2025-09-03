@@ -1,7 +1,7 @@
 {
   "name": "Belajar Ngaji",
   "short_name": "Ngaji",
-  "start_url": "/",
+  "start_url": "/teras/",
   "display": "standalone",
   "background_color": "#f0f2f5",
   "theme_color": "#007bff",
