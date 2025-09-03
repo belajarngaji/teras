@@ -1,6 +1,6 @@
-// sw.js
 self.addEventListener('install', (event) => {
   console.log('Service Worker installed');
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -8,5 +8,5 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // bisa tambah caching di sini jika mau
+  event.respondWith(fetch(event.request));
 });
