@@ -43,40 +43,55 @@ Kartu Tanda Pengguna
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co"; 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; // ganti dengan kunci anon mu
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; 
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Format nama kuis rapi
 function formatQuizName(quizId) {
   return quizId.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
-// Ambil semua user
+// Ambil data user berdasarkan role
 async function fetchUsers() {
-  const { data, error } = await supabase.from('profiles').select('id, username').order('created_at', {ascending:true});
+  // Ambil user login saat ini
+  const { data: { user } } = await supabase.auth.getUser();
+  if(!user) { alert('Silakan login'); return []; }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if(!profile) { alert('Profil tidak ditemukan'); return []; }
+
+  let query = supabase.from('profiles').select('id, username, avatar_url').order('created_at',{ascending:true});
+
+  // Admin hanya lihat user miliknya, superadmin lihat semua
+  if(profile.role === 'admin') {
+    query = query.eq('created_by', user.id); // misal kolom created_by di profiles menandakan admin pembuat user
+  }
+
+  const { data, error } = await query;
   if(error) { console.error(error); return []; }
   return data;
 }
 
-// Ambil stats per user
+// Ambil stats user
 async function fetchUserStats(userId) {
-  // Total Skor & Kuis Dikerjakan
   const { data: allAttempts } = await supabase.from('quiz_attempts').select('score').eq('user_id', userId);
   const totalScore = allAttempts.reduce((sum,a)=>sum+a.score,0);
   const quizzesTaken = allAttempts.length;
 
-  // Skor Tantangan & Total Soal Tantangan
   const { data: challengeAttempts } = await supabase.from('dashboard_quiz_attempts').select('score').eq('user_id', userId);
   const challengeScore = challengeAttempts.reduce((sum,a)=>sum+a.score,0);
   const totalChallengeQuestions = challengeAttempts.length;
 
-  // Riwayat lengkap
   const { data: history } = await supabase.from('quiz_attempts').select('quiz_id,score,submitted_at').eq('user_id', userId).order('submitted_at',{ascending:false});
 
   return { totalScore, quizzesTaken, challengeScore, totalChallengeQuestions, history };
 }
 
-// Render kartu pengguna
+// Render kartu user
 async function renderUserCards() {
   const users = await fetchUsers();
   const usersWithStats = await Promise.all(users.map(async u=>{
@@ -84,15 +99,14 @@ async function renderUserCards() {
     return {...u, ...stats};
   }));
 
-  // Urut berdasarkan totalScore tertinggi
   usersWithStats.sort((a,b)=>b.totalScore-a.totalScore);
 
   const container = document.getElementById('user-cards-container');
   container.innerHTML = usersWithStats.map(u=>`
   <div class="user-card rounded-xl shadow-lg p-6 flex flex-col">
     <div class="flex gap-6 items-start">
-      <div class="flex-shrink-0 w-24 h-24 bg-blue-500 rounded-lg flex items-center justify-center text-5xl font-bold text-white">
-        ${u.username.charAt(0).toUpperCase()}
+      <div class="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center text-5xl font-bold text-white">
+        <img src="${u.avatar_url || `https://ui-avatars.com/api/?name=${u.username}`}" alt="${u.username}" class="w-full h-full object-cover">
       </div>
       <div class="flex-grow">
         <p class="text-sm text-gray-500">Nama Pengguna</p>
