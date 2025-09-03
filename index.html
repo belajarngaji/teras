@@ -1,60 +1,86 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selamat Datang!</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f2f5;
-            color: #333;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selamat Datang!</title>
+  <!-- PWA manifest (pakai ikon online) -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#007bff">
 
-        .container {
-            text-align: center;
-            background: #fff;
-            padding: 40px 60px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
+  <!-- Material Icons untuk ikon buku -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-        h1 {
-            color: #0056b3;
-            margin-bottom: 10px;
-        }
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #eaf3ff, #f8fbff);
+      color: #333;
+    }
 
-        p {
-            margin-bottom: 30px;
-            font-size: 1.1em;
-        }
+    .container {
+      text-align: center;
+      background: #fff;
+      padding: 50px 60px;
+      border-radius: 15px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+      animation: fadeIn 0.8s ease;
+    }
 
-        .button {
-            display: inline-block;
-            padding: 12px 25px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
+    .icon {
+      font-size: 64px;
+      color: #007bff;
+      margin-bottom: 15px;
+    }
 
-        .button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    h1 {
+      color: #0056b3;
+      margin-bottom: 10px;
+      font-size: 2em;
+    }
+
+    p {
+      margin-bottom: 30px;
+      font-size: 1.1em;
+      color: #555;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 14px 30px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1.1em;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .button:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Selamat Datang!</h1>
-        <p>Silakan klik tombol di bawah ini untuk masuk ke kelas Anda.</p>
-        <a href="kelas/" class="button">Masuk</a>
-    </div>
+  <div class="container">
+    <span class="material-icons icon">menu_book</span>
+    <h1>Selamat Datang!</h1>
+    <p>Silakan klik tombol di bawah ini untuk masuk ke kelas Anda.</p>
+    <a href="kelas/" class="button">Masuk</a>
+  </div>
 </body>
 </html>
