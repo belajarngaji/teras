@@ -186,8 +186,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         .gte('submitted_at', t.toISOString())
         .then(r => r.count || 0);
     })(),
-    supabase.from('leaderboard').select('rank, username, total_score')
-      .limit(10).order('total_score', { ascending:false }).then(r => r.data || []),
+    supabase.from('profiles').select('username, total_score, avatar_url')
+      .order('total_score', { ascending: false }).limit(10).then(r => r.data || []),
     supabase.from('quiz_attempts').select('quiz_id').then(r => {
       const data = r.data || [];
       const counts = {};
@@ -207,12 +207,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Leaderboard
   const lb=document.getElementById('leaderboard-body');
-  lb.innerHTML=leaderboardData.length>0?
-    leaderboardData.map(u=>`<tr class="border-b border-gray-200 hover:bg-gray-50">
-      <td class="py-3 px-6 font-medium">${u.rank}</td>
-      <td class="py-3 px-6">${u.username}</td>
-      <td class="py-3 px-6 font-bold text-yellow-500">${u.total_score||0}</td>
-    </tr>`).join('') :
+  lb.innerHTML=leaderboardData.length > 0 ?
+    leaderboardData.map((u, index) => {
+        const rank = index + 1;
+        const avatarUrl = u.avatar_url || `https://placehold.co/40x40/E2E8F0/4A5568?text=${(u.username || 'U').charAt(0)}`;
+        return `<tr class="border-b border-gray-200 hover:bg-gray-50">
+            <td class="py-3 px-6 font-medium text-center">${rank}</td>
+            <td class="py-3 px-6">
+                <div class="flex items-center gap-3">
+                    <img src="${avatarUrl}" class="w-10 h-10 rounded-full object-cover" alt="Avatar" onerror="this.onerror=null;this.src='https://placehold.co/40x40/E2E8F0/4A5568?text=X';">
+                    <span>${u.username || 'Tanpa Nama'}</span>
+                </div>
+            </td>
+            <td class="py-3 px-6 font-bold text-yellow-500">${u.total_score||0}</td>
+        </tr>`;
+    }).join('') :
     `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
 
   // Recent Activity
