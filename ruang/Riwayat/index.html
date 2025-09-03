@@ -24,7 +24,7 @@
   <!-- MAIN CONTENT -->
   <main class="mx-auto px-4 py-10 w-full max-w-4xl">
     <div class="bg-white rounded-xl shadow-lg p-6 sm:p-8">
-      
+
       <!-- Header -->
       <div class="flex justify-between items-center border-b pb-4 mb-6">
         <h1 class="text-2xl font-bold text-blue-700">Riwayat Tantangan</h1>
@@ -63,87 +63,90 @@
 
   <!-- SCRIPT -->
   <script type="module">
-  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-  const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const historyTableBody = document.getElementById("history-table-body");
-  const loadingContainer = document.getElementById("loading-container");
+    const historyTableBody = document.getElementById("history-table-body");
+    const loadingContainer = document.getElementById("loading-container");
 
-  // ===== CEK ROLE ADMIN =====
-  async function checkRoleAccess() {
-    try {
+    // ===== CEK ROLE & USER =====
+    async function getUserProfile() {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        window.location.href = '/login'; // redirect jika belum login
-        return false;
-      }
+      if(!user) { window.location.href = '/login'; return null; }
 
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('role')
+        .select('username, role')
         .eq('id', user.id)
         .single();
 
-      if (error || !profile || !['admin','superadmin'].includes(profile.role)) {
-        alert('Anda tidak memiliki akses ke halaman ini.');
-        window.location.href = '/'; // redirect user biasa
-        return false;
+      if(error || !profile) { alert('Gagal memeriksa profile.'); return null; }
+
+      return profile;
+    }
+
+    // ===== LOAD DATA BERDASARKAN ROLE =====
+    async function loadRecentActivity(profile) {
+      const { data, error } = await supabase
+        .from("dashboard_recent_activity")
+        .select("*")
+        .order("submitted_at", { ascending: false });
+
+      loadingContainer.style.display = "none";
+
+      if(error) {
+        console.error(error);
+        historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-500">Gagal memuat data.</td></tr>`;
+        return;
       }
-      return true;
-    } catch (e) {
-      console.error('Role check failed', e);
-      alert('Gagal memeriksa hak akses.');
-      window.location.href = '/';
-      return false;
+
+      let filteredData = data;
+
+      if(profile.role === 'user') {
+        filteredData = data.filter(d => d.username === profile.username); // user lihat sendiri
+      } 
+      else if(profile.role === 'admin') {
+        // Admin bisa filter subset tertentu (misal timnya), contoh hardcode:
+        const allowedUsers = [profile.username]; // bisa ganti sesuai logika tim
+        filteredData = data.filter(d => allowedUsers.includes(d.username));
+      } 
+      // superadmin: lihat semua → tidak difilter
+
+      if(!filteredData || filteredData.length === 0) {
+        historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">Belum ada aktivitas.</td></tr>`;
+        return;
+      }
+
+      historyTableBody.innerHTML = filteredData.map((row,index)=>{
+        const date = new Date(row.submitted_at).toLocaleString("id-ID");
+        return `
+          <tr>
+            <td class="py-3 px-3 text-center">${index+1}</td>
+            <td class="py-3 px-3 flex items-center gap-2">
+              <img src="${row.avatar_url || 'https://via.placeholder.com/40'}" 
+                   class="w-8 h-8 rounded-full border object-cover" />
+              <span class="font-semibold">${row.username}</span>
+            </td>
+            <td class="py-3 px-3 text-center font-bold text-blue-700">${row.score}</td>
+            <td class="py-3 px-3 text-center">${date}</td>
+          </tr>
+        `;
+      }).join('');
     }
-  }
 
-  async function loadRecentActivity() {
-    const { data, error } = await supabase
-      .from("dashboard_recent_activity")
-      .select("*")
-      .order("submitted_at", { ascending: false });
-
-    loadingContainer.style.display = "none";
-
-    if (error) {
-      console.error(error);
-      historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-500">Gagal memuat data.</td></tr>`;
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">Belum ada aktivitas.</td></tr>`;
-      return;
-    }
-
-    historyTableBody.innerHTML = data.map((row, index) => {
-      const date = new Date(row.submitted_at).toLocaleString("id-ID");
-      return `
-        <tr>
-          <td class="py-3 px-3 text-center">${index + 1}</td>
-          <td class="py-3 px-3 flex items-center gap-2">
-            <img src="${row.avatar_url || 'https://via.placeholder.com/40'}" 
-                 class="w-8 h-8 rounded-full border object-cover" />
-            <span class="font-semibold">${row.username}</span>
-          </td>
-          <td class="py-3 px-3 text-center font-bold text-blue-700">${row.score}</td>
-          <td class="py-3 px-3 text-center">${date}</td>
-        </tr>
-      `;
-    }).join("");
-  }
-
-  // ===== DOM CONTENT LOADED =====
-  document.addEventListener("DOMContentLoaded", async () => {
-    const accessGranted = await checkRoleAccess();
-    if (accessGranted) {
-      loadRecentActivity();
-    }
-  });
-</script>
+    // ===== DOM CONTENT LOADED =====
+    document.addEventListener("DOMContentLoaded", async () => {
+      const profile = await getUserProfile();
+      if(profile && ['user','admin','superadmin'].includes(profile.role)) {
+        loadRecentActivity(profile);
+      } else {
+        alert('Anda tidak memiliki akses ke halaman ini.');
+        window.location.href = '/';
+      }
+    });
+  </script>
 </body>
 </html>
