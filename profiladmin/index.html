@@ -79,17 +79,6 @@
         </div>
     </div>
 
-    <!-- Tampilan jika pengguna belum login atau bukan admin -->
-    <div id="login-prompt-view" class="hidden text-center bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-slate-700">
-        <h2 class="text-2xl font-bold mb-2">Akses Ditolak</h2>
-        <p class="text-gray-500 dark:text-gray-400 mb-6">Anda harus masuk sebagai admin untuk melihat halaman ini.</p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <!-- PERBAIKAN TAUTAN -->
-            <a href="/teras/admin/" class="w-full sm:w-auto px-6 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition text-center">Masuk</a>
-            <a href="../ruang/" class="w-full sm:w-auto px-6 bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-800 dark:text-gray-300 font-bold py-3 rounded-lg transition text-center">Halaman Utama</a>
-        </div>
-    </div>
-
   </main>
 
   <footer class="text-center py-6 dark:text-gray-500 mt-10">
@@ -115,7 +104,6 @@
 
     // DOM Elements
     const adminProfileView = document.getElementById("admin-profile-view");
-    const loginPromptView = document.getElementById("login-prompt-view");
     const profileInitial = document.getElementById("profile-initial");
     const profilePhoto = document.getElementById("profile-photo");
     const usernameDisplay = document.getElementById("username-display");
@@ -138,11 +126,12 @@
           currentUser = user;
           await loadUserProfile(user.id, user.email);
         } else {
-          showLoginPrompt();
+          adminProfileView.classList.add("hidden");
+          console.warn("Pengguna belum masuk. Data profil tidak akan ditampilkan.");
         }
       } catch (error) {
         console.error("Gagal menginisialisasi halaman:", error);
-        showLoginPrompt();
+        adminProfileView.classList.add("hidden");
       }
     }
 
@@ -155,7 +144,6 @@
 
       if (adminData) {
         adminProfileView.classList.remove("hidden");
-        loginPromptView.classList.add("hidden");
         setupActionButtons();
 
         usernameDisplay.textContent = adminData.username || 'Nama Pengguna';
@@ -182,7 +170,7 @@
       } else {
         console.error("Akses ditolak. Pengguna bukan admin. Error:", error?.message);
         await supabaseClient.auth.signOut();
-        showLoginPrompt();
+        window.location.href = "/teras/admin/";
       }
     }
 
@@ -193,17 +181,11 @@
       `;
       document.getElementById("logout-button").addEventListener("click", async () => {
         await supabaseClient.auth.signOut();
-        // PERBAIKAN TAUTAN
         window.location.href = "/teras/admin/";
       });
       document.getElementById("change-password-button").addEventListener("click", () => {
         alert("Fitur ubah kata sandi akan segera tersedia.");
       });
-    }
-
-    function showLoginPrompt() {
-      adminProfileView.classList.add("hidden");
-      loginPromptView.classList.remove("hidden");
     }
 
     async function uploadAvatar(file, userId) {
