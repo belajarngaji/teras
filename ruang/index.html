@@ -77,12 +77,14 @@ header { position:sticky; top:0; z-index:10; }
     <table class="w-full text-sm text-left text-gray-600">
       <thead class="text-xs text-gray-500 uppercase bg-gray-100">
         <tr>
-          <th class="py-3 px-6">Peringkat</th>
+          <th class="py-3 px-6 w-24 text-center">Peringkat</th>
           <th class="py-3 px-6">Pengguna</th>
-          <th class="py-3 px-6">Total Skor</th>
+          <th class="py-3 px-6 w-32 text-center">Total Skor</th>
         </tr>
       </thead>
-      <tbody id="leaderboard-body"></tbody>
+      <tbody id="leaderboard-body">
+        <!-- Data Leaderboard akan dimuat di sini -->
+      </tbody>
     </table>
   </div>
 
@@ -118,43 +120,17 @@ header { position:sticky; top:0; z-index:10; }
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
+// Konfigurasi Supabase Anda
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Mapping nama kuis untuk tampilan yang lebih ramah
 const quizNameMap = { 'kelas01_bab01_hijaiyah': 'Kelas 1 Bab 1 Hijaiyah' };
 
-// Sidebar
-const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('overlay');
-document.getElementById('sidebar-toggle').addEventListener('click', ()=>{
-  sidebar.classList.toggle('-translate-x-full');
-  overlay.style.display = sidebar.classList.contains('-translate-x-full')?'none':'block';
-});
-overlay.addEventListener('click', ()=>{
-  sidebar.classList.add('-translate-x-full');
-  overlay.style.display = 'none';
-});
-
-// Chart helper
-function createChart(ctx,type,labels,data,colors,label){
-  return new Chart(ctx,{
-    type,
-    data:{labels,datasets:[{label,data,backgroundColor:colors,fill:type==='line'?false:true}]},
-    options:{
-      responsive:true,
-      maintainAspectRatio:true,
-      plugins:{legend:{position:'bottom'},title:{display:!!label,text:label}},
-      scales:{y:{beginAtZero:true}}
-    }
-  });
-}
-
-// Main function
+// --- FUNGSI UTAMA ---
 document.addEventListener('DOMContentLoaded', async () => {
-  // ===== Pengecekan login dan role DIHAPUS agar menjadi halaman publik =====
-
-  // ===== Fetch semua data dashboard =====
+  // Ambil semua data untuk dashboard secara paralel
   const [
     totalUsers,
     quizToday,
@@ -162,56 +138,174 @@ document.addEventListener('DOMContentLoaded', async () => {
     popularQuizData,
     recentActivities
   ] = await Promise.all([
-    supabase.from('profiles').select('*', { count:'exact', head:true }).then(r => r.count || 0),
-    (()=>{
-      const t = new Date(); t.setHours(0,0,0,0);
-      return supabase.from('quiz_attempts').select('*', { count:'exact', head:true })
-        .gte('submitted_at', t.toISOString())
-        .then(r => r.count || 0);
-    })(),
-    supabase.from('leaderboard').select('rank, username, total_score')
-      .limit(10).order('total_score', { ascending:false }).then(r => r.data || []),
-    supabase.from('quiz_attempts').select('quiz_id').then(r => {
-      const data = r.data || [];
-      const counts = {};
-      data.forEach(a => {
-        const name = quizNameMap[a.quiz_id] || a.quiz_id;
-        counts[name] = (counts[name] || 0) + 1;
-      });
-      const sorted = Object.entries(counts).sort(([,a],[,b]) => b - a).slice(0,5);
-      return { labels: sorted.map(x => x[0]), data: sorted.map(x => x[1]) };
-    }),
-    supabase.from('latest_activity').select('*').order('submitted_at', { ascending:false }).then(r => r.data || [])
+    fetchTotalUsers(),
+    fetchQuizAttemptsToday(),
+    fetchLeaderboard(),
+    fetchPopularQuizzes(),
+    fetchRecentActivities()
   ]);
 
-// Update KPI
-  document.getElementById('total-users').textContent=totalUsers;
-  document.getElementById('quiz-attempts-today').textContent=quizToday;
-
-  // Leaderboard
-  const lb=document.getElementById('leaderboard-body');
-  lb.innerHTML=leaderboardData.length>0?
-    leaderboardData.map(u=>`<tr class="border-b border-gray-200 hover:bg-gray-50">
-      <td class="py-3 px-6 font-medium">${u.rank}</td>
-      <td class="py-3 px-6">${u.username}</td>
-      <td class="py-3 px-6 font-bold text-yellow-500">${u.total_score||0}</td>
-    </tr>`).join('') :
-    `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
-
-  // Recent Activity
-  const tbody=document.getElementById('recent-activity-body');
-  tbody.innerHTML=recentActivities.length>0?
-    recentActivities.map(a=>`<tr class="${a.is_correct?'correct':'wrong'} border-b border-gray-200 hover:bg-gray-50">
-      <td class="py-4 px-6">${a.username||'Tanpa Nama'}</td>
-      <td class="py-4 px-6">${quizNameMap[a.quiz_id]||a.quiz_id}</td>
-      <td class="py-4 px-6 font-medium">${a.score}</td>
-      <td class="py-4 px-6 text-sm text-gray-500">${new Date(a.submitted_at).toLocaleString('id-ID')}</td>
-    </tr>`).join('') :
-    `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
-
-  // Kuis Terpopuler
-  createChart(document.getElementById('popular-quizzes-chart').getContext('2d'),'doughnut',popularQuizData.labels,popularQuizData.data,['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'],'Pengerjaan');
+  // Perbarui tampilan dengan data yang telah diambil
+  updateKpiCards(totalUsers, quizToday);
+  updateLeaderboard(leaderboardData);
+  updateRecentActivity(recentActivities);
+  createPopularQuizzesChart(popularQuizData);
 });
+
+
+// --- FUNGSI-FUNGSI PENGAMBILAN DATA ---
+
+async function fetchTotalUsers() {
+    const { count } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+    return count || 0;
+}
+
+async function fetchQuizAttemptsToday() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const { count } = await supabase.from('quiz_attempts').select('*', { count: 'exact', head: true })
+        .gte('submitted_at', today.toISOString());
+    return count || 0;
+}
+
+async function fetchLeaderboard() {
+    // Mengambil data dari 'leaderboard' dan menggabungkannya dengan data 'profiles'
+    const { data, error } = await supabase
+        .from('leaderboard')
+        .select('total_score, profiles(username, avatar_url)')
+        .order('total_score', { ascending: false })
+        .limit(10);
+    if (error) console.error("Error fetching leaderboard:", error);
+    return data || [];
+}
+
+async function fetchPopularQuizzes() {
+    const { data } = await supabase.from('quiz_attempts').select('quiz_id');
+    const counts = (data || []).reduce((acc, attempt) => {
+        const name = quizNameMap[attempt.quiz_id] || attempt.quiz_id;
+        acc[name] = (acc[name] || 0) + 1;
+        return acc;
+    }, {});
+    const sorted = Object.entries(counts).sort(([, a], [, b]) => b - a).slice(0, 5);
+    return {
+        labels: sorted.map(x => x[0]),
+        data: sorted.map(x => x[1])
+    };
+}
+
+async function fetchRecentActivities() {
+    const { data } = await supabase.from('latest_activity').select('*').order('submitted_at', { ascending: false }).limit(20);
+    return data || [];
+}
+
+
+// --- FUNGSI-FUNGSI PEMBARUAN TAMPILAN ---
+
+function updateKpiCards(totalUsers, quizToday) {
+    document.getElementById('total-users').textContent = totalUsers;
+    document.getElementById('quiz-attempts-today').textContent = quizToday;
+}
+
+function updateLeaderboard(leaderboardData) {
+    const leaderboardBody = document.getElementById('leaderboard-body');
+    if (leaderboardData.length > 0) {
+        leaderboardBody.innerHTML = leaderboardData.map((entry, index) => {
+            const rank = index + 1;
+            // Pastikan entry.profiles tidak null
+            const user = entry.profiles;
+            const score = entry.total_score || 0;
+            const username = user?.username || 'Pengguna Anonim';
+            const avatarUrl = user?.avatar_url;
+            const fallbackInitial = username.charAt(0).toUpperCase();
+
+            // Avatar dengan fallback jika URL gambar tidak ada
+            const avatarElement = avatarUrl 
+                ? `<img src="${avatarUrl}" alt="Avatar ${username}" class="w-10 h-10 rounded-full object-cover border-2 border-gray-200" onerror="this.style.display='none'; this.nextSibling.style.display='flex';">
+                   <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 items-center justify-center font-bold text-lg" style="display:none;">${fallbackInitial}</div>`
+                : `<div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">${fallbackInitial}</div>`;
+
+            return `
+                <tr class="border-b border-gray-200 last:border-b-0 hover:bg-gray-50">
+                    <td class="py-4 px-6 text-center font-bold text-lg ${rank <= 3 ? (rank === 1 ? 'text-yellow-400' : rank === 2 ? 'text-gray-400' : 'text-yellow-600') : 'text-gray-600'}">
+                        ${rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="flex items-center space-x-4">
+                            ${avatarElement}
+                            <span class="font-medium text-gray-800">${username}</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-center font-bold text-blue-600">${score.toLocaleString('id-ID')}</td>
+                </tr>
+            `;
+        }).join('');
+    } else {
+        leaderboardBody.innerHTML = `
+            <tr>
+                <td colspan="3" class="py-8 px-6 text-center text-gray-500">
+                    Belum ada data di leaderboard.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function updateRecentActivity(activities) {
+    const tbody = document.getElementById('recent-activity-body');
+    if (activities.length > 0) {
+        tbody.innerHTML = activities.map(a => `
+            <tr class="${a.is_correct ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
+                <td class="py-4 px-6">${a.username || 'Tanpa Nama'}</td>
+                <td class="py-4 px-6">${quizNameMap[a.quiz_id] || a.quiz_id}</td>
+                <td class="py-4 px-6 font-medium">${a.score}</td>
+                <td class="py-4 px-6 text-sm text-gray-500">${new Date(a.submitted_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</td>
+            </tr>
+        `).join('');
+    } else {
+        tbody.innerHTML = `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
+    }
+}
+
+function createPopularQuizzesChart(popularQuizData) {
+    const ctx = document.getElementById('popular-quizzes-chart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: popularQuizData.labels,
+            datasets: [{
+                label: 'Pengerjaan',
+                data: popularQuizData.data,
+                backgroundColor: ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#e0f2fe'],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+}
+
+// --- FUNGSI UI LAINNYA ---
+function setupSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const toggleButton = document.getElementById('sidebar-toggle');
+
+    toggleButton.addEventListener('click', () => {
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.style.display = sidebar.classList.contains('-translate-x-full') ? 'none' : 'block';
+    });
+
+    overlay.addEventListener('click', () => {
+        sidebar.classList.add('-translate-x-full');
+        overlay.style.display = 'none';
+    });
+}
+
+setupSidebar();
+
 </script>
 </body>
 </html>
