@@ -1,19 +1,14 @@
 {
-  "name": "Aplikasi Belajar Ngaji",
-  "short_name": "NgajiApp",
-  "start_url": "/index.html",
+  "name": "Belajar Ngaji",
+  "short_name": "Ngaji",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#1e40af",
+  "background_color": "#f8fbff",
+  "theme_color": "#007bff",
   "icons": [
     {
-      "src": "https://img.icons8.com/fluency/192/open-book.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "https://img.icons8.com/fluency/512/open-book.png",
-      "sizes": "512x512",
+      "src": "https://img.icons8.com/ios-filled/100/007bff/open-book.png",
+      "sizes": "100x100",
       "type": "image/png"
     }
   ]
