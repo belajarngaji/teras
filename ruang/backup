@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="light">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 @import url('https://rsms.me/inter/inter.css');
-
 body { font-family: 'Inter', sans-serif; background-color: #f0f8ff; color: #1f2937; margin:0; overflow-x:hidden; }
 .kpi-card { background:white; border:1px solid #e2e8f0; border-radius:.5rem; transition: transform .2s, box-shadow .2s;}
 .kpi-card:hover { transform: translateY(-3px); box-shadow:0 6px 10px rgba(0,0,0,.1);}
@@ -19,11 +18,9 @@ body { font-family: 'Inter', sans-serif; background-color: #f0f8ff; color: #1f29
 .wrong { background-color:#fee2e2;}
 .overflow-x-auto { overflow-x:auto;}
 table { border-collapse:collapse; width:100%; min-width:600px;}
-canvas { max-width:100%; height:auto;}
 *, *::before, *::after { box-sizing:border-box; max-width:100%; }
 header { position:sticky; top:0; z-index:10; }
 #overlay { position:fixed; inset:0; background:rgba(0,0,0,.3); z-index:20; display:none;}
-.flex-container { flex-wrap:wrap; }
 </style>
 </head>
 <body class="antialiased flex">
@@ -33,18 +30,17 @@ header { position:sticky; top:0; z-index:10; }
 <div class="p-6">
   <h2 class="text-xl font-bold mb-6 text-blue-600">Menu Admin</h2>
   <ul class="space-y-4">
-    <li><a href="#" class="block">Dashboard</a></li>
-    <li><a href="users/" class="block">Users</a></li>
-    <li><a href="management/" class="block">Koreksi</a></li>
-    <li><a href="harian/" class="block">Buat Tantangan</a></li>
+    <li><a href="#">Dashboard</a></li>
+    <li><a href="users/">Users</a></li>
+    <li><a href="management/">Koreksi</a></li>
+    <li><a href="harian/">Buat Tantangan</a></li>
+    <li><a href="Riwayat/">Riwayat Tantangan</a></li>
   </ul>
 </div>
 </aside>
 
-<!-- Overlay -->
 <div id="overlay" class="lg:hidden"></div>
 
-<!-- Main content -->
 <div class="flex-1 min-h-screen flex flex-col lg:ml-64">
 <header class="bg-white shadow-md p-4 flex items-center justify-between sticky top-0 z-10">
 <div class="flex items-center gap-3">
@@ -58,6 +54,7 @@ header { position:sticky; top:0; z-index:10; }
 </header>
 
 <main class="p-6 flex-1 overflow-y-auto">
+
 <!-- KPI Cards -->
 <section class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
   <div class="kpi-card rounded-lg p-6">
@@ -65,39 +62,61 @@ header { position:sticky; top:0; z-index:10; }
     <p id="total-users" class="text-3xl font-bold text-blue-600 mt-2">0</p>
   </div>
   <div class="kpi-card rounded-lg p-6">
-    <h3 class="text-sm font-medium text-gray-500">Kuis Dikerjakan Hari Ini</h3>
+    <h3 class="text-sm font-medium text-gray-500">Kuis Hari Ini</h3>
     <p id="quiz-attempts-today" class="text-3xl font-bold text-blue-600 mt-2">0</p>
   </div>
 </section>
 
-<!-- Charts and leaderboard -->
+<!-- Charts + Leaderboard -->
 <section class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
-<div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-6 overflow-x-auto">
-<h3 class="font-semibold text-gray-700 mb-4">🏆 Leaderboard - Top 10 Pengguna</h3>
-<table class="w-full text-sm text-left text-gray-600">
-<thead class="text-xs text-gray-500 uppercase bg-gray-100">
-<tr>
-<th class="py-3 px-6">Peringkat</th>
-<th class="py-3 px-6">Pengguna</th>
-<th class="py-3 px-6">Total Skor</th>
-</tr>
-</thead>
-<tbody id="leaderboard-body"></tbody>
-</table>
-</div>
 
-<div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center justify-center">
-<h3 class="font-semibold text-gray-700 mb-4">Kuis Terpopuler</h3>
-<div class="w-full max-w-[300px] h-[300px]">
-<canvas id="popular-quizzes-chart"></canvas>
-</div>
-</div>
+  <!-- Leaderboard -->
+  <div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-6 overflow-x-auto">
+    <h3 class="font-semibold text-gray-700 mb-4">🏆 Leaderboard - Top 10</h3>
+    <table class="w-full text-sm text-left text-gray-600">
+      <thead class="text-xs text-gray-500 uppercase bg-gray-100">
+        <tr>
+          <th class="py-3 px-6">Peringkat</th>
+          <th class="py-3 px-6">Pengguna</th>
+          <th class="py-3 px-6">Total Skor</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Charts -->
+  <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4">
+    <h3 class="font-semibold text-gray-700 mb-4">Kuis Terpopuler</h3>
+    <canvas id="popular-quizzes-chart" class="w-full aspect-[4/3]"></canvas>
+  </div>
+
+  <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4">
+    <h3 class="font-semibold text-gray-700 mb-4">Tren Skor / Week</h3>
+    <canvas id="lineChartWeek" class="w-full aspect-[4/3]"></canvas>
+  </div>
+
+  <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4">
+    <h3 class="font-semibold text-gray-700 mb-4">Persentase Jawaban</h3>
+    <canvas id="barChartAnswer" class="w-full aspect-[4/3]"></canvas>
+  </div>
+
+  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4">
+    <h3 class="font-semibold text-gray-700 mb-4">Benar vs Salah</h3>
+    <canvas id="pieChartTotal" class="w-full aspect-[4/3]"></canvas>
+  </div>
+
+  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4">
+    <h3 class="font-semibold text-gray-700 mb-4">Benar vs Salah Hari Ini</h3>
+    <canvas id="pieChartDaily" class="w-full aspect-[4/3]"></canvas>
+  </div>
+
 </section>
 
 <!-- Aktivitas Terbaru -->
 <section>
 <h3 class="text-xl font-semibold text-gray-700 mb-4">Aktivitas Terbaru</h3>
-<div class="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+<div class="bg-white border border-gray-200 rounded-lg overflow-x-auto overflow-y-auto max-h-[400px]">
 <table class="w-full text-sm text-left text-gray-600 min-w-[600px]">
 <thead class="text-xs text-gray-500 uppercase bg-gray-100">
 <tr>
@@ -111,6 +130,7 @@ header { position:sticky; top:0; z-index:10; }
 </table>
 </div>
 </section>
+
 </main>
 </div>
 
@@ -118,122 +138,157 @@ header { position:sticky; top:0; z-index:10; }
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
-
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE"; 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-const quizNameMap = { 'kelas01_bab01_hijaiyah': 'Kuis Hijaiyah Bab 1' };
 
-// Sidebar toggle
+const quizNameMap = { 'kelas01_bab01_hijaiyah': 'Kelas 1 Bab 1 Hijaiyah' };
+
+// Sidebar
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('overlay');
-const toggleBtn = document.getElementById('sidebar-toggle');
-toggleBtn.addEventListener('click', () => {
- sidebar.classList.toggle('-translate-x-full');
- overlay.style.display = sidebar.classList.contains('-translate-x-full') ? 'none':'block';
+document.getElementById('sidebar-toggle').addEventListener('click', ()=>{
+  sidebar.classList.toggle('-translate-x-full');
+  overlay.style.display = sidebar.classList.contains('-translate-x-full')?'none':'block';
 });
-overlay.addEventListener('click', () => {
- sidebar.classList.add('-translate-x-full');
- overlay.style.display = 'none';
+overlay.addEventListener('click', ()=>{
+  sidebar.classList.add('-translate-x-full');
+  overlay.style.display = 'none';
 });
 
-// Fetch functions
-async function fetchTotalUsers() {
-  const { count } = await supabase.from('profiles').select('*',{count:'exact', head:true});
-  return count || 0;
-}
-async function fetchQuizAttemptsToday() {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const { count } = await supabase.from('quiz_attempts').select('*',{count:'exact', head:true}).gte('submitted_at', today.toISOString());
-  return count || 0;
-}
-async function fetchLeaderboardData() {
-  const { data } = await supabase.from('leaderboard').select('rank, username, total_score').limit(10);
-  return data || [];
-}
-async function fetchPopularQuizzes() {
-  const { data } = await supabase.from('quiz_attempts').select('quiz_id');
-  if(!data) return { labels: [], data: [] };
-  const quizCounts = data.reduce((acc, item) => {
-    const name = quizNameMap[item.quiz_id] || item.quiz_id;
-    acc[name] = (acc[name] || 0) + 1;
-    return acc;
-  }, {});
-  const sorted = Object.entries(quizCounts).sort(([,a],[,b])=>b-a).slice(0,5);
-  return { labels: sorted.map(x=>x[0]), data: sorted.map(x=>x[1]) };
-}
-
-async function fetchRecentActivities() {
-  const { data } = await supabase
-    .from('latest_activity')
-    .select('*')
-    .order('submitted_at', { ascending: false });
-  return data || [];
-}
-
-function createChart(ctx, type, labels, data, label, backgroundColor) {
-  new Chart(ctx, {
+// Chart helper
+function createChart(ctx,type,labels,data,colors,label){
+  return new Chart(ctx,{
     type,
-    data: { labels, datasets: [{ label, data, backgroundColor, borderWidth: 1, tension: 0.3 }] },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#1f2937' } } },
-      scales: {
-        y: { display: false, grid: { display: false } },
-        x: { display: false, grid: { display: false } }
-      }
+    data:{labels,datasets:[{label,data,backgroundColor:colors,fill:type==='line'?false:true}]},
+    options:{
+      responsive:true,
+      maintainAspectRatio:true,
+      plugins:{legend:{position:'bottom'},title:{display:!!label,text:label}},
+      scales:{y:{beginAtZero:true}}
     }
   });
 }
 
+// Main function
 document.addEventListener('DOMContentLoaded', async () => {
+  // ===== Pengecekan login & role admin =====
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    window.location.href = '/admin-login/';
+    return;
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile || (profile.role !== 'admin' && profile.role !== 'superadmin')) {
+    alert('Anda tidak memiliki akses ke dashboard ini.');
+    window.location.href = '/';
+    return;
+  }
+
+  // ===== Fetch semua data dashboard =====
   const [
     totalUsers,
-    quizAttemptsToday,
+    quizToday,
     leaderboardData,
     popularQuizData,
-    recentActivities
+    recentActivities,
+    allAttempts
   ] = await Promise.all([
-    fetchTotalUsers(),
-    fetchQuizAttemptsToday(),
-    fetchLeaderboardData(),
-    fetchPopularQuizzes(),
-    fetchRecentActivities()
+    supabase.from('profiles').select('*', { count:'exact', head:true }).then(r => r.count || 0),
+    (()=>{
+      const t = new Date(); t.setHours(0,0,0,0);
+      return supabase.from('quiz_attempts').select('*', { count:'exact', head:true })
+        .gte('submitted_at', t.toISOString())
+        .then(r => r.count || 0);
+    })(),
+    supabase.from('leaderboard').select('rank, username, total_score')
+      .limit(10).order('total_score', { ascending:false }).then(r => r.data || []),
+    supabase.from('quiz_attempts').select('quiz_id').then(r => {
+      const data = r.data || [];
+      const counts = {};
+      data.forEach(a => {
+        const name = quizNameMap[a.quiz_id] || a.quiz_id;
+        counts[name] = (counts[name] || 0) + 1;
+      });
+      const sorted = Object.entries(counts).sort(([,a],[,b]) => b - a).slice(0,5);
+      return { labels: sorted.map(x => x[0]), data: sorted.map(x => x[1]) };
+    }),
+    supabase.from('latest_activity').select('*').order('submitted_at', { ascending:false }).then(r => r.data || []),
+    supabase.from('quiz_attempts').select('*').then(r => r.data || [])
   ]);
 
-  // Update KPI
-  document.getElementById('total-users').textContent = totalUsers;
-  document.getElementById('quiz-attempts-today').textContent = quizAttemptsToday;
+// Update KPI
+  document.getElementById('total-users').textContent=totalUsers;
+  document.getElementById('quiz-attempts-today').textContent=quizToday;
 
   // Leaderboard
-  const leaderboardBody = document.getElementById('leaderboard-body');
-  leaderboardBody.innerHTML = leaderboardData.length > 0
-    ? leaderboardData.map(user => `
-        <tr class="border-b border-gray-200 hover:bg-gray-50">
-          <td class="py-3 px-6 font-medium">${user.rank}</td>
-          <td class="py-3 px-6">${user.username}</td>
-          <td class="py-3 px-6 font-bold text-blue-600">${user.total_score || 0}</td>
-        </tr>
-      `).join('')
-    : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
+  const lb=document.getElementById('leaderboard-body');
+  lb.innerHTML=leaderboardData.length>0?
+    leaderboardData.map(u=>`<tr class="border-b border-gray-200 hover:bg-gray-50">
+      <td class="py-3 px-6 font-medium">${u.rank}</td>
+      <td class="py-3 px-6">${u.username}</td>
+      <td class="py-3 px-6 font-bold text-yellow-500">${u.total_score||0}</td>
+    </tr>`).join('') :
+    `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
 
-  // Popular quizzes chart
-  const quizCtx = document.getElementById('popular-quizzes-chart').getContext('2d');
-  createChart(quizCtx, 'doughnut', popularQuizData.labels, popularQuizData.data, 'Pengerjaan', ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#e0f2fe']);
+  // Recent Activity
+  const tbody=document.getElementById('recent-activity-body');
+  tbody.innerHTML=recentActivities.length>0?
+    recentActivities.map(a=>`<tr class="${a.is_correct?'correct':'wrong'} border-b border-gray-200 hover:bg-gray-50">
+      <td class="py-4 px-6">${a.username||'Tanpa Nama'}</td>
+      <td class="py-4 px-6">${quizNameMap[a.quiz_id]||a.quiz_id}</td>
+      <td class="py-4 px-6 font-medium">${a.score}</td>
+      <td class="py-4 px-6 text-sm text-gray-500">${new Date(a.submitted_at).toLocaleString('id-ID')}</td>
+    </tr>`).join('') :
+    `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
 
-  // Recent activity (5 row awal)
-  const tbody = document.getElementById('recent-activity-body');
-  const rowsToShow = 5;
-  tbody.innerHTML = recentActivities.length > 0
-    ? recentActivities.slice(0, rowsToShow).map(act => `
-        <tr class="${act.is_correct ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
-          <td class="py-4 px-6">${act.username || 'Tanpa Nama'}</td>
-          <td class="py-4 px-6">${quizNameMap[act.quiz_id] || act.quiz_id}</td>
-          <td class="py-4 px-6 font-medium">${act.score}</td>
-          <td class="py-4 px-6 text-sm text-gray-500">${new Date(act.submitted_at).toLocaleString('id-ID')}</td>
-        </tr>
-      `).join('')
-    : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
+  // Kuis Terpopuler
+  createChart(document.getElementById('popular-quizzes-chart').getContext('2d'),'doughnut',popularQuizData.labels,popularQuizData.data,['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'],'Pengerjaan');
+
+  // Tren Skor / Week
+  const weeks = {};
+  allAttempts.forEach(a => {
+    const d = new Date(a.submitted_at);
+    const year = d.getFullYear();
+    const week = Math.ceil((((d - new Date(year, 0, 1)) / 86400000) + 1) / 7);
+    const key = `${year}-W${week}`;
+    if (!weeks[key]) weeks[key] = [];
+    weeks[key].push(a.score);
+  });
+  const weekLabels = Object.keys(weeks).sort();
+  const weekAvgScores = weekLabels.map(w => {
+    const arr = weeks[w];
+    return arr.reduce((s, v) => s + v, 0) / arr.length;
+  });
+  createChart(document.getElementById('lineChartWeek').getContext('2d'), 'line', weekLabels, weekAvgScores, ['#3b82f6'], 'Rata-rata Skor / Week');
+
+  // Persentase Jawaban per Quiz
+  const quizMap = {};
+  allAttempts.forEach(a => {
+    if (!quizMap[a.quiz_id]) quizMap[a.quiz_id] = [0, 0]; // [benar, salah]
+    quizMap[a.quiz_id][0] += Number(a.score) || 0;
+    quizMap[a.quiz_id][1] += (Number(a.total_questions) || 0) - (Number(a.score) || 0);
+  });
+  const quizLabels = Object.keys(quizMap).map(q => quizNameMap[q] || q);
+  const quizCorrect = Object.values(quizMap).map(v => v[0]);
+  createChart(document.getElementById('barChartAnswer').getContext('2d'), 'bar', quizLabels, quizCorrect, ['#3b82f6','#60a5fa','#93c5fd','#2563eb','#1e40af'], 'Persentase Jawaban Benar per Quiz');
+
+  // Benar vs Salah Keseluruhan
+  const totalCorrect = allAttempts.reduce((s, a) => s + Number(a.score || 0), 0);
+  const totalQuestions = allAttempts.reduce((s, a) => s + Number(a.total_questions || 0), 0);
+  createChart(document.getElementById('pieChartTotal').getContext('2d'), 'pie', ['Benar','Salah'], [totalCorrect, Math.max(totalQuestions - totalCorrect, 0)], ['#4CAF50','#F44336'], 'Benar vs Salah Keseluruhan');
+
+  // Benar vs Salah Harian
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dailyAttempts = allAttempts.filter(a => new Date(a.submitted_at) >= today);
+  const dailyCorrect = dailyAttempts.reduce((s, a) => s + Number(a.score || 0), 0);
+  const dailyQuestions = dailyAttempts.reduce((s, a) => s + Number(a.total_questions || 0), 0);
+  createChart(document.getElementById('pieChartDaily').getContext('2d'), 'pie', ['Benar','Salah'], [dailyCorrect, Math.max(dailyQuestions - dailyCorrect, 0)], ['#4CAF50','#F44336'], 'Benar vs Salah Hari Ini');
 });
 </script>
 </body>
