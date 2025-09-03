@@ -142,9 +142,10 @@ header { position:sticky; top:0; z-index:10; }
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I"; // gunakan service key
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// ===== UTILITY =====
 function formatQuizName(id){ 
   return id.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); 
 }
@@ -162,7 +163,7 @@ function createChart(ctx,type,labels,data,colors,label){
   });
 }
 
-// Sidebar toggle
+// ===== SIDEBAR =====
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('overlay');
 document.getElementById('sidebar-toggle').addEventListener('click', ()=>{
@@ -172,43 +173,46 @@ document.getElementById('sidebar-toggle').addEventListener('click', ()=>{
 overlay.addEventListener('click', ()=>{ sidebar.classList.add('-translate-x-full'); overlay.style.display='none'; });
 
 document.addEventListener('DOMContentLoaded', async ()=>{
+
+  // ===== CEK USER =====
   const { data:{user} } = await supabase.auth.getUser();
   if(!user){ window.location.href='/admin-login/'; return; }
 
   const { data: profile } = await supabase.from('profiles').select('role,username').eq('id', user.id).single();
-  if(!profile || !['admin','superadmin','user'].includes(profile.role)){ alert('Akses ditolak'); return; }
+  if(!profile || !['admin','superadmin'].includes(profile.role)){
+    alert('Akses ditolak. Hanya admin atau superadmin yang dapat mengakses dashboard.');
+    window.location.href='/';
+    return;
+  }
   const isSuperAdmin = profile.role==='superadmin';
 
-  // Ambil data quiz
+  // ===== AMBIL DATA =====
   const { data: quizAttempts } = await supabase.from('quiz_attempts').select('*').then(r=>r.data||[]);
   const { data: dashboardAttempts } = await supabase.from('dashboard_quiz_attempts').select('*').then(r=>r.data||[]);
 
-  // Filter berdasarkan role
+  // ===== FILTER DATA BERDASARKAN ROLE =====
   let quizAttemptsFiltered = [], dashboardAttemptsFiltered = [];
   if(isSuperAdmin){
     quizAttemptsFiltered = quizAttempts;
     dashboardAttemptsFiltered = dashboardAttempts;
-  } else if(profile.role==='admin'){
+  } else { // admin biasa
     quizAttemptsFiltered = quizAttempts.filter(a=>a.admin_id===user.id);
     dashboardAttemptsFiltered = dashboardAttempts.filter(a=>a.admin_id===user.id);
-  } else {
-    quizAttemptsFiltered = quizAttempts.filter(a=>a.user_id===user.id);
-    dashboardAttemptsFiltered = dashboardAttempts.filter(a=>a.user_id===user.id);
   }
 
-  // Total Users
+  // ===== TOTAL USERS =====
   const { count: totalUsers } = await supabase.from('profiles').select('*',{count:'exact',head:true}).then(r=>r);
   document.getElementById('total-users').textContent = totalUsers||0;
 
-  // Kuis Hari Ini
+  // ===== QUIZ HARI INI =====
   const today = new Date(); today.setHours(0,0,0,0);
   const quizToday = quizAttemptsFiltered.filter(a=>new Date(a.submitted_at)>=today).length;
   document.getElementById('quiz-attempts-today').textContent = quizToday;
 
-  // Leaderboard (Top 10)
+  // ===== LEADERBOARD =====
   const leaderboardData = await supabase.from('leaderboard')
     .select('*')
-    .match(profile.role==='admin'?{admin_id:user.id}:{})
+    .match(isSuperAdmin?{}:{admin_id:user.id})
     .order('total_score',{ascending:false})
     .limit(10)
     .then(r=>r.data||[]);
@@ -221,10 +225,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     </tr>
   `).join('') : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
 
-  // Aktivitas Terbaru
+  // ===== AKTIVITAS TERBARU =====
   const tbody = document.getElementById('recent-activity-body');
   const recentActivities = [...quizAttemptsFiltered,...dashboardAttemptsFiltered].sort((a,b)=>new Date(b.submitted_at)-new Date(a.submitted_at));
-  tbody.innerHTML = recentActivities.length>0 ? recentActivities.map((a,i)=>`
+  tbody.innerHTML = recentActivities.length>0 ? recentActivities.map(a=>`
     <tr class="${a.is_correct?'correct':'wrong'} border-b border-gray-200 hover:bg-gray-50">
       <td class="py-4 px-6">${a.username||'Tanpa Nama'}</td>
       <td class="py-4 px-6">${formatQuizName(a.quiz_id||a.quiz_question_id)}</td>
@@ -233,7 +237,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     </tr>
   `).join('') : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
 
-  // Kuis Terpopuler
+  // ===== KUIS TERPOPULER =====
   const counts = {};
   quizAttemptsFiltered.forEach(a=>{ const name=formatQuizName(a.quiz_id); counts[name]=(counts[name]||0)+1; });
   const sortedQuizzes=Object.entries(counts).sort(([,a],[,b])=>b-a).slice(0,5);
@@ -242,7 +246,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'],'Pengerjaan'
   );
 
-  // Tren Skor Harian & Mingguan
+  // ===== TREND SKOR =====
   const dayMap={}, weekMap={};
   quizAttemptsFiltered.forEach(a=>{
     const d=new Date(a.submitted_at);
@@ -269,7 +273,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     document.getElementById('btnDaily').classList.add('bg-gray-200','text-gray-700'); document.getElementById('btnDaily').classList.remove('bg-blue-600','text-white');
   });
 
-  // Persentase Jawaban Semua Quiz
+  // ===== PERSENTASE JAWABAN =====
   const quizMap={};
   quizAttemptsFiltered.forEach(a=>{
     if(!quizMap[a.quiz_id]) quizMap[a.quiz_id]=[0,0];
@@ -282,7 +286,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     ['#3b82f6','#60a5fa','#93c5fd','#2563eb','#1e40af'],'Persentase Jawaban Benar per Quiz'
   );
 
-  // Benar vs Salah Keseluruhan (Quiz Umum)
+  // ===== BENAR VS SALAH =====
   const totalCorrect = quizAttemptsFiltered.reduce((s,a)=>s+(Number(a.score)||0),0);
   const totalQuestionsAll = quizAttemptsFiltered.reduce((s,a)=>s+(Number(a.total_questions)||0),0);
   const totalPercentCorrect = totalQuestionsAll ? Math.round(totalCorrect/totalQuestionsAll*100) : 0;
@@ -290,7 +294,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     [totalPercentCorrect,100-totalPercentCorrect],['#4CAF50','#F44336'],'Benar vs Salah Keseluruhan (%)'
   );
 
-  // Benar vs Salah Dashboard Hari Ini
   const todayDashboard = dashboardAttemptsFiltered.filter(a=>new Date(a.submitted_at)>=today);
   const correctDashboard = todayDashboard.reduce((s,a)=>s + (a.is_correct?1:0),0);
   const totalDashboardQuestions = todayDashboard.length;
