@@ -32,13 +32,20 @@
     <div id="admin-profile-view" class="hidden">
         <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 sm:p-8">
             <div class="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 border-b pb-6 dark:border-gray-700">
-                <div id="profile-photo-wrapper" class="relative cursor-pointer flex-shrink-0" title="Klik untuk ubah foto">
-                    <div id="profile-initial" class="w-24 h-24 bg-blue-500 text-white flex items-center justify-center rounded-full text-4xl font-bold">?</div>
-                    <img id="profile-photo" src="" alt="Foto Profil" class="hidden w-24 h-24 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-md" />
+                
+                <div class="flex flex-col items-center flex-shrink-0">
+                    <div id="profile-photo-wrapper" class="relative cursor-pointer" title="Klik untuk ubah foto">
+                        <div id="profile-initial" class="w-24 h-24 bg-blue-500 text-white flex items-center justify-center rounded-full text-4xl font-bold">?</div>
+                        <img id="profile-photo" src="" alt="Foto Profil" class="hidden w-24 h-24 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-md" />
+                    </div>
+                    <div id="super-admin-badge" class="hidden mt-2 px-3 py-1 bg-gradient-to-r from-yellow-400 to-amber-500 text-white text-xs font-bold rounded-full shadow-lg transform hover:scale-105 transition-transform">
+                        ✨ Super Admin
+                    </div>
                 </div>
+
                 <div class="flex-grow">
                     <h2 id="username-display" class="text-3xl font-bold">Memuat...</h2>
-                    <p class="text-blue-500 font-semibold mt-1">Administrator</p>
+                    <p id="role-display" class="text-blue-500 font-semibold mt-1 capitalize">Memuat role...</p>
                     <p id="email-display" class="text-gray-500 dark:text-gray-400 mt-2">memuat email...</p>
                 </div>
             </div>
@@ -108,6 +115,8 @@
     const profilePhoto = document.getElementById("profile-photo");
     const usernameDisplay = document.getElementById("username-display");
     const emailDisplay = document.getElementById("email-display");
+    const roleDisplay = document.getElementById("role-display"); // <-- Added
+    const superAdminBadge = document.getElementById("super-admin-badge"); // <-- Added
     const authButtons = document.getElementById("auth-buttons");
     
     // Modal Elements
@@ -133,16 +142,32 @@
     }
 
     async function loadUserProfile(userId, userEmail) {
+      // Fetch role_id along with other data
       const { data: profile, error } = await supabaseClient
         .from("profiles")
-        .select("username, avatar_url")
+        .select("username, avatar_url, role_id") // <-- MODIFIED
         .eq("id", userId)
         .single();
 
       if (profile) {
         usernameDisplay.textContent = profile.username;
-        emailDisplay.textContent = userEmail; // Get email from auth session
+        emailDisplay.textContent = userEmail; 
 
+        // --- ROLE LOGIC ---
+        if (profile.role_id) {
+            roleDisplay.textContent = profile.role_id;
+            // Check for 'super admin' to show the special badge
+            if (profile.role_id.toLowerCase() === 'super admin') {
+                superAdminBadge.classList.remove('hidden');
+            } else {
+                superAdminBadge.classList.add('hidden');
+            }
+        } else {
+            roleDisplay.textContent = 'Role Tidak Ditetapkan';
+            superAdminBadge.classList.add('hidden');
+        }
+
+        // Avatar logic remains the same
         if (profile.avatar_url) {
           const publicURL = `${profile.avatar_url}?t=${new Date().getTime()}`;
           profilePhoto.src = publicURL;
@@ -158,6 +183,7 @@
         console.error("Gagal memuat profil:", error);
         usernameDisplay.textContent = "Gagal Memuat";
         emailDisplay.textContent = "Tidak tersedia";
+        roleDisplay.textContent = "Tidak tersedia";
       }
     }
 
@@ -168,9 +194,8 @@
       `;
       document.getElementById("logout-button").addEventListener("click", async () => {
         await supabaseClient.auth.signOut();
-        window.location.href = "../masuk/"; // Redirect to login page after logout
+        window.location.href = "../masuk/";
       });
-      // Placeholder for change password functionality
       document.getElementById("change-password-button").addEventListener("click", () => {
         alert("Fitur ubah kata sandi akan segera tersedia.");
       });
@@ -181,7 +206,6 @@
       loginPromptView.classList.remove("hidden");
     }
 
-    // --- Upload Avatar Logic ---
     async function uploadAvatar(file, userId) {
       if (!file) {
         alert("Silakan pilih sebuah file gambar.");
@@ -190,7 +214,7 @@
       uploadBtn.disabled = true;
       uploadBtn.textContent = "Mengunggah...";
 
-      const fileName = `public/${userId}`; // Overwrite the same file for the user
+      const fileName = `public/${userId}`; 
       const { error } = await supabaseClient.storage
         .from("avatars")
         .upload(fileName, file, { upsert: true });
@@ -215,7 +239,6 @@
         console.error(updateError);
         alert("Gagal memperbarui URL avatar di profil.");
       } else {
-        // Append a timestamp to break cache
         const newUrl = `${publicUrl}?t=${new Date().getTime()}`;
         profilePhoto.src = newUrl;
         preview.src = newUrl;
@@ -231,8 +254,8 @@
     // --- Modal Event Listeners ---
     document.getElementById("profile-photo-wrapper").addEventListener("click", () => {
       if (!currentUser) return;
-      avatarInput.value = ''; // Reset file input
-      preview.src = profilePhoto.src;
+      avatarInput.value = '';
+      preview.src = profilePhoto.src || '';
       modal.classList.remove("hidden");
       modal.classList.add("flex");
     });
