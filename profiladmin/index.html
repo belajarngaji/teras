@@ -3,12 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profil Admin - Belajar Ngaji</title>
+  <title>Profil - Belajar Ngaji</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: 'Poppins', sans-serif; }
+    .loader {
+        border: 4px solid #f3f3f3; /* Light grey */
+        border-top: 4px solid #3498db; /* Blue */
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body class="bg-gray-100 dark:bg-slate-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
@@ -17,7 +29,7 @@
   <nav class="flex justify-between items-center bg-white dark:bg-slate-800/50 dark:backdrop-blur-sm px-6 py-4 shadow-md sticky top-0 z-10 border-b border-gray-200 dark:border-slate-700">
     <div>
       <a href="./">
-        <span class="text-xl font-bold text-gray-800 dark:text-white">Profil Administrator</span>
+        <span class="text-xl font-bold text-gray-800 dark:text-white">Profil Pengguna</span>
       </a>
     </div>
     <a href="../ruang" 
@@ -30,8 +42,20 @@
   </nav>
 
   <main class="mx-auto px-4 py-10 w-full max-w-2xl">
-    <!-- Tampilan Profil Admin -->
-    <div id="admin-profile-view" class="hidden">
+    <!-- Status Loading -->
+    <div id="loading-state" class="text-center py-10">
+      <div class="loader mx-auto"></div>
+      <p class="mt-4 text-gray-500 dark:text-gray-400">Memuat profil...</p>
+    </div>
+    
+    <!-- Pesan Info/Error -->
+    <div id="message-state" class="hidden text-center py-10 bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg">
+        <p id="message-title" class="font-semibold text-blue-600 dark:text-blue-400">Informasi</p>
+        <p id="message-text" class="mt-2 text-sm text-blue-500 dark:text-blue-300">Pesan akan ditampilkan di sini.</p>
+    </div>
+
+    <!-- Tampilan Profil -->
+    <div id="profile-view" class="hidden">
         <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 sm:p-8 border border-gray-200 dark:border-slate-700">
             <div class="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 border-b pb-6 dark:border-gray-700">
 
@@ -100,10 +124,13 @@
     const { createClient } = supabase;
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
-
+    
     // DOM Elements
-    const adminProfileView = document.getElementById("admin-profile-view");
+    const loadingState = document.getElementById("loading-state");
+    const messageState = document.getElementById("message-state");
+    const messageTitle = document.getElementById("message-title");
+    const messageText = document.getElementById("message-text");
+    const profileView = document.getElementById("profile-view");
     const profileInitial = document.getElementById("profile-initial");
     const profilePhoto = document.getElementById("profile-photo");
     const usernameDisplay = document.getElementById("username-display");
@@ -118,139 +145,70 @@
     const uploadBtn = document.getElementById("uploadBtn");
 
     let currentUser = null;
+    let supabaseClient;
+
+    function showMessage(title, message) {
+        loadingState.classList.add("hidden");
+        profileView.classList.add("hidden");
+        messageTitle.textContent = title;
+        messageText.textContent = message;
+        messageState.classList.remove("hidden");
+    }
+
+    function main() {
+        if (typeof createClient === 'undefined') {
+            console.error("Supabase client (pustaka) gagal dimuat.");
+            showMessage("Gagal Memuat Pustaka", "Tidak dapat memuat skrip Supabase. Periksa koneksi internet atau coba nonaktifkan ad-blocker.");
+            return;
+        }
+
+        supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+        initializeProfilePage();
+    }
 
     async function initializeProfilePage() {
       try {
-        const { data: { user } } = await supabaseClient.auth.getUser();
+        console.log("Mencoba mendapatkan data pengguna...");
+        const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+
+        if (authError) throw new Error(`Kesalahan otentikasi: ${authError.message}`);
+        
         if (user) {
+          console.log("Pengguna ditemukan:", user.id);
           currentUser = user;
           await loadUserProfile(user.id, user.email);
         } else {
-          adminProfileView.classList.add("hidden");
-          console.warn("Pengguna belum masuk. Data profil tidak akan ditampilkan.");
+          console.log("Tidak ada pengguna yang masuk.");
+          showMessage("Anda Belum Masuk", "Silakan masuk terlebih dahulu untuk melihat profil Anda.");
         }
       } catch (error) {
         console.error("Gagal menginisialisasi halaman:", error);
-        adminProfileView.classList.add("hidden");
+        showMessage("Terjadi Kesalahan", `Pastikan Supabase URL & Key sudah benar. Detail: ${error.message}`);
       }
     }
 
     async function loadUserProfile(userId, userEmail) {
+      console.log(`Memuat profil admin untuk pengguna: ${userId}`);
       const { data: adminData, error } = await supabaseClient
         .from('admins_view')
-        .select('username, avatar_url, role_name')
+        .select('username, avatar_url, role')
         .eq('id', userId)
-        .maybeSingle();
+        .single();
 
-      if (adminData) {
-        adminProfileView.classList.remove("hidden");
-        setupActionButtons();
-
-        usernameDisplay.textContent = adminData.username || 'Nama Pengguna';
-        emailDisplay.textContent = userEmail; 
-        roleDisplay.textContent = adminData.role_name || 'Role Tidak Ditetapkan';
-
-        if (adminData.role_name && adminData.role_name.toLowerCase() === 'super admin') {
-          superAdminBadge.classList.remove('hidden');
-        } else {
-          superAdminBadge.classList.add('hidden');
-        }
-
-        if (adminData.avatar_url) {
-          const publicURL = `${adminData.avatar_url}?t=${new Date().getTime()}`;
-          profilePhoto.src = publicURL;
-          preview.src = publicURL;
-          profilePhoto.classList.remove("hidden");
-          profileInitial.classList.add("hidden");
-        } else {
-          profileInitial.textContent = adminData.username ? adminData.username.charAt(0).toUpperCase() : '?';
-          profilePhoto.classList.add("hidden");
-          profileInitial.classList.remove("hidden");
-        }
-      } else {
-        console.error("Akses ditolak. Pengguna bukan admin. Error:", error?.message);
-        await supabaseClient.auth.signOut();
-        window.location.href = "/teras/admin/";
+      if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found
+        console.error("Gagal memuat profil dari database:", error);
+        showMessage("Gagal Memuat Data", `Detail: ${error.message}. Ini mungkin karena masalah izin (Row Level Security).`);
+        return;
       }
-    }
 
-    function setupActionButtons() {
-      authButtons.innerHTML = `
-        <button id="change-password-button" class="w-full sm:w-auto flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-800 dark:text-gray-200 font-bold py-3 rounded-lg transition">Ubah Kata Sandi</button>
-        <button id="logout-button" class="w-full sm:w-auto flex-1 bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-red-700 transition">Keluar</button>
-      `;
-      document.getElementById("logout-button").addEventListener("click", async () => {
-        await supabaseClient.auth.signOut();
-        window.location.href = "/teras/admin/";
-      });
-      document.getElementById("change-password-button").addEventListener("click", () => {
-        alert("Fitur ubah kata sandi akan segera tersedia.");
-      });
-    }
-
-    async function uploadAvatar(file, userId) {
-      if (!file) return;
-
-      uploadBtn.disabled = true;
-      uploadBtn.textContent = "Mengunggah...";
-
-      const fileName = `public/${userId}`; 
-      const { error } = await supabaseClient.storage
-        .from("avatars")
-        .upload(fileName, file, { upsert: true });
-
-      if (error) {
-        console.error(error);
-        alert("Upload gagal: " + error.message);
-      } else {
-        const { data } = supabaseClient.storage.from("avatars").getPublicUrl(fileName);
-        const { error: updateError } = await supabaseClient
-          .from("profiles")
-          .update({ avatar_url: data.publicUrl })
-          .eq("id", userId);
-
-        if (updateError) {
-          console.error(updateError);
-          alert("Gagal memperbarui URL avatar di profil.");
-        } else {
-          await loadUserProfile(userId, currentUser.email);
-          modal.classList.add("hidden");
-        }
+      if (!adminData) {
+        console.warn("Akses ditolak. Pengguna ini bukan admin.");
+        showMessage("Akses Ditolak", "Halaman ini hanya dapat diakses oleh admin.");
+        return;
       }
-      uploadBtn.disabled = false;
-      uploadBtn.textContent = "Upload & Simpan";
-    }
+      
+      loadingState.classList.add("hidden");
+      profileView.classList.remove("hidden");
+      setupActionButtons();
 
-    // --- Event Listeners ---
-    document.getElementById("profile-photo-wrapper").addEventListener("click", () => {
-      if (!currentUser) return;
-      avatarInput.value = '';
-      preview.src = profilePhoto.src || `https://placehold.co/160x160/334155/E2E8F0?text=${usernameDisplay.textContent.charAt(0)}`;
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-    });
-
-    closeModalBtn.addEventListener("click", () => {
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-    });
-
-    avatarInput.addEventListener('change', (event) => {
-        if (event.target.files && event.target.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => preview.src = e.target.result;
-            reader.readAsDataURL(event.target.files[0]);
-        }
-    });
-
-    uploadBtn.addEventListener("click", async () => {
-      const file = avatarInput.files[0];
-      if (currentUser && file) {
-        await uploadAvatar(file, currentUser.id);
-      }
-    });
-
-    document.addEventListener("DOMContentLoaded", initializeProfilePage);
-  </script>
-</body>
-</html>
+      const username = adminData.username || 'Nama Pengguna';
