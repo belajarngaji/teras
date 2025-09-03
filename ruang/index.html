@@ -25,7 +25,6 @@ header { position:sticky; top:0; z-index:10; }
 </head>
 <body class="antialiased flex">
 
-<!-- Sidebar -->
 <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-30">
 <div class="p-6">
   <h2 class="text-xl font-bold mb-6 text-blue-600">Menu Admin</h2>
@@ -55,7 +54,6 @@ header { position:sticky; top:0; z-index:10; }
 
 <main class="p-6 flex-1 overflow-y-auto">
 
-<!-- KPI Cards -->
 <section class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
   <div class="kpi-card rounded-lg p-6">
     <h3 class="text-sm font-medium text-gray-500">Total Pengguna</h3>
@@ -67,10 +65,8 @@ header { position:sticky; top:0; z-index:10; }
   </div>
 </section>
 
-<!-- Charts + Leaderboard -->
 <section class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
 
-  <!-- Leaderboard -->
   <div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-6 overflow-x-auto">
     <h3 class="font-semibold text-gray-700 mb-4">🏆 Leaderboard - Top 10</h3>
     <table class="w-full text-sm text-left text-gray-600">
@@ -85,7 +81,6 @@ header { position:sticky; top:0; z-index:10; }
     </table>
   </div>
 
-  <!-- Charts -->
   <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4">
     <h3 class="font-semibold text-gray-700 mb-4">Kuis Terpopuler</h3>
     <canvas id="popular-quizzes-chart" class="w-full aspect-[4/3]"></canvas>
@@ -117,7 +112,6 @@ header { position:sticky; top:0; z-index:10; }
 
 </section>
 
-<!-- Aktivitas Terbaru -->
 <section>
 <h3 class="text-xl font-semibold text-gray-700 mb-4">Aktivitas Terbaru</h3>
 <div class="bg-white border border-gray-200 rounded-lg overflow-x-auto overflow-y-auto max-h-[400px]">
@@ -142,7 +136,7 @@ header { position:sticky; top:0; z-index:10; }
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I"; // gunakan service key
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ===== UTILITY =====
@@ -184,71 +178,66 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     window.location.href='/';
     return;
   }
-  const isSuperAdmin = profile.role==='superadmin';
+  const isSuperAdmin = profile.role === 'superadmin';
 
-  // ===== AMBIL DATA =====
-  const { data: quizAttempts } = await supabase.from('quiz_attempts').select('*').then(r=>r.data||[]);
-  const { data: dashboardAttempts } = await supabase.from('dashboard_quiz_attempts').select('*').then(r=>r.data||[]);
+  // Buat objek filter untuk digunakan berulang kali
+  const filter = isSuperAdmin ? {} : { admin_id: user.id };
 
-  // ===== FILTER DATA BERDASARKAN ROLE =====
-  let quizAttemptsFiltered = [], dashboardAttemptsFiltered = [];
-  if(isSuperAdmin){
-    quizAttemptsFiltered = quizAttempts;
-    dashboardAttemptsFiltered = dashboardAttempts;
-  } else { // admin biasa
-    quizAttemptsFiltered = quizAttempts.filter(a=>a.admin_id===user.id);
-    dashboardAttemptsFiltered = dashboardAttempts.filter(a=>a.admin_id===user.id);
-  }
-
-  // ===== TOTAL USERS =====
-  const { count: totalUsers } = await supabase.from('profiles').select('*',{count:'exact',head:true}).then(r=>r);
-  document.getElementById('total-users').textContent = totalUsers||0;
+  // ===== AMBIL DATA (CARA EFISIEN) =====
+  const { data: quizAttemptsFiltered } = await supabase.from('quiz_attempts').select('*').match(filter);
+  const { data: dashboardAttemptsFiltered } = await supabase.from('dashboard_quiz_attempts').select('*').match(filter);
+  
+  // ===== TOTAL USERS (FIXED) =====
+  // Asumsi di tabel 'profiles' ada kolom 'created_by' yang berisi ID admin pembuat user
+  const { count: totalUsers } = await supabase.from('profiles')
+    .select('id', { count: 'exact', head: true })
+    .match(isSuperAdmin ? {} : { created_by: user.id }); 
+  document.getElementById('total-users').textContent = totalUsers || 0;
 
   // ===== QUIZ HARI INI =====
   const today = new Date(); today.setHours(0,0,0,0);
-  const quizToday = quizAttemptsFiltered.filter(a=>new Date(a.submitted_at)>=today).length;
+  const quizToday = (quizAttemptsFiltered || []).filter(a => new Date(a.submitted_at) >= today).length;
   document.getElementById('quiz-attempts-today').textContent = quizToday;
 
   // ===== LEADERBOARD =====
-  const leaderboardData = await supabase.from('leaderboard')
+  const { data: leaderboardData } = await supabase.from('leaderboard')
     .select('*')
-    .match(isSuperAdmin?{}:{admin_id:user.id})
-    .order('total_score',{ascending:false})
-    .limit(10)
-    .then(r=>r.data||[]);
+    .match(filter) // Menggunakan filter yang sudah dibuat
+    .order('total_score', {ascending: false})
+    .limit(10);
   const lb = document.getElementById('leaderboard-body');
-  lb.innerHTML = leaderboardData.length>0 ? leaderboardData.map(u=>`
+  lb.innerHTML = leaderboardData && leaderboardData.length > 0 ? leaderboardData.map(u => `
     <tr class="border-b border-gray-200 hover:bg-gray-50">
       <td class="py-3 px-6 font-medium">${u.rank}</td>
       <td class="py-3 px-6">${u.username}</td>
-      <td class="py-3 px-6 font-bold text-yellow-500">${u.total_score||0}</td>
+      <td class="py-3 px-6 font-bold text-yellow-500">${u.total_score || 0}</td>
     </tr>
   `).join('') : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
 
   // ===== AKTIVITAS TERBARU =====
   const tbody = document.getElementById('recent-activity-body');
-  const recentActivities = [...quizAttemptsFiltered,...dashboardAttemptsFiltered].sort((a,b)=>new Date(b.submitted_at)-new Date(a.submitted_at));
-  tbody.innerHTML = recentActivities.length>0 ? recentActivities.map(a=>`
-    <tr class="${a.is_correct?'correct':'wrong'} border-b border-gray-200 hover:bg-gray-50">
-      <td class="py-4 px-6">${a.username||'Tanpa Nama'}</td>
-      <td class="py-4 px-6">${formatQuizName(a.quiz_id||a.quiz_question_id)}</td>
-      <td class="py-4 px-6 font-medium">${a.score||0}</td>
+  const recentActivities = [...(quizAttemptsFiltered || []), ...(dashboardAttemptsFiltered || [])].sort((a,b)=>new Date(b.submitted_at) - new Date(a.submitted_at));
+  tbody.innerHTML = recentActivities.length > 0 ? recentActivities.map(a => `
+    <tr class="${a.is_correct ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
+      <td class="py-4 px-6">${a.username || 'Tanpa Nama'}</td>
+      <td class="py-4 px-6">${formatQuizName(a.quiz_id || a.quiz_question_id)}</td>
+      <td class="py-4 px-6 font-medium">${a.score || 0}</td>
       <td class="py-4 px-6 text-sm text-gray-500">${new Date(a.submitted_at).toLocaleString('id-ID')}</td>
     </tr>
   `).join('') : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
 
   // ===== KUIS TERPOPULER =====
   const counts = {};
-  quizAttemptsFiltered.forEach(a=>{ const name=formatQuizName(a.quiz_id); counts[name]=(counts[name]||0)+1; });
-  const sortedQuizzes=Object.entries(counts).sort(([,a],[,b])=>b-a).slice(0,5);
+  (quizAttemptsFiltered || []).forEach(a => { const name = formatQuizName(a.quiz_id); counts[name] = (counts[name] || 0) + 1; });
+  const sortedQuizzes = Object.entries(counts).sort(([,a],[,b]) => b-a).slice(0,5);
   createChart(document.getElementById('popular-quizzes-chart').getContext('2d'),'doughnut',
-    sortedQuizzes.map(x=>x[0]),sortedQuizzes.map(x=>x[1]),
-    ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'],'Pengerjaan'
+    sortedQuizzes.map(x=>x[0]), sortedQuizzes.map(x=>x[1]),
+    ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'], 'Pengerjaan'
   );
 
   // ===== TREND SKOR =====
   const dayMap={}, weekMap={};
-  quizAttemptsFiltered.forEach(a=>{
+  (quizAttemptsFiltered || []).forEach(a => {
     const d=new Date(a.submitted_at);
     const dayKey=d.toISOString().split('T')[0];
     if(!dayMap[dayKey]) dayMap[dayKey]=[]; dayMap[dayKey].push(a.score||0);
@@ -262,42 +251,42 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   const ctxScore=document.getElementById('lineChartScore').getContext('2d');
   const chartScore=createChart(ctxScore,'line',dayLabels,dayAvg,['#3b82f6'],'Rata-rata Skor Harian');
 
-  document.getElementById('btnDaily').addEventListener('click',()=>{
-    chartScore.data.labels=dayLabels; chartScore.data.datasets[0].data=dayAvg; chartScore.data.datasets[0].label='Rata-rata Skor Harian'; chartScore.update();
+  document.getElementById('btnDaily').addEventListener('click', () => {
+    chartScore.data.labels = dayLabels; chartScore.data.datasets[0].data = dayAvg; chartScore.data.datasets[0].label = 'Rata-rata Skor Harian'; chartScore.update();
     document.getElementById('btnDaily').classList.add('bg-blue-600','text-white'); document.getElementById('btnDaily').classList.remove('bg-gray-200','text-gray-700');
     document.getElementById('btnWeekly').classList.add('bg-gray-200','text-gray-700'); document.getElementById('btnWeekly').classList.remove('bg-blue-600','text-white');
   });
-  document.getElementById('btnWeekly').addEventListener('click',()=>{
-    chartScore.data.labels=weekLabels; chartScore.data.datasets[0].data=weekAvg; chartScore.data.datasets[0].label='Rata-rata Skor Mingguan'; chartScore.update();
+  document.getElementById('btnWeekly').addEventListener('click', () => {
+    chartScore.data.labels = weekLabels; chartScore.data.datasets[0].data = weekAvg; chartScore.data.datasets[0].label = 'Rata-rata Skor Mingguan'; chartScore.update();
     document.getElementById('btnWeekly').classList.add('bg-blue-600','text-white'); document.getElementById('btnWeekly').classList.remove('bg-gray-200','text-gray-700');
     document.getElementById('btnDaily').classList.add('bg-gray-200','text-gray-700'); document.getElementById('btnDaily').classList.remove('bg-blue-600','text-white');
   });
 
   // ===== PERSENTASE JAWABAN =====
   const quizMap={};
-  quizAttemptsFiltered.forEach(a=>{
+  (quizAttemptsFiltered || []).forEach(a => {
     if(!quizMap[a.quiz_id]) quizMap[a.quiz_id]=[0,0];
     quizMap[a.quiz_id][0]+=Number(a.score)||0;
     quizMap[a.quiz_id][1]+= (Number(a.total_questions)||0)-(Number(a.score)||0);
   });
   const quizLabels2=Object.keys(quizMap).map(formatQuizName);
-  const quizPercent=Object.values(quizMap).map(v=>{ const total=v[0]+v[1]; return total?Math.round(v[0]/total*100):0; });
+  const quizPercent=Object.values(quizMap).map(v=>{ const total=v[0]+v[1]; return total ? Math.round(v[0]/total*100):0; });
   createChart(document.getElementById('barChartAnswer').getContext('2d'),'bar',quizLabels2,quizPercent,
     ['#3b82f6','#60a5fa','#93c5fd','#2563eb','#1e40af'],'Persentase Jawaban Benar per Quiz'
   );
 
   // ===== BENAR VS SALAH =====
-  const totalCorrect = quizAttemptsFiltered.reduce((s,a)=>s+(Number(a.score)||0),0);
-  const totalQuestionsAll = quizAttemptsFiltered.reduce((s,a)=>s+(Number(a.total_questions)||0),0);
+  const totalCorrect = (quizAttemptsFiltered || []).reduce((s,a)=>s+(Number(a.score)||0),0);
+  const totalQuestionsAll = (quizAttemptsFiltered || []).reduce((s,a)=>s+(Number(a.total_questions)||0),0);
   const totalPercentCorrect = totalQuestionsAll ? Math.round(totalCorrect/totalQuestionsAll*100) : 0;
   createChart(document.getElementById('pieChartTotal').getContext('2d'),'pie',['Benar','Salah'],
     [totalPercentCorrect,100-totalPercentCorrect],['#4CAF50','#F44336'],'Benar vs Salah Keseluruhan (%)'
   );
 
-  const todayDashboard = dashboardAttemptsFiltered.filter(a=>new Date(a.submitted_at)>=today);
+  const todayDashboard = (dashboardAttemptsFiltered || []).filter(a=>new Date(a.submitted_at)>=today);
   const correctDashboard = todayDashboard.reduce((s,a)=>s + (a.is_correct?1:0),0);
   const totalDashboardQuestions = todayDashboard.length;
-  const percentCorrectDashboard = totalDashboardQuestions?Math.round(correctDashboard/totalDashboardQuestions*100):0;
+  const percentCorrectDashboard = totalDashboardQuestions ? Math.round(correctDashboard/totalDashboardQuestions*100) : 0;
   createChart(document.getElementById('pieChartDaily').getContext('2d'),'pie',['Benar','Salah'],
     [percentCorrectDashboard,100-percentCorrectDashboard],['#4CAF50','#F44336'],'Benar vs Salah Dashboard Hari Ini (%)'
   );
