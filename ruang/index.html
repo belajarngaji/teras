@@ -152,14 +152,7 @@ function createChart(ctx,type,labels,data,colors,label){
 
 // Main function
 document.addEventListener('DOMContentLoaded', async () => {
-  // ===== Pengecekan login =====
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    console.warn("Pengguna belum masuk. Data tidak akan dimuat.");
-    return;
-  }
-
-  // ===== Logika pengecekan role dihapus =====
+  // ===== Pengecekan login dan role DIHAPUS agar menjadi halaman publik =====
 
   // ===== Fetch semua data dashboard =====
   const [
