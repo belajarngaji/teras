@@ -105,9 +105,8 @@
   <script type="module">
     const { createClient } = supabase;
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+    const SUPABASE_KEY = "eyJhbGciOiJIASNisInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
-    // ========================
 
     // DOM Elements
     const adminProfileView = document.getElementById("admin-profile-view");
@@ -119,8 +118,6 @@
     const roleDisplay = document.getElementById("role-display");
     const superAdminBadge = document.getElementById("super-admin-badge");
     const authButtons = document.getElementById("auth-buttons");
-
-    // Modal Elements
     const modal = document.getElementById("avatar-modal");
     const closeModalBtn = document.getElementById("close-modal");
     const preview = document.getElementById("preview");
@@ -133,57 +130,56 @@
       const { data: { user } } = await supabaseClient.auth.getUser();
       if (user) {
         currentUser = user;
-        adminProfileView.classList.remove("hidden");
-        loginPromptView.classList.add("hidden");
+        // Panggil loadUserProfile untuk memeriksa apakah user adalah admin
         await loadUserProfile(user.id, user.email);
-        setupActionButtons();
       } else {
         showLoginPrompt();
       }
     }
 
     async function loadUserProfile(userId, userEmail) {
-      // === PERUBAHAN DI SINI ===
-      // Menggunakan .maybeSingle() agar lebih aman dan tidak error jika data kosong
-      const { data: profile, error } = await supabaseClient
-        .from("profiles")
-        .select("username, avatar_url, role_id")
-        .eq("id", userId)
-        .maybeSingle(); // <-- Diubah dari .single()
+      // --- PERBAIKAN: Mengambil data dari view 'admins_view' ---
+      const { data: adminData, error } = await supabaseClient
+        .from('admins_view') // Menggunakan view 'admins_view'
+        .select('username, avatar_url, role_name') // Mengambil kolom yang relevan dari view
+        .eq('id', userId) // Mencocokkan berdasarkan user id
+        .maybeSingle();
 
-      if (profile) {
-        usernameDisplay.textContent = profile.username;
+      // Jika data admin ditemukan, tampilkan halaman profil
+      if (adminData) {
+        adminProfileView.classList.remove("hidden");
+        loginPromptView.classList.add("hidden");
+        setupActionButtons();
+
+        usernameDisplay.textContent = adminData.username;
         emailDisplay.textContent = userEmail; 
 
-        if (profile.role_id) {
-            roleDisplay.textContent = profile.role_id;
-            if (profile.role_id.toLowerCase() === 'super admin') {
-                superAdminBadge.classList.remove('hidden');
-            } else {
-                superAdminBadge.classList.add('hidden');
-            }
+        // Menampilkan nama role dari view
+        roleDisplay.textContent = adminData.role_name || 'Role Tidak Ditetapkan';
+
+        // Menampilkan badge jika role adalah 'Super Admin'
+        if (adminData.role_name && adminData.role_name.toLowerCase() === 'super admin') {
+          superAdminBadge.classList.remove('hidden');
         } else {
-            roleDisplay.textContent = 'Role Tidak Ditetapkan';
-            superAdminBadge.classList.add('hidden');
+          superAdminBadge.classList.add('hidden');
         }
 
-        if (profile.avatar_url) {
-          const publicURL = `${profile.avatar_url}?t=${new Date().getTime()}`;
+        // Mengatur foto profil atau inisial
+        if (adminData.avatar_url) {
+          const publicURL = `${adminData.avatar_url}?t=${new Date().getTime()}`;
           profilePhoto.src = publicURL;
           preview.src = publicURL;
           profilePhoto.classList.remove("hidden");
           profileInitial.classList.add("hidden");
         } else {
-          profileInitial.textContent = profile.username.charAt(0).toUpperCase();
+          profileInitial.textContent = adminData.username ? adminData.username.charAt(0).toUpperCase() : '?';
           profilePhoto.classList.add("hidden");
           profileInitial.classList.remove("hidden");
         }
       } else {
-        // Penanganan error yang lebih baik jika profil tidak ditemukan
-        console.error("Gagal memuat profil atau profil tidak ditemukan. Error:", error);
-        usernameDisplay.textContent = "Profil Tidak Ditemukan";
-        emailDisplay.textContent = "Periksa kembali RLS atau data di tabel.";
-        roleDisplay.textContent = "Tidak tersedia";
+        // Jika tidak ada data di admins_view, berarti bukan admin
+        console.error("Akses ditolak. Pengguna bukan admin. Error:", error);
+        showLoginPrompt();
       }
     }
 
@@ -230,6 +226,7 @@
       const { data } = supabaseClient.storage.from("avatars").getPublicUrl(fileName);
       const publicUrl = data.publicUrl;
 
+      // Saat memperbarui, kita tetap menargetkan tabel 'profiles'
       const { error: updateError } = await supabaseClient
         .from("profiles")
         .update({ avatar_url: publicUrl })
@@ -255,7 +252,7 @@
     document.getElementById("profile-photo-wrapper").addEventListener("click", () => {
       if (!currentUser) return;
       avatarInput.value = '';
-      preview.src = profilePhoto.src || '';
+      preview.src = profilePhoto.src || `https://placehold.co/160x160/E2E8F0/4A5568?text=${usernameDisplay.textContent.charAt(0)}`;
       modal.classList.remove("hidden");
       modal.classList.add("flex");
     });
