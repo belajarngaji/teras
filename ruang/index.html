@@ -50,7 +50,7 @@ header { position:sticky; top:0; z-index:10; }
     </button>
     <h1 class="text-2xl font-bold text-blue-600">Dashboard Belajar Ngaji</h1>
   </div>
-  
+
       <a href="../profiladmin" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">👤</a>
 </header>
 
@@ -69,10 +69,10 @@ header { position:sticky; top:0; z-index:10; }
 </section>
 
 <!-- Charts + Leaderboard -->
-<section class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
 
   <!-- Leaderboard -->
-  <div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-6 overflow-x-auto">
+  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-6 overflow-x-auto">
     <h3 class="font-semibold text-gray-700 mb-4">🏆 Leaderboard - Top 10</h3>
     <table class="w-full text-sm text-left text-gray-600">
       <thead class="text-xs text-gray-500 uppercase bg-gray-100">
@@ -90,26 +90,6 @@ header { position:sticky; top:0; z-index:10; }
   <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4">
     <h3 class="font-semibold text-gray-700 mb-4">Kuis Terpopuler</h3>
     <canvas id="popular-quizzes-chart" class="w-full aspect-[4/3]"></canvas>
-  </div>
-
-  <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4">
-    <h3 class="font-semibold text-gray-700 mb-4">Tren Skor / Week</h3>
-    <canvas id="lineChartWeek" class="w-full aspect-[4/3]"></canvas>
-  </div>
-
-  <div class="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-4">
-    <h3 class="font-semibold text-gray-700 mb-4">Persentase Jawaban</h3>
-    <canvas id="barChartAnswer" class="w-full aspect-[4/3]"></canvas>
-  </div>
-
-  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4">
-    <h3 class="font-semibold text-gray-700 mb-4">Benar vs Salah</h3>
-    <canvas id="pieChartTotal" class="w-full aspect-[4/3]"></canvas>
-  </div>
-
-  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4">
-    <h3 class="font-semibold text-gray-700 mb-4">Benar vs Salah Hari Ini</h3>
-    <canvas id="pieChartDaily" class="w-full aspect-[4/3]"></canvas>
   </div>
 
 </section>
@@ -197,8 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     quizToday,
     leaderboardData,
     popularQuizData,
-    recentActivities,
-    allAttempts
+    recentActivities
   ] = await Promise.all([
     supabase.from('profiles').select('*', { count:'exact', head:true }).then(r => r.count || 0),
     (()=>{
@@ -219,8 +198,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const sorted = Object.entries(counts).sort(([,a],[,b]) => b - a).slice(0,5);
       return { labels: sorted.map(x => x[0]), data: sorted.map(x => x[1]) };
     }),
-    supabase.from('latest_activity').select('*').order('submitted_at', { ascending:false }).then(r => r.data || []),
-    supabase.from('quiz_attempts').select('*').then(r => r.data || [])
+    supabase.from('latest_activity').select('*').order('submitted_at', { ascending:false }).then(r => r.data || [])
   ]);
 
 // Update KPI
@@ -250,46 +228,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Kuis Terpopuler
   createChart(document.getElementById('popular-quizzes-chart').getContext('2d'),'doughnut',popularQuizData.labels,popularQuizData.data,['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'],'Pengerjaan');
-
-  // Tren Skor / Week
-  const weeks = {};
-  allAttempts.forEach(a => {
-    const d = new Date(a.submitted_at);
-    const year = d.getFullYear();
-    const week = Math.ceil((((d - new Date(year, 0, 1)) / 86400000) + 1) / 7);
-    const key = `${year}-W${week}`;
-    if (!weeks[key]) weeks[key] = [];
-    weeks[key].push(a.score);
-  });
-  const weekLabels = Object.keys(weeks).sort();
-  const weekAvgScores = weekLabels.map(w => {
-    const arr = weeks[w];
-    return arr.reduce((s, v) => s + v, 0) / arr.length;
-  });
-  createChart(document.getElementById('lineChartWeek').getContext('2d'), 'line', weekLabels, weekAvgScores, ['#3b82f6'], 'Rata-rata Skor / Week');
-
-  // Persentase Jawaban per Quiz
-  const quizMap = {};
-  allAttempts.forEach(a => {
-    if (!quizMap[a.quiz_id]) quizMap[a.quiz_id] = [0, 0]; // [benar, salah]
-    quizMap[a.quiz_id][0] += Number(a.score) || 0;
-    quizMap[a.quiz_id][1] += (Number(a.total_questions) || 0) - (Number(a.score) || 0);
-  });
-  const quizLabels = Object.keys(quizMap).map(q => quizNameMap[q] || q);
-  const quizCorrect = Object.values(quizMap).map(v => v[0]);
-  createChart(document.getElementById('barChartAnswer').getContext('2d'), 'bar', quizLabels, quizCorrect, ['#3b82f6','#60a5fa','#93c5fd','#2563eb','#1e40af'], 'Persentase Jawaban Benar per Quiz');
-
-  // Benar vs Salah Keseluruhan
-  const totalCorrect = allAttempts.reduce((s, a) => s + Number(a.score || 0), 0);
-  const totalQuestions = allAttempts.reduce((s, a) => s + Number(a.total_questions || 0), 0);
-  createChart(document.getElementById('pieChartTotal').getContext('2d'), 'pie', ['Benar','Salah'], [totalCorrect, Math.max(totalQuestions - totalCorrect, 0)], ['#4CAF50','#F44336'], 'Benar vs Salah Keseluruhan');
-
-  // Benar vs Salah Harian
-  const today = new Date(); today.setHours(0,0,0,0);
-  const dailyAttempts = allAttempts.filter(a => new Date(a.submitted_at) >= today);
-  const dailyCorrect = dailyAttempts.reduce((s, a) => s + Number(a.score || 0), 0);
-  const dailyQuestions = dailyAttempts.reduce((s, a) => s + Number(a.total_questions || 0), 0);
-  createChart(document.getElementById('pieChartDaily').getContext('2d'), 'pie', ['Benar','Salah'], [dailyCorrect, Math.max(dailyQuestions - dailyCorrect, 0)], ['#4CAF50','#F44336'], 'Benar vs Salah Hari Ini');
 });
 </script>
 </body>
