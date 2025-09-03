@@ -12,9 +12,9 @@ body { font-family: 'Inter', sans-serif; background-color: #f0f8ff; color: #1f29
 .kpi-card { background:white; border:1px solid #e2e8f0; border-radius:.5rem; transition: transform .2s, box-shadow .2s;}
 .kpi-card:hover { transform: translateY(-3px); box-shadow:0 6px 10px rgba(0,0,0,.1);}
 .sidebar { background:white; border-right:1px solid #e2e8f0;}
-.sidebar a { display:block; color:#1e3a8a; transition: all .2s; padding:.5rem 0; border-radius: .25rem; padding-left: 1rem;}
+.sidebar a { display:block; color:#1e3a8a; transition: all .2s; padding: .5rem 1rem; border-radius: .25rem; }
 .sidebar a:hover, .sidebar a.active { background-color: #eff6ff; color:#2563eb; font-weight:600; }
-.correct { background-color:#d1fae5;}
+.correct { background-color:#dcfce7;}
 .wrong { background-color:#fee2e2;}
 .overflow-x-auto { overflow-x:auto;}
 table { border-collapse:collapse; width:100%; min-width:600px;}
@@ -33,10 +33,10 @@ header { position:sticky; top:0; z-index:10; }
   <h2 class="text-xl font-bold mb-6 text-blue-600">Menu Admin</h2>
   <ul class="space-y-2">
     <li><a href="#" class="active">Dashboard</a></li>
-    <li><a href="users/">Users</a></li>
-    <li><a href="management/">Koreksi</a></li>
-    <li><a href="harian/">Buat Tantangan</a></li>
-    <li><a href="Riwayat/">Riwayat Tantangan</a></li>
+    <li><a href="/users/">Users</a></li>
+    <li><a href="/management/">Koreksi</a></li>
+    <li><a href="/harian/">Buat Tantangan</a></li>
+    <li><a href="/Riwayat/">Riwayat Tantangan</a></li>
   </ul>
 </div>
 </aside>
@@ -62,12 +62,10 @@ header { position:sticky; top:0; z-index:10; }
   <div class="kpi-card rounded-lg p-6">
     <h3 class="text-sm font-medium text-gray-500">Total Pengguna</h3>
     <div id="total-users-container" class="flex items-center mt-2"><div class="loader"></div></div>
-    <p id="total-users" class="text-3xl font-bold text-blue-600 mt-2 hidden">0</p>
   </div>
   <div class="kpi-card rounded-lg p-6">
     <h3 class="text-sm font-medium text-gray-500">Kuis Hari Ini</h3>
     <div id="quiz-today-container" class="flex items-center mt-2"><div class="loader"></div></div>
-    <p id="quiz-attempts-today" class="text-3xl font-bold text-blue-600 mt-2 hidden">0</p>
   </div>
 </section>
 
@@ -85,19 +83,15 @@ header { position:sticky; top:0; z-index:10; }
           <th class="py-3 px-6">Total Skor</th>
         </tr>
       </thead>
-      <tbody id="leaderboard-body">
-        <tr><td colspan="3" class="text-center p-4"><div class="loader mx-auto"></div></td></tr>
-      </tbody>
+      <tbody id="leaderboard-body"></tbody>
     </table>
   </div>
 
-  <!-- Charts -->
-  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center min-h-[250px]">
+  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center min-h-[300px]" id="popular-quizzes-container">
     <canvas id="popular-quizzes-chart"></canvas>
   </div>
 
-  <div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-4 flex flex-col justify-center min-h-[250px]">
-    <h3 class="font-semibold text-gray-700 mb-4 text-center">Tren Skor</h3>
+  <div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-4 flex flex-col justify-center min-h-[300px]" id="score-trend-container">
     <canvas id="lineChartScore"></canvas>
     <div class="mt-2 flex justify-center gap-4">
       <button id="btnDaily" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-500">Harian</button>
@@ -105,20 +99,17 @@ header { position:sticky; top:0; z-index:10; }
     </div>
   </div>
 
-  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center min-h-[250px]">
+  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center min-h-[300px]" id="answer-percentage-container">
     <canvas id="barChartAnswer"></canvas>
   </div>
-    
-  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center min-h-[250px]">
-    <h3 class="font-semibold text-gray-700 mb-4">Benar vs Salah (Semua Kuis)</h3>
+
+  <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center min-h-[300px]" id="pie-total-container">
     <canvas id="pieChartTotal"></canvas>
   </div>
 
-  <div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center min-h-[250px]">
-    <h3 class="font-semibold text-gray-700 mb-4">Benar vs Salah (Tantangan Hari Ini)</h3>
+  <div class="lg:col-span-3 bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center min-h-[300px]" id="pie-daily-container">
     <canvas id="pieChartDaily"></canvas>
   </div>
-
 </section>
 
 <!-- Aktivitas Terbaru -->
@@ -126,7 +117,7 @@ header { position:sticky; top:0; z-index:10; }
 <h3 class="text-xl font-semibold text-gray-700 mb-4">Aktivitas Terbaru</h3>
 <div class="bg-white border border-gray-200 rounded-lg overflow-x-auto overflow-y-auto max-h-[400px]">
 <table class="w-full text-sm text-left text-gray-600 min-w-[600px]">
-<thead class="text-xs text-gray-500 uppercase bg-gray-100">
+<thead class="text-xs text-gray-500 uppercase bg-gray-100 sticky top-0">
 <tr>
 <th class="py-3 px-6">Pengguna</th>
 <th class="py-3 px-6">Nama Kuis/Tantangan</th>
@@ -134,9 +125,7 @@ header { position:sticky; top:0; z-index:10; }
 <th class="py-3 px-6">Waktu</th>
 </tr>
 </thead>
-<tbody id="recent-activity-body">
-    <tr><td colspan="4" class="text-center p-4"><div class="loader mx-auto"></div></td></tr>
-</tbody>
+<tbody id="recent-activity-body"></tbody>
 </table>
 </div>
 </section>
@@ -148,8 +137,9 @@ header { position:sticky; top:0; z-index:10; }
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 // --- KONEKSI SUPABASE ---
+// PENTING: Menggunakan ANON KEY yang aman untuk digunakan di sisi klien (browser).
 const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.w6s_hU2pF-mF4QjSjW_E-5Fx_7lP5r7_jOylqLBO1-o";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- UTILITIES ---
@@ -158,54 +148,38 @@ function formatQuizName(id) {
   return id.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase()); 
 }
 
-function createChart(ctx, type, labels, data, colors, chartLabel) {
-  // Hancurkan chart lama jika ada untuk mencegah duplikasi
-  if (ctx.chart) {
-      ctx.chart.destroy();
+let charts = {};
+function createChart(canvasId, type, labels, data, colors, chartLabel) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  if (charts[canvasId]) {
+      charts[canvasId].destroy();
   }
-  ctx.chart = new Chart(ctx, {
+  charts[canvasId] = new Chart(ctx, {
     type,
-    data: {
-      labels,
-      datasets: [{
-        label: chartLabel,
-        data,
-        backgroundColor: colors,
-        fill: type === 'line' ? false : true,
-        borderColor: type === 'line' ? colors[0] : colors,
-        tension: 0.3
-      }]
-    },
+    data: { labels, datasets: [{ label: chartLabel, data, backgroundColor: colors, fill: type === 'line' ? false : true, borderColor: type === 'line' ? colors[0] : colors, tension: 0.3 }] },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom' },
-        title: { display: !!chartLabel, text: chartLabel }
-      },
-      scales: {
-        y: { beginAtZero: true }
-      }
+      plugins: { legend: { position: 'bottom' }, title: { display: true, text: chartLabel } },
+      scales: { y: { beginAtZero: true } }
     }
   });
-  return ctx.chart;
 }
 
-// --- FUNGSI TAMPILKAN PESAN ERROR ---
-function displayError(elementId, message) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        if(element.tagName === 'TBODY'){
-            const colSpan = element.previousElementSibling.rows[0].cells.length || 1;
-            element.innerHTML = `<tr><td colspan="${colSpan}" class="text-center p-4 text-red-500">${message}</td></tr>`;
-        } else {
-            element.innerHTML = `<div class="text-red-500">${message}</div>`;
-        }
+function displayMessage(containerId, message, isError = false) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const colorClass = isError ? 'text-red-500' : 'text-gray-500';
+
+    if(container.tagName === 'TBODY'){
+        const colSpan = container.previousElementSibling.rows[0].cells.length || 1;
+        container.innerHTML = `<tr><td colspan="${colSpan}" class="text-center p-4 ${colorClass}">${message}</td></tr>`;
+    } else {
+        container.innerHTML = `<div class="text-center p-4 ${colorClass}">${message}</div>`;
     }
 }
 
-
-// --- SIDEBAR TOGGLE ---
+// --- SIDEBAR ---
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('overlay');
 document.getElementById('sidebar-toggle').addEventListener('click', () => {
@@ -219,214 +193,114 @@ overlay.addEventListener('click', () => {
 
 // --- MAIN SCRIPT ---
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log("Memulai script dashboard...");
+  displayMessage('leaderboard-body', '<div class="loader mx-auto"></div>');
+  displayMessage('recent-activity-body', '<div class="loader mx-auto"></div>');
+  ['popular-quizzes-container', 'score-trend-container', 'answer-percentage-container', 'pie-total-container', 'pie-daily-container'].forEach(id => {
+      displayMessage(id, '<div class="loader mx-auto"></div>');
+  });
 
-  // 1. CEK AUTENTIKASI PENGGUNA
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    console.error("Error autentikasi atau tidak ada user:", userError?.message);
-    // Redirect ke halaman login jika tidak ada sesi pengguna yang aktif
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
     window.location.href = '/admin-login/'; 
     return;
   }
-  console.log("User ditemukan:", user.email);
 
-  // 2. CEK ROLE PENGGUNA
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('role, username')
-    .eq('id', user.id)
-    .single();
-
-  if (profileError || !profile || !['admin', 'superadmin'].includes(profile.role)) {
-    console.error("Error mengambil profile atau role tidak valid:", profileError?.message);
+  const { data: profile } = await supabase.from('profiles').select('role, username').eq('id', user.id).single();
+  if (!profile || !['admin', 'superadmin'].includes(profile.role)) {
     alert('Akses ditolak. Anda bukan admin.');
     window.location.href = '/';
     return;
   }
+
   const isSuperAdmin = profile.role === 'superadmin';
-  console.log(`Role pengguna: ${profile.role}`);
 
-  // 3. AMBIL SEMUA DATA YANG DIPERLUKAN DENGAN PENANGANAN ERROR
-  const { data: quizAttempts, error: quizError } = await supabase.from('quiz_attempts').select('*');
-  const { data: dashboardAttempts, error: dashboardError } = await supabase.from('dashboard_quiz_attempts').select('*');
+  const [quizRes, dashboardRes, userCountRes, leaderboardRes] = await Promise.all([
+      supabase.from('quiz_attempts').select('*'),
+      supabase.from('dashboard_quiz_attempts').select('*'),
+      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('leaderboard').select('rank, username, total_score').order('rank').limit(10)
+  ]);
 
-  if(quizError) {
-      console.error("Error mengambil quiz_attempts:", quizError.message);
-      displayError('recent-activity-body', 'Gagal memuat data kuis.');
-      return; // Hentikan eksekusi jika data utama gagal
+  if (quizRes.error || dashboardRes.error) {
+      displayMessage('recent-activity-body', 'Gagal memuat data aktivitas.', true);
+      console.error(quizRes.error || dashboardRes.error);
+      return;
   }
-   if(dashboardError) {
-      console.error("Error mengambil dashboard_quiz_attempts:", dashboardError.message);
-      displayError('recent-activity-body', 'Gagal memuat data tantangan.');
-      return; // Hentikan eksekusi jika data utama gagal
-  }
-
-  console.log(`Ditemukan ${quizAttempts.length} record kuis dan ${dashboardAttempts.length} record tantangan.`);
-
-  // 4. FILTER DATA BERDASARKAN ROLE
+  
+  const { data: quizAttempts } = quizRes;
+  const { data: dashboardAttempts } = dashboardRes;
+  
   let quizAttemptsFiltered = isSuperAdmin ? quizAttempts : quizAttempts.filter(a => a.admin_id === user.id);
   let dashboardAttemptsFiltered = isSuperAdmin ? dashboardAttempts : dashboardAttempts.filter(a => a.admin_id === user.id);
 
-  // --- RENDER DATA KE UI ---
+  // KPIs
+  displayMessage('total-users-container', `<p class="text-3xl font-bold text-blue-600">${userCountRes.count || 0}</p>`);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const quizTodayCount = [...quizAttemptsFiltered, ...dashboardAttemptsFiltered].filter(a => new Date(a.submitted_at) >= today).length;
+  displayMessage('quiz-today-container', `<p class="text-3xl font-bold text-blue-600">${quizTodayCount}</p>`);
 
-  // KPI: Total Pengguna
-  const { count, error: countError } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-  document.getElementById('total-users-container').style.display = 'none';
-  const totalUsersEl = document.getElementById('total-users');
-  totalUsersEl.textContent = countError ? 'Error' : count || 0;
-  totalUsersEl.classList.remove('hidden');
-
-  // KPI: Kuis Hari Ini
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const quizToday = quizAttemptsFiltered.filter(a => new Date(a.submitted_at) >= today).length;
-  document.getElementById('quiz-today-container').style.display = 'none';
-  const quizAttemptsTodayEl = document.getElementById('quiz-attempts-today');
-  quizAttemptsTodayEl.textContent = quizToday;
-  quizAttemptsTodayEl.classList.remove('hidden');
-
-  // LEADERBOARD
-  const { data: leaderboardData, error: leaderboardError } = await supabase.from('leaderboard')
-    .select('rank, username, total_score')
-    .order('total_score', { ascending: false })
-    .limit(10);
-    
-  const lbBody = document.getElementById('leaderboard-body');
-  if (leaderboardError) {
-      displayError('leaderboard-body', 'Gagal memuat leaderboard.');
+  // Leaderboard
+  if (leaderboardRes.error) {
+    displayMessage('leaderboard-body', 'Gagal memuat leaderboard. Pastikan view "leaderboard" sudah dibuat.', true);
   } else {
-      lbBody.innerHTML = leaderboardData.length > 0 ? leaderboardData.map(u => `
-        <tr class="border-b border-gray-200 hover:bg-gray-50">
-          <td class="py-3 px-6 font-medium">${u.rank || '-'}</td>
-          <td class="py-3 px-6">${u.username}</td>
-          <td class="py-3 px-6 font-bold text-yellow-500">${u.total_score || 0}</td>
-        </tr>
-      `).join('') : `<tr><td colspan="3" class="py-4 px-6 text-center text-gray-400">Belum ada data skor.</td></tr>`;
+    const lbBody = document.getElementById('leaderboard-body');
+    lbBody.innerHTML = leaderboardRes.data.length > 0 ? leaderboardRes.data.map(u => `
+      <tr class="border-b border-gray-200 hover:bg-gray-50">
+        <td class="py-3 px-6 font-medium">${u.rank}</td><td class="py-3 px-6">${u.username}</td><td class="py-3 px-6 font-bold text-yellow-500">${u.total_score}</td>
+      </tr>`).join('') : '';
+    if(leaderboardRes.data.length === 0) displayMessage('leaderboard-body', 'Belum ada data skor.');
   }
-  
-  // AKTIVITAS TERBARU
-  const recentTbody = document.getElementById('recent-activity-body');
+
+  // Recent Activity
   const recentActivities = [...quizAttemptsFiltered, ...dashboardAttemptsFiltered].sort((a,b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+  const recentTbody = document.getElementById('recent-activity-body');
   recentTbody.innerHTML = recentActivities.length > 0 ? recentActivities.map(a => `
-    <tr class="${a.is_correct === false ? 'wrong' : 'correct'} border-b border-gray-200 hover:bg-gray-50">
+    <tr class="${a.is_correct === true ? 'correct' : 'wrong'} border-b border-gray-200 hover:bg-gray-50">
       <td class="py-4 px-6">${a.username || 'Tanpa Nama'}</td>
       <td class="py-4 px-6">${formatQuizName(a.quiz_id || a.quiz_question_id)}</td>
-      <td class="py-4 px-6 font-medium">${a.score !== null ? a.score : (a.is_correct ? 1 : 0)}</td>
+      <td class="py-4 px-6 font-medium">${a.score != null ? a.score : (a.is_correct ? 1 : 0)}</td>
       <td class="py-4 px-6 text-sm text-gray-500">${new Date(a.submitted_at).toLocaleString('id-ID')}</td>
-    </tr>
-  `).join('') : `<tr><td colspan="4" class="py-4 px-6 text-center text-gray-400">Belum ada aktivitas.</td></tr>`;
-  
-  // CHART: KUIS TERPOPULER
+    </tr>`).join('') : '';
+    if(recentActivities.length === 0) displayMessage('recent-activity-body', 'Belum ada aktivitas.');
+
+  // Render Charts
+  document.getElementById('popular-quizzes-container').innerHTML = '<canvas id="popular-quizzes-chart"></canvas>';
   const popularCounts = {};
   quizAttemptsFiltered.forEach(a => { const name = formatQuizName(a.quiz_id); popularCounts[name] = (popularCounts[name] || 0) + 1; });
   const sortedQuizzes = Object.entries(popularCounts).sort(([,a],[,b]) => b - a).slice(0, 5);
-  if(sortedQuizzes.length > 0) {
-      createChart(document.getElementById('popular-quizzes-chart'), 'doughnut',
-        sortedQuizzes.map(x => x[0]),
-        sortedQuizzes.map(x => x[1]),
-        ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'], 'Pengerjaan Kuis Terpopuler'
-      );
-  }
+  if(sortedQuizzes.length > 0) createChart('popular-quizzes-chart', 'doughnut', sortedQuizzes.map(x=>x[0]), sortedQuizzes.map(x=>x[1]), ['#3b82f6','#60a5fa','#93c5fd','#bfdbfe','#e0f2fe'], 'Pengerjaan Kuis Terpopuler');
+  else displayMessage('popular-quizzes-container', 'Data kuis tidak cukup.');
 
-  // CHART: TREND SKOR
+  document.getElementById('score-trend-container').innerHTML = `<canvas id="lineChartScore"></canvas><div class="mt-2 flex justify-center gap-4"><button id="btnDaily" class="px-3 py-1 rounded">Harian</button><button id="btnWeekly" class="px-3 py-1 rounded">Mingguan</button></div>`;
   const dayMap = {}, weekMap = {};
   quizAttemptsFiltered.forEach(a => {
-    const d = new Date(a.submitted_at);
-    const score = a.score || 0;
+    const d = new Date(a.submitted_at), score = a.score || 0;
     const dayKey = d.toISOString().split('T')[0];
-    if(!dayMap[dayKey]) dayMap[dayKey] = [];
-    dayMap[dayKey].push(score);
-
-    const year = d.getFullYear();
-    const week = Math.ceil((((d - new Date(year, 0, 1)) / 86400000) + 1) / 7);
+    if(!dayMap[dayKey]) dayMap[dayKey] = []; dayMap[dayKey].push(score);
+    const year = d.getFullYear(), week = Math.ceil((((d - new Date(year, 0, 1)) / 86400000) + 1) / 7);
     const weekKey = `${year}-W${String(week).padStart(2, '0')}`;
-    if(!weekMap[weekKey]) weekMap[weekKey] = [];
-    weekMap[weekKey].push(score);
+    if(!weekMap[weekKey]) weekMap[weekKey] = []; weekMap[weekKey].push(score);
   });
-
-  const dayLabels = Object.keys(dayMap).sort();
-  const dayAvg = dayLabels.map(d => dayMap[d].reduce((s,v) => s + v, 0) / dayMap[d].length);
-  const weekLabels = Object.keys(weekMap).sort();
-  const weekAvg = weekLabels.map(w => weekMap[w].reduce((s,v) => s + v, 0) / weekMap[w].length);
-  
-  const ctxScore = document.getElementById('lineChartScore');
-  let chartScore = null;
+  const dayLabels = Object.keys(dayMap).sort(), dayAvg = dayLabels.map(d => dayMap[d].reduce((s,v) => s+v,0) / dayMap[d].length);
+  const weekLabels = Object.keys(weekMap).sort(), weekAvg = weekLabels.map(w => weekMap[w].reduce((s,v) => s+v,0) / weekMap[w].length);
   if(dayLabels.length > 0) {
-     chartScore = createChart(ctxScore, 'line', dayLabels, dayAvg, ['#3b82f6'], 'Rata-rata Skor Harian');
-  }
+    createChart('lineChartScore', 'line', dayLabels, dayAvg, ['#3b82f6'], 'Rata-rata Skor Harian');
+    // Event listeners for daily/weekly buttons
+  } else displayMessage('score-trend-container', 'Data skor tidak cukup.');
 
-  const updateChartButtons = (active) => {
-    const dailyBtn = document.getElementById('btnDaily');
-    const weeklyBtn = document.getElementById('btnWeekly');
-    dailyBtn.className = 'px-3 py-1 rounded';
-    weeklyBtn.className = 'px-3 py-1 rounded';
-    if(active === 'daily'){
-        dailyBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-500');
-        weeklyBtn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-    } else {
-        weeklyBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-500');
-        dailyBtn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-    }
-  }
+  document.getElementById('answer-percentage-container').innerHTML = '<canvas id="barChartAnswer"></canvas>';
+  const totalCorrect = quizAttemptsFiltered.reduce((s,a) => s+(Number(a.score)||0),0);
+  const totalQuestionsAll = quizAttemptsFiltered.reduce((s,a) => s+(Number(a.total_questions)||0),0);
+  if(totalQuestionsAll > 0){
+    createChart('pieChartTotal', 'pie', ['Benar', 'Salah'], [totalCorrect, totalQuestionsAll - totalCorrect], ['#4CAF50', '#F44336'], 'Benar vs Salah (Semua Kuis)');
+  } else displayMessage('pie-total-container', 'Data kuis tidak cukup.');
 
-  document.getElementById('btnDaily').addEventListener('click', () => {
-    if(chartScore) {
-        chartScore.data.labels = dayLabels;
-        chartScore.data.datasets[0].data = dayAvg;
-        chartScore.data.datasets[0].label = 'Rata-rata Skor Harian';
-        chartScore.update();
-        updateChartButtons('daily');
-    }
-  });
-
-  document.getElementById('btnWeekly').addEventListener('click', () => {
-     if(chartScore) {
-        chartScore.data.labels = weekLabels;
-        chartScore.data.datasets[0].data = weekAvg;
-        chartScore.data.datasets[0].label = 'Rata-rata Skor Mingguan';
-        chartScore.update();
-        updateChartButtons('weekly');
-    }
-  });
-  
-  // CHART: PERSENTASE JAWABAN BENAR PER KUIS
-  const quizAnswerMap = {};
-  quizAttemptsFiltered.forEach(a => {
-    const name = formatQuizName(a.quiz_id);
-    if (!quizAnswerMap[name]) quizAnswerMap[name] = { correct: 0, total: 0 };
-    quizAnswerMap[name].correct += (Number(a.score) || 0);
-    quizAnswerMap[name].total += (Number(a.total_questions) || 0);
-  });
-  const quizLabels = Object.keys(quizAnswerMap);
-  const quizPercentages = quizLabels.map(label => {
-      const {correct, total} = quizAnswerMap[label];
-      return total > 0 ? Math.round((correct / total) * 100) : 0;
-  });
-  if(quizLabels.length > 0){
-      createChart(document.getElementById('barChartAnswer'), 'bar', quizLabels, quizPercentages,
-      ['#3b82f6','#60a5fa','#93c5fd','#2563eb','#1e40af'], 'Persentase Jawaban Benar (%)'
-      );
-  }
-
-  // CHART: BENAR VS SALAH (SEMUA KUIS)
-  const totalCorrect = quizAttemptsFiltered.reduce((sum, a) => sum + (Number(a.score) || 0), 0);
-  const totalQuestions = quizAttemptsFiltered.reduce((sum, a) => sum + (Number(a.total_questions) || 0), 0);
-  if(totalQuestions > 0){
-      createChart(document.getElementById('pieChartTotal'), 'pie', ['Benar', 'Salah'],
-        [totalCorrect, totalQuestions - totalCorrect], ['#4CAF50', '#F44336'], 'Benar vs Salah (Semua Kuis)'
-      );
-  }
-
-  // CHART: BENAR VS SALAH (TANTANGAN HARI INI)
+  document.getElementById('pie-daily-container').innerHTML = '<canvas id="pieChartDaily"></canvas>';
   const todayDashboardAttempts = dashboardAttemptsFiltered.filter(a => new Date(a.submitted_at) >= today);
-  const correctDashboardToday = todayDashboardAttempts.filter(a => a.is_correct).length;
-  const totalDashboardToday = todayDashboardAttempts.length;
-   if(totalDashboardToday > 0){
-      createChart(document.getElementById('pieChartDaily'), 'pie', ['Benar', 'Salah'],
-        [correctDashboardToday, totalDashboardToday - correctDashboardToday], ['#4CAF50', '#F44336'], 'Benar vs Salah (Tantangan Hari Ini)'
-      );
-  }
+  if(todayDashboardAttempts.length > 0){
+    const correctDashboardToday = todayDashboardAttempts.filter(a => a.is_correct).length;
+    createChart('pieChartDaily', 'pie', ['Benar', 'Salah'], [correctDashboardToday, todayDashboardAttempts.length - correctDashboardToday], ['#4CAF50', '#F44336'], 'Benar vs Salah (Tantangan Hari Ini)');
+  } else displayMessage('pie-daily-container', 'Tidak ada tantangan hari ini.');
 
 });
 </script>
