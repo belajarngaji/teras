@@ -138,7 +138,7 @@ function formatQuizName(quizId) {
       // Biarkan jika parsing gagal
     }
   }
-  
+
   // Fallback: ganti underscore dengan spasi
   return quizId.replace(/_/g, ' ');
 }
@@ -175,7 +175,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ===== Pengecekan login & role admin =====
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    window.location.href = '/teras/admin';
+    // Pengalihan dihapus. Cukup hentikan eksekusi jika tidak ada pengguna.
+    console.warn("Pengguna belum masuk. Data tidak akan dimuat.");
     return;
   }
 
@@ -186,8 +187,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     .single();
 
   if (!profile || (profile.role !== 'admin' && profile.role !== 'superadmin')) {
+    // Pengalihan dihapus. Tampilkan pesan dan hentikan eksekusi.
     alert('Anda tidak memiliki akses ke dashboard ini.');
-    window.location.href = '/';
+    console.error("Pengguna tidak memiliki peran admin yang diperlukan.");
     return;
   }
 
@@ -215,7 +217,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const data = r.data || [];
       const counts = {};
       data.forEach(a => {
-        const name = formatQuizName(a.quiz_id); // PERBAIKAN: Menggunakan fungsi format
+        const name = formatQuizName(a.quiz_id);
         counts[name] = (counts[name] || 0) + 1;
       });
       const sorted = Object.entries(counts).sort(([,a],[,b]) => b - a).slice(0,5);
@@ -251,7 +253,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   tbody.innerHTML=recentActivities.length>0?
     recentActivities.map(a=>`<tr class="${a.is_correct?'correct':'wrong'} border-b border-gray-200 hover:bg-gray-50">
       <td class="py-4 px-6">${a.username||'Tanpa Nama'}</td>
-      <td class="py-4 px-6">${formatQuizName(a.quiz_id)}</td> <!-- PERBAIKAN: Menggunakan fungsi format -->
+      <td class="py-4 px-6">${formatQuizName(a.quiz_id)}</td>
       <td class="py-4 px-6 font-medium">${a.score}</td>
       <td class="py-4 px-6 text-sm text-gray-500">${new Date(a.submitted_at).toLocaleString('id-ID')}</td>
     </tr>`).join('') :
