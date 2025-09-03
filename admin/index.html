@@ -83,7 +83,7 @@
 
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-  
+
   // --- KONFIGURASI SUPABASE ---
   const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
   // PENTING! Ganti dengan kunci 'anon' (public) Anda. JANGAN gunakan service_role.
@@ -145,7 +145,7 @@
         await supabase.auth.signOut(); // Pastikan logout jika verifikasi gagal
         throw new Error("Gagal memverifikasi role Anda.");
       }
-      
+
       // 4. Cek apakah role sesuai (admin atau superadmin)
       if (profile.role !== 'admin' && profile.role !== 'superadmin') {
         await supabase.auth.signOut();
@@ -163,7 +163,7 @@
       loginBtn.textContent = 'Login';
     }
   };
-  
+
   // --- EVENT LISTENERS ---
   loginBtn.addEventListener('click', handleLogin);
   // Tambahkan listener agar bisa login dengan menekan tombol 'Enter'
