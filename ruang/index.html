@@ -90,11 +90,6 @@ const errorMessage = document.getElementById('error-message');
 const retryButton = document.getElementById('retry-button');
 const dashboardContent = document.getElementById('dashboard-content');
 
-// Removed chart-related functions and variables
-// function formatQuizName(id){ if (!id) return 'Kuis Tidak Dikenal'; return id.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); }
-// let charts = {};
-// function createOrUpdateChart(id,type,labels,data,colors,label){ ... }
-
 const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay');
 document.getElementById('sidebar-toggle').addEventListener('click',()=>{sidebar.classList.toggle('-translate-x-full'),overlay.style.display=sidebar.classList.contains('-translate-x-full')?'none':'block'});
 overlay.addEventListener('click',()=>{sidebar.classList.add('-translate-x-full'),overlay.style.display='none'});
@@ -138,12 +133,12 @@ async function loadDashboardData(user, profile) {
       { data: quizAttemptsTodayData, error: quizAttemptsError },
       { count: totalUsers, error: usersError },
       { data: leaderboardData, error: leaderboardError },
-      { data: recentActivityData, error: recentActivityError } // Fetch recent activity
+      { data: recentActivityData, error: recentActivityError }
     ] = await Promise.all([
-      supabase.from('quiz_attempts').select('submitted_at'), // Only need submitted_at for today's count
+      supabase.from('quiz_attempts').select('submitted_at'),
       supabase.from('profiles').select('*', { count: 'exact', head: true }),
       supabase.from('leaderboard').select('username, total_score').order('total_score', { ascending: false }).limit(10),
-      supabase.from('quiz_attempts').select('profiles(username), quiz_id, score, submitted_at').order('submitted_at', { ascending: false }).limit(10) // Fetch recent activity
+      supabase.from('quiz_attempts').select('profiles(username), quiz_id, score, submitted_at').order('submitted_at', { ascending: false }).limit(10)
     ]);
 
     const firstError = quizAttemptsError || usersError || leaderboardError || recentActivityError;
@@ -175,8 +170,6 @@ async function loadDashboardData(user, profile) {
         </tr>
       `;
     }).join('') || `<tr><td colspan="4" class="py-4 px-6 text-center">Belum ada aktivitas terbaru.</td></tr>`;
-
-    // Removed all chart rendering logic
 
     loaderContainer.style.display = 'none';
     dashboardContent.style.display = 'block';
