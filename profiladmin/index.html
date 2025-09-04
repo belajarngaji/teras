@@ -110,19 +110,28 @@
     let currentUser = null;
 
     // --- Inisialisasi Halaman ---
-    async function initializeProfilePage() {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (user) {
-        currentUser = user;
-        profileContainer.classList.remove("hidden");
-        loginPrompt.classList.add("hidden");
-        await loadAdminProfile(user.id);
-        setupActionButtons();
-      } else {
-        showLoginPrompt();
-      }
-    }
+    // <<< PERUBAHAN DI SINI >>>
+const IS_DEVELOPMENT = true; // Ganti jadi 'false' saat mau production
+const DEV_USER_ID = "MASUKKAN_ID_ADMIN_ANDA_DI_SINI"; // 👈 Ganti dengan ID admin Anda dari Supabase
 
+async function initializeProfilePage() {
+  if (IS_DEVELOPMENT) {
+    // Mode Developer: Langsung muat profil dengan ID statis
+    console.warn("MODE PENGEMBANGAN AKTIF. Menggunakan ID statis.");
+    await loadAdminProfile(DEV_USER_ID);
+    setupActionButtons(); // Tetap tampilkan tombol
+  } else {
+    // Mode Produksi: Wajibkan login
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (user) {
+      currentUser = user;
+      await loadAdminProfile(user.id);
+      setupActionButtons();
+    } else {
+      showLoginPrompt();
+    }
+  }
+}
     // --- Memuat Data Profil dari 'admins_view' ---
     async function loadAdminProfile(userId) {
       // Mengambil data dari view 'admins_view'
