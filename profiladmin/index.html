@@ -9,9 +9,32 @@
   <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: 'Poppins', sans-serif; }
-    /* Menambahkan style untuk transisi halus pada tombol */
     .btn-transition { transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out; }
     .btn-transition:active { transform: scale(0.98); }
+
+    /* Lencana SUPER ADMIN yang Mewah */
+    #role-display {
+        /* Background dengan gradien mewah */
+        background: linear-gradient(135deg, #FFD700, #DAA520, #B8860B);
+        
+        /* Warna teks putih untuk kontras yang kuat */
+        color: #FFFFFF;
+
+        /* Bayangan teks untuk efek timbul */
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+
+        /* Bentuk pil dan padding */
+        padding: 6px 16px;
+        border-radius: 9999px; /* Tailwind's rounded-full */
+
+        /* Bayangan kotak yang elegan */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+
+        /* Gaya font dan ukuran */
+        font-size: 0.875rem; /* Tailwind's text-sm */
+        font-weight: 700;    /* Tailwind's font-bold */
+        text-transform: uppercase;
+    }
   </style>
 </head>
 <body class="bg-gray-100 dark:bg-slate-900 text-gray-800 dark:text-gray-200">
@@ -41,7 +64,7 @@
         </div>
 
         <p id="role-display" class="bg-cyan-100 text-cyan-800 text-sm font-semibold px-3 py-1 rounded-full -mt-2 mb-4 dark:bg-cyan-900 dark:text-cyan-200">Memuat...</p>
-        
+
         <h2 id="username-display" class="text-3xl font-bold">Memuat...</h2>
       </div>
 
@@ -61,7 +84,7 @@
 
       <div id="auth-buttons" class="mt-8 pt-6 border-t dark:border-gray-700 flex flex-col sm:flex-row gap-4"></div>
     </div>
-    
+
     <div id="login-prompt" class="hidden text-center bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8">
         <h2 class="text-2xl font-bold mb-2">Anda Belum Masuk</h2>
         <p class="text-gray-500 dark:text-gray-400 mb-6">Silakan masuk untuk melihat halaman profil Anda.</p>
@@ -87,42 +110,42 @@
 
   <script type="module">
     const { createClient } = supabase;
-    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_URL = "https://jpxtbaxajjyrvqrgijd.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // --- Element Getters ---
-    const profileContainer = document.getElementById("profile-container");
-    const loginPrompt = document.getElementById("login-prompt");
-    const profileInitial = document.getElementById("profile-initial");
-    const profilePhoto = document.getElementById("profile-photo");
-    const usernameDisplay = document.getElementById("username-display"); // Diperbaiki
-    const roleDisplay = document.getElementById("role-display");
-    const emailDisplay = document.getElementById("email-display");
-    const lastActiveDisplay = document.getElementById("last-active-display");
-    const authButtons = document.getElementById("auth-buttons");
-    const modal = document.getElementById("avatar-modal");
-    const closeModalBtn = document.getElementById("close-modal");
-    const preview = document.getElementById("preview");
-    const avatarInput = document.getElementById("avatarInput");
-    const uploadBtn = document.getElementById("uploadBtn");
+    // --- Mengambil elemen DOM ---
+    const elements = {
+        profileContainer: document.getElementById("profile-container"),
+        loginPrompt: document.getElementById("login-prompt"),
+        profileInitial: document.getElementById("profile-initial"),
+        profilePhoto: document.getElementById("profile-photo"),
+        usernameDisplay: document.getElementById("username-display"),
+        roleDisplay: document.getElementById("role-display"),
+        emailDisplay: document.getElementById("email-display"),
+        lastActiveDisplay: document.getElementById("last-active-display"),
+        authButtons: document.getElementById("auth-buttons"),
+        modal: document.getElementById("avatar-modal"),
+        closeModalBtn: document.getElementById("close-modal"),
+        preview: document.getElementById("preview"),
+        avatarInput: document.getElementById("avatarInput"),
+        uploadBtn: document.getElementById("uploadBtn")
+    };
 
     let currentUser = null;
 
-    // --- Inisialisasi Halaman ---
-    const IS_DEVELOPMENT = true; // Ganti jadi 'false' saat mau production
-    const DEV_USER_ID = "f9874e8c-4a27-4b27-8e71-66f611349218"; // Ganti dengan ID admin Anda
+    // --- Konstanta dan Inisialisasi Halaman ---
+    const IS_DEVELOPMENT = true;
+    const DEV_USER_ID = "f9874e8c-4a27-4b27-8e71-66f611349218";
 
     async function initializeProfilePage() {
       if (IS_DEVELOPMENT) {
-        // Mode Developer: Langsung muat profil dengan ID statis
         console.warn("MODE PENGEMBANGAN AKTIF. Menggunakan ID statis.");
-        document.getElementById("profile-container").classList.remove("hidden");
-        document.getElementById("login-prompt").classList.add("hidden");
+        elements.profileContainer.classList.remove("hidden");
+        elements.loginPrompt.classList.add("hidden");
         await loadAdminProfile(DEV_USER_ID);
-        setupActionButtons(); // Tetap tampilkan tombol
+        setupActionButtons();
       } else {
-        // Mode Produksi: Wajibkan login
         const { data: { user } } = await supabaseClient.auth.getUser();
         if (user) {
           currentUser = user;
@@ -134,60 +157,55 @@
       }
     }
 
-    // --- Memuat Data Profil dari 'admins_view' ---
     async function loadAdminProfile(userId) {
       const { data: admin, error } = await supabaseClient
         .from("admins_view")
         .select("*")
         .eq("id", userId)
-        .maybeSingle(); // Diperbaiki: lebih aman dari error 406
+        .maybeSingle();
 
       if (error) {
         console.error("Gagal memuat profil admin:", error.message);
-        usernameDisplay.textContent = "Gagal Memuat Profil";
-        roleDisplay.textContent = "-";
-        emailDisplay.textContent = "-";
+        elements.usernameDisplay.textContent = "Gagal Memuat Profil";
+        elements.roleDisplay.textContent = "-";
+        elements.emailDisplay.textContent = "-";
         return;
       }
 
       if (admin) {
-        // Mengisi data ke elemen HTML menggunakan kolom 'username'
-        usernameDisplay.textContent = admin.username || "Username tidak diatur";
-        roleDisplay.textContent = admin.role || "Role tidak diatur";
-        emailDisplay.textContent = admin.email || "-";
+        elements.usernameDisplay.textContent = admin.username || "Username tidak diatur";
+        elements.roleDisplay.textContent = admin.role || "Role tidak diatur";
+        elements.emailDisplay.textContent = admin.email || "-";
         
-        lastActiveDisplay.textContent = admin.last_sign_in_at 
+        elements.lastActiveDisplay.textContent = admin.last_sign_in_at 
             ? new Date(admin.last_sign_in_at).toLocaleString("id-ID", { dateStyle: 'medium', timeStyle: 'short' })
             : "Tidak diketahui";
 
-        // Mengatur foto profil atau inisial dari username
         if (admin.avatar_url) {
-          profilePhoto.src = admin.avatar_url;
-          preview.src = admin.avatar_url;
-          profilePhoto.classList.remove("hidden");
-          profileInitial.classList.add("hidden");
+          elements.profilePhoto.src = admin.avatar_url;
+          elements.preview.src = admin.avatar_url;
+          elements.profilePhoto.classList.remove("hidden");
+          elements.profileInitial.classList.add("hidden");
         } else {
-          profileInitial.textContent = (admin.username || "?").charAt(0).toUpperCase();
-          profilePhoto.classList.add("hidden");
-          profileInitial.classList.remove("hidden");
+          elements.profileInitial.textContent = (admin.username || "?").charAt(0).toUpperCase();
+          elements.profilePhoto.classList.add("hidden");
+          elements.profileInitial.classList.remove("hidden");
         }
       } else {
-        // Menangani kasus jika admin tidak ditemukan di database
-        usernameDisplay.textContent = "Profil tidak ditemukan";
-        roleDisplay.textContent = "-";
-        emailDisplay.textContent = "-";
-        lastActiveDisplay.textContent = "-";
+        elements.usernameDisplay.textContent = "Profil tidak ditemukan";
+        elements.roleDisplay.textContent = "-";
+        elements.emailDisplay.textContent = "-";
+        elements.lastActiveDisplay.textContent = "-";
       }
     }
 
-    // --- Pengaturan Tombol Aksi ---
     function setupActionButtons() {
-      authButtons.innerHTML = `
+      elements.authButtons.innerHTML = `
         <button id="edit-profile-button" class="w-full sm:w-auto flex-1 bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 btn-transition">Edit Profil</button>
         <button id="change-password-button" class="w-full sm:w-auto flex-1 bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600 btn-transition">Ganti Kata Sandi</button>
         <button id="logout-button" class="w-full sm:w-auto bg-red-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-600 btn-transition">Keluar</button>
       `;
-      // Event listener untuk tombol logout hanya di mode produksi
+      
       if (!IS_DEVELOPMENT) {
           document.getElementById("logout-button").addEventListener("click", async () => {
             await supabaseClient.auth.signOut();
@@ -196,21 +214,19 @@
       }
     }
 
-    // --- Tampilan Jika Belum Login ---
     function showLoginPrompt() {
-      profileContainer.classList.add("hidden");
-      loginPrompt.classList.remove("hidden");
+      elements.profileContainer.classList.add("hidden");
+      elements.loginPrompt.classList.remove("hidden");
     }
 
-    // --- Logika Upload Avatar ---
     async function uploadAvatar(file, userId) {
       if (!file) {
-        alert("Pilih file yang akan diupload.");
+        alert("Pilih file yang akan diunggah.");
         return;
       }
-      
-      uploadBtn.disabled = true;
-      uploadBtn.textContent = "Mengunggah...";
+
+      elements.uploadBtn.disabled = true;
+      elements.uploadBtn.textContent = "Mengunggah...";
 
       const fileName = `${userId}_${Date.now()}`;
       const { error: uploadError } = await supabaseClient.storage
@@ -219,9 +235,9 @@
 
       if (uploadError) {
         console.error(uploadError);
-        alert("Upload gagal: " + uploadError.message);
-        uploadBtn.disabled = false;
-        uploadBtn.textContent = "Upload Foto Baru";
+        alert("Unggah gagal: " + uploadError.message);
+        elements.uploadBtn.disabled = false;
+        elements.uploadBtn.textContent = "Unggah Foto Baru";
         return;
       }
 
@@ -237,32 +253,31 @@
         console.error(updateError);
         alert("Gagal memperbarui URL avatar di profil.");
       } else {
-        profilePhoto.src = publicUrl;
-        preview.src = publicUrl;
-        profilePhoto.classList.remove("hidden");
-        profileInitial.classList.add("hidden");
-        modal.classList.add("hidden");
+        elements.profilePhoto.src = publicUrl;
+        elements.preview.src = publicUrl;
+        elements.profilePhoto.classList.remove("hidden");
+        elements.profileInitial.classList.add("hidden");
+        elements.modal.classList.add("hidden");
       }
-      uploadBtn.disabled = false;
-      uploadBtn.textContent = "Upload Foto Baru";
+      elements.uploadBtn.disabled = false;
+      elements.uploadBtn.textContent = "Unggah Foto Baru";
     }
 
-    // --- Event Listener untuk Modal ---
-    document.getElementById("profile-photo-wrapper").addEventListener("click", () => {
-      // Buka modal di mode dev atau jika user sudah login
+    // --- Event Listener ---
+    elements.profilePhoto.addEventListener("click", () => {
       if (IS_DEVELOPMENT || currentUser) {
-          modal.classList.remove("hidden");
-          modal.classList.add("flex");
+        elements.modal.classList.remove("hidden");
+        elements.modal.classList.add("flex");
       }
     });
 
-    closeModalBtn.addEventListener("click", () => {
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
+    elements.closeModalBtn.addEventListener("click", () => {
+      elements.modal.classList.add("hidden");
+      elements.modal.classList.remove("flex");
     });
 
-    uploadBtn.addEventListener("click", async () => {
-      const file = avatarInput.files[0];
+    elements.uploadBtn.addEventListener("click", async () => {
+      const file = elements.avatarInput.files[0];
       const userId = IS_DEVELOPMENT ? DEV_USER_ID : (currentUser ? currentUser.id : null);
       if (userId) {
         await uploadAvatar(file, userId);
