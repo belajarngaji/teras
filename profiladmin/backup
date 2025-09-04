@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Admin - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+    /* Menambahkan style untuk transisi halus pada tombol */
+    .btn-transition { transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out; }
+    .btn-transition:active { transform: scale(0.98); }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-slate-900 text-gray-800 dark:text-gray-200">
+
+  <nav class="flex justify-between items-center bg-white dark:bg-slate-800 text-slate-800 dark:text-white px-6 py-4 shadow-md sticky top-0 z-10">
+    <div>
+      <a href=".">
+        <span class="text-xl font-bold">Profil Admin</span>
+      </a>
+    </div>
+    <button onclick="history.back()" class="bg-gray-200 dark:bg-slate-700 p-2 rounded-full hover:bg-gray-300 dark:hover:bg-slate-600">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+  </nav>
+
+  <main class="mx-auto px-4 py-10 w-full max-w-2xl">
+    <div id="profile-container" class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 sm:p-8">
+      <div class="flex flex-col items-center text-center">
+        <div id="profile-photo-wrapper" class="relative cursor-pointer group">
+          <div id="profile-initial" class="w-28 h-28 bg-blue-500 text-white flex items-center justify-center rounded-full text-5xl font-bold mb-4 border-4 border-white dark:border-slate-700">?</div>
+          <img id="profile-photo" src="" alt="Foto Profil" class="hidden w-28 h-28 rounded-full object-cover border-4 border-white dark:border-slate-700 mb-4" />
+          <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 rounded-full flex items-center justify-center transition-opacity">
+            <span class="text-white text-sm opacity-0 group-hover:opacity-100">Ganti Foto</span>
+          </div>
+        </div>
+
+        <p id="role-display" class="bg-cyan-100 text-cyan-800 text-sm font-semibold px-3 py-1 rounded-full -mt-2 mb-4 dark:bg-cyan-900 dark:text-cyan-200">Memuat...</p>
+
+        <h2 id="username-display" class="text-3xl font-bold">Memuat...</h2>
+      </div>
+
+      <div class="mt-8 border-t dark:border-gray-700 pt-6">
+        <h3 class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-300">Detail Admin</h3>
+        <ul class="space-y-4">
+          <li class="flex items-center">
+            <svg class="w-6 h-6 text-gray-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            <span id="email-display" class="text-gray-600 dark:text-gray-400">Memuat...</span>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-6 h-6 text-gray-400 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="text-gray-600 dark:text-gray-400">Terakhir Aktif: <b id="last-active-display">Memuat...</b></span>
+          </li>
+        </ul>
+      </div>
+
+      <div id="auth-buttons" class="mt-8 pt-6 border-t dark:border-gray-700 flex flex-col sm:flex-row gap-4"></div>
+    </div>
+
+    <div id="login-prompt" class="hidden text-center bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8">
+        <h2 class="text-2xl font-bold mb-2">Anda Belum Masuk</h2>
+        <p class="text-gray-500 dark:text-gray-400 mb-6">Silakan masuk untuk melihat halaman profil Anda.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="../daftar/" class="w-full sm:w-auto px-6 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 btn-transition text-center">Daftar</a>
+            <a href="../masuk/" class="w-full sm:w-auto px-6 bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 btn-transition text-center">Masuk</a>
+        </div>
+    </div>
+  </main>
+
+  <footer class="text-center py-6 text-gray-500 mt-10">
+    <p>&copy; 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
+  </footer>
+
+  <div id="avatar-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 w-96 text-center relative">
+      <button id="close-modal" class="absolute top-2 right-2 text-gray-500 hover:text-red-600 dark:hover:text-red-400">✕</button>
+      <img id="preview" src="" alt="Pratinjau Foto" class="w-40 h-40 rounded-full object-cover border-4 border-gray-200 dark:border-slate-700 mx-auto mb-4" />
+      <input type="file" id="avatarInput" accept="image/*" class="mb-4 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+      <button id="uploadBtn" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 btn-transition">Upload Foto Baru</button>
+    </div>
+  </div>
+
+  <script type="module">
+    const { createClient } = supabase;
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjMxMjg5OCwiZXhwIjoyMDcxODg4ODk4fQ.1-CFqhW0mXPyv8jFyd-sa4m2FoCkyY4LbgiKGIKwb6I";
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // --- Element Getters ---
+    const profileContainer = document.getElementById("profile-container");
+    const loginPrompt = document.getElementById("login-prompt");
+    const profileInitial = document.getElementById("profile-initial");
+    const profilePhoto = document.getElementById("profile-photo");
+    const usernameDisplay = document.getElementById("username-display"); // Diperbaiki
+    const roleDisplay = document.getElementById("role-display");
+    const emailDisplay = document.getElementById("email-display");
+    const lastActiveDisplay = document.getElementById("last-active-display");
+    const authButtons = document.getElementById("auth-buttons");
+    const modal = document.getElementById("avatar-modal");
+    const closeModalBtn = document.getElementById("close-modal");
+    const preview = document.getElementById("preview");
+    const avatarInput = document.getElementById("avatarInput");
+    const uploadBtn = document.getElementById("uploadBtn");
+
+    let currentUser = null;
+
+    // --- Inisialisasi Halaman ---
+    const IS_DEVELOPMENT = true; // Ganti jadi 'false' saat mau production
+    const DEV_USER_ID = "f9874e8c-4a27-4b27-8e71-66f611349218"; // Ganti dengan ID admin Anda
+
+    async function initializeProfilePage() {
+      if (IS_DEVELOPMENT) {
+        // Mode Developer: Langsung muat profil dengan ID statis
+        console.warn("MODE PENGEMBANGAN AKTIF. Menggunakan ID statis.");
+        document.getElementById("profile-container").classList.remove("hidden");
+        document.getElementById("login-prompt").classList.add("hidden");
+        await loadAdminProfile(DEV_USER_ID);
+        setupActionButtons(); // Tetap tampilkan tombol
+      } else {
+        // Mode Produksi: Wajibkan login
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (user) {
+          currentUser = user;
+          await loadAdminProfile(user.id);
+          setupActionButtons();
+        } else {
+          showLoginPrompt();
+        }
+      }
+    }
+
+    // --- Memuat Data Profil dari 'admins_view' ---
+    async function loadAdminProfile(userId) {
+      const { data: admin, error } = await supabaseClient
+        .from("admins_view")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle(); // Diperbaiki: lebih aman dari error 406
+
+      if (error) {
+        console.error("Gagal memuat profil admin:", error.message);
+        usernameDisplay.textContent = "Gagal Memuat Profil";
+        roleDisplay.textContent = "-";
+        emailDisplay.textContent = "-";
+        return;
+      }
+
+      if (admin) {
+        // Mengisi data ke elemen HTML menggunakan kolom 'username'
+        usernameDisplay.textContent = admin.username || "Username tidak diatur";
+        roleDisplay.textContent = admin.role || "Role tidak diatur";
+        emailDisplay.textContent = admin.email || "-";
+
+        lastActiveDisplay.textContent = admin.last_sign_in_at 
+            ? new Date(admin.last_sign_in_at).toLocaleString("id-ID", { dateStyle: 'medium', timeStyle: 'short' })
+            : "Tidak diketahui";
+
+        // Mengatur foto profil atau inisial dari username
+        if (admin.avatar_url) {
+          profilePhoto.src = admin.avatar_url;
+          preview.src = admin.avatar_url;
+          profilePhoto.classList.remove("hidden");
+          profileInitial.classList.add("hidden");
+        } else {
+          profileInitial.textContent = (admin.username || "?").charAt(0).toUpperCase();
+          profilePhoto.classList.add("hidden");
+          profileInitial.classList.remove("hidden");
+        }
+      } else {
+        // Menangani kasus jika admin tidak ditemukan di database
+        usernameDisplay.textContent = "Profil tidak ditemukan";
+        roleDisplay.textContent = "-";
+        emailDisplay.textContent = "-";
+        lastActiveDisplay.textContent = "-";
+      }
+    }
+
+    // --- Pengaturan Tombol Aksi ---
+    function setupActionButtons() {
+      authButtons.innerHTML = `
+        <button id="edit-profile-button" class="w-full sm:w-auto flex-1 bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 btn-transition">Edit Profil</button>
+        <button id="change-password-button" class="w-full sm:w-auto flex-1 bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600 btn-transition">Ganti Kata Sandi</button>
+        <button id="logout-button" class="w-full sm:w-auto bg-red-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-600 btn-transition">Keluar</button>
+      `;
+      // Event listener untuk tombol logout hanya di mode produksi
+      if (!IS_DEVELOPMENT) {
+          document.getElementById("logout-button").addEventListener("click", async () => {
+            await supabaseClient.auth.signOut();
+            window.location.href = "../../masuk/";
+          });
+      }
+    }
+
+    // --- Tampilan Jika Belum Login ---
+    function showLoginPrompt() {
+      profileContainer.classList.add("hidden");
+      loginPrompt.classList.remove("hidden");
+    }
+
+    // --- Logika Upload Avatar ---
+    async function uploadAvatar(file, userId) {
+      if (!file) {
+        alert("Pilih file yang akan diupload.");
+        return;
+      }
+
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = "Mengunggah...";
+
+      const fileName = `${userId}_${Date.now()}`;
+      const { error: uploadError } = await supabaseClient.storage
+        .from("avatars")
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) {
+        console.error(uploadError);
+        alert("Upload gagal: " + uploadError.message);
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = "Upload Foto Baru";
+        return;
+      }
+
+      const { data } = supabaseClient.storage.from("avatars").getPublicUrl(fileName);
+      const publicUrl = data.publicUrl;
+
+      const { error: updateError } = await supabaseClient
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("id", userId);
+
+      if (updateError) {
+        console.error(updateError);
+        alert("Gagal memperbarui URL avatar di profil.");
+      } else {
+        profilePhoto.src = publicUrl;
+        preview.src = publicUrl;
+        profilePhoto.classList.remove("hidden");
+        profileInitial.classList.add("hidden");
+        modal.classList.add("hidden");
+      }
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = "Upload Foto Baru";
+    }
+
+    // --- Event Listener untuk Modal ---
+    document.getElementById("profile-photo-wrapper").addEventListener("click", () => {
+      // Buka modal di mode dev atau jika user sudah login
+      if (IS_DEVELOPMENT || currentUser) {
+          modal.classList.remove("hidden");
+          modal.classList.add("flex");
+      }
+    });
+
+    closeModalBtn.addEventListener("click", () => {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    });
+
+    uploadBtn.addEventListener("click", async () => {
+      const file = avatarInput.files[0];
+      const userId = IS_DEVELOPMENT ? DEV_USER_ID : (currentUser ? currentUser.id : null);
+      if (userId) {
+        await uploadAvatar(file, userId);
+      }
+    });
+
+    // Jalankan saat DOM siap
+    document.addEventListener("DOMContentLoaded", initializeProfilePage);
+  </script>
+</body>
+</html>
