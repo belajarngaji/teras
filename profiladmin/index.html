@@ -88,7 +88,7 @@
   <script type="module">
     const { createClient } = supabase;
     const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // --- Element Getters ---
@@ -96,7 +96,7 @@
     const loginPrompt = document.getElementById("login-prompt");
     const profileInitial = document.getElementById("profile-initial");
     const profilePhoto = document.getElementById("profile-photo");
-    const fullnameDisplay = document.getElementById("fullname-display");
+    const usernameDisplay = document.getElementById("username-display"); // Diperbaiki
     const roleDisplay = document.getElementById("role-display");
     const emailDisplay = document.getElementById("email-display");
     const lastActiveDisplay = document.getElementById("last-active-display");
@@ -110,68 +110,73 @@
     let currentUser = null;
 
     // --- Inisialisasi Halaman ---
-    // <<< PERUBAHAN DI SINI >>>
-const IS_DEVELOPMENT = true; // Ganti jadi 'false' saat mau production
-const DEV_USER_ID = "f9874e8c-4a27-4b27-8e71-66f611349218"; // 👈 Ganti dengan ID admin Anda dari Supabase
+    const IS_DEVELOPMENT = true; // Ganti jadi 'false' saat mau production
+    const DEV_USER_ID = "f9874e8c-4a27-4b27-8e71-66f611349218"; // Ganti dengan ID admin Anda
 
-async function initializeProfilePage() {
-  if (IS_DEVELOPMENT) {
-    // Mode Developer: Langsung muat profil dengan ID statis
-    console.warn("MODE PENGEMBANGAN AKTIF. Menggunakan ID statis.");
-    await loadAdminProfile(DEV_USER_ID);
-    setupActionButtons(); // Tetap tampilkan tombol
-  } else {
-    // Mode Produksi: Wajibkan login
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (user) {
-      currentUser = user;
-      await loadAdminProfile(user.id);
-      setupActionButtons();
-    } else {
-      showLoginPrompt();
+    async function initializeProfilePage() {
+      if (IS_DEVELOPMENT) {
+        // Mode Developer: Langsung muat profil dengan ID statis
+        console.warn("MODE PENGEMBANGAN AKTIF. Menggunakan ID statis.");
+        document.getElementById("profile-container").classList.remove("hidden");
+        document.getElementById("login-prompt").classList.add("hidden");
+        await loadAdminProfile(DEV_USER_ID);
+        setupActionButtons(); // Tetap tampilkan tombol
+      } else {
+        // Mode Produksi: Wajibkan login
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (user) {
+          currentUser = user;
+          await loadAdminProfile(user.id);
+          setupActionButtons();
+        } else {
+          showLoginPrompt();
+        }
+      }
     }
-  }
-}
+
     // --- Memuat Data Profil dari 'admins_view' ---
     async function loadAdminProfile(userId) {
-      // Mengambil data dari view 'admins_view'
       const { data: admin, error } = await supabaseClient
         .from("admins_view")
         .select("*")
         .eq("id", userId)
-        .single();
+        .maybeSingle(); // Diperbaiki: lebih aman dari error 406
 
       if (error) {
         console.error("Gagal memuat profil admin:", error.message);
-        usernameDisplay.textContent = "Profil tidak ditemukan";
+        usernameDisplay.textContent = "Gagal Memuat Profil";
         roleDisplay.textContent = "-";
         emailDisplay.textContent = "-";
-        lastActiveDisplay.textContent = "-";
         return;
       }
 
       if (admin) {
-        // Mengisi data ke elemen HTML
-        fullnameDisplay.textContent = admin.full_name || "Nama tidak diatur";
+        // Mengisi data ke elemen HTML menggunakan kolom 'username'
+        usernameDisplay.textContent = admin.username || "Username tidak diatur";
         roleDisplay.textContent = admin.role || "Role tidak diatur";
         emailDisplay.textContent = admin.email || "-";
         
-        // Format tanggal terakhir aktif
-        lastActiveDisplay.textContent = admin.last_active 
-            ? new Date(admin.last_active).toLocaleString("id-ID", { dateStyle: 'medium', timeStyle: 'short' })
+        lastActiveDisplay.textContent = admin.last_sign_in_at 
+            ? new Date(admin.last_sign_in_at).toLocaleString("id-ID", { dateStyle: 'medium', timeStyle: 'short' })
             : "Tidak diketahui";
 
-        // Mengatur foto profil atau inisial
+        // Mengatur foto profil atau inisial dari username
         if (admin.avatar_url) {
           profilePhoto.src = admin.avatar_url;
           preview.src = admin.avatar_url;
           profilePhoto.classList.remove("hidden");
           profileInitial.classList.add("hidden");
         } else {
-          profileInitial.textContent = (admin.full_name || "?").charAt(0).toUpperCase();
+          profileInitial.textContent = (admin.username || "?").charAt(0).toUpperCase();
           profilePhoto.classList.add("hidden");
           profileInitial.classList.remove("hidden");
         }
+      } else {
+        // Menangani kasus jika admin tidak ditemukan di database
+        usernameDisplay.textContent = "Profil tidak ditemukan";
+        roleDisplay.textContent = "-";
+        emailDisplay.textContent = "-";
+        lastActiveDisplay.textContent = "-";
       }
     }
 
@@ -182,11 +187,13 @@ async function initializeProfilePage() {
         <button id="change-password-button" class="w-full sm:w-auto flex-1 bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600 btn-transition">Ganti Kata Sandi</button>
         <button id="logout-button" class="w-full sm:w-auto bg-red-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-600 btn-transition">Keluar</button>
       `;
-      document.getElementById("logout-button").addEventListener("click", async () => {
-        await supabaseClient.auth.signOut();
-        window.location.href = "../../masuk/";
-      });
-      // Tambahkan event listener untuk tombol edit profil dan ganti sandi di sini
+      // Event listener untuk tombol logout hanya di mode produksi
+      if (!IS_DEVELOPMENT) {
+          document.getElementById("logout-button").addEventListener("click", async () => {
+            await supabaseClient.auth.signOut();
+            window.location.href = "../../masuk/";
+          });
+      }
     }
 
     // --- Tampilan Jika Belum Login ---
@@ -206,7 +213,6 @@ async function initializeProfilePage() {
       uploadBtn.textContent = "Mengunggah...";
 
       const fileName = `${userId}_${Date.now()}`;
-      // Upload ke storage
       const { error: uploadError } = await supabaseClient.storage
         .from("avatars")
         .upload(fileName, file, { upsert: true });
@@ -219,11 +225,9 @@ async function initializeProfilePage() {
         return;
       }
 
-      // Dapatkan URL publik dari file yang diupload
       const { data } = supabaseClient.storage.from("avatars").getPublicUrl(fileName);
       const publicUrl = data.publicUrl;
 
-      // Update URL avatar di tabel 'profiles' (bukan di view)
       const { error: updateError } = await supabaseClient
         .from("profiles")
         .update({ avatar_url: publicUrl })
@@ -245,9 +249,11 @@ async function initializeProfilePage() {
 
     // --- Event Listener untuk Modal ---
     document.getElementById("profile-photo-wrapper").addEventListener("click", () => {
-      if (!currentUser) return; // Hanya buka modal jika user sudah login
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
+      // Buka modal di mode dev atau jika user sudah login
+      if (IS_DEVELOPMENT || currentUser) {
+          modal.classList.remove("hidden");
+          modal.classList.add("flex");
+      }
     });
 
     closeModalBtn.addEventListener("click", () => {
@@ -257,8 +263,9 @@ async function initializeProfilePage() {
 
     uploadBtn.addEventListener("click", async () => {
       const file = avatarInput.files[0];
-      if (currentUser) {
-        await uploadAvatar(file, currentUser.id);
+      const userId = IS_DEVELOPMENT ? DEV_USER_ID : (currentUser ? currentUser.id : null);
+      if (userId) {
+        await uploadAvatar(file, userId);
       }
     });
 
