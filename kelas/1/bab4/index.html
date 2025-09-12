@@ -3,278 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kuis Kelas 1 Bab 2 - Huruf Sambung</title>
-  <meta name="description" content="Kuis Huruf Sambung untuk Belajar Ngaji.">
-  <link rel="icon" href="https://placehold.co/32x32/3B82F6/FFFFFF?text=BN" type="image/x-icon">
+  <title>Altar | Belajar Ngaji</title>
+  <meta name="description" content="Jelajahi semua fitur seru Terminal Gabut seperti Puisi, Chat AI, Spin Wheel, Quiz, dan lainnya.">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Diubah: Menggunakan CDN Supabase langsung di head -->
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* Diubah: Style disamakan sepenuhnya dengan Bab 1 */
-    body { 
-      font-family: 'Poppins', sans-serif; 
-    }
-    .option-item.selected {
-      background-color: #3b82f6; /* bg-blue-600 */
-      color: #ffffff;
-      border-color: #2563eb; /* border-blue-700 */
-    }
-    .option-item.correct {
-      background-color: #22c55e; /* bg-green-500 */
-      color: #ffffff;
-      border-color: #16a34a; /* border-green-600 */
-    }
-    .option-item.incorrect {
-      background-color: #ef4444; /* bg-red-500 */
-      color: #ffffff;
-      border-color: #dc2626; /* border-red-600 */
-    }
-    .no-pointer-events {
-      pointer-events: none;
-    }
+    body { font-family: 'Poppins', sans-serif; transition: background 0.3s, color 0.3s; }
+    .dark-mode { background: #1e293b; color: #f1f5f9; }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
   </style>
 </head>
-<body class="bg-gray-100 dark:bg-slate-900">
+<body class="bg-gray-50">
+  <!-- NAVBAR -->
+  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+  <!-- Brand / Logo -->
+  <div>
+    <a href="..">
+      <img src="..png" alt="Belajar Ngaji" class="h-7 w-auto">
+    </a>
+  </div>
 
-  <!-- Diubah: Navbar disamakan dengan Bab 1 -->
-  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md sticky top-0 z-10">
-    <div>
-      <a href=".">
-        <span class="text-xl font-bold">Huruf Sambung</span>
-      </a>
+  <!-- Tombol Dark Mode -->
+  <button id="darkToggle" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
+    🌙
+  </button>
+</nav>
+
+  <!-- Grid Fitur -->
+  <div class="container mx-auto px-4 py-10 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+
+    <!-- QUIZ 1 -->
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Bab 1 - huruf Hijaiyah</h2>
+      <a href="bab1/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
     </div>
-    <button class="bg-white text-blue-600 px-3 py-1.5 rounded-full hover:bg-gray-200 text-lg font-bold">
-      🔔
-    </button>
-  </nav>
 
-  <!-- Diubah: Layout main container disamakan -->
-  <main class="mx-auto px-4 py-10 w-full max-w-2xl">
-    <!-- Diubah: UI Kuis disamakan (padding, font, dll) -->
-    <div id="quiz-ui" class="bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center dark:bg-slate-800 dark:text-gray-100">
-      <h2 id="question-text" class="text-2xl font-semibold mb-6">Memuat pertanyaan...</h2>
-      <ul id="options-list" class="flex flex-col gap-4 text-xl"></ul>
-      <!-- Ditambahkan: Elemen status message untuk feedback -->
-      <div id="status-message" class="mt-4 p-3 rounded-lg text-sm font-semibold text-center hidden"></div>
-      <button id="next-button" class="mt-6 w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">Selanjutnya</button>
+    <!-- QUIZ 2 -->
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Bab 2 - huruf Hijaiyah</h2>
+      <a href="bab2/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
     </div>
 
-    <!-- Diubah: UI Hasil Kuis disamakan (skor besar, pesan, tombol) -->
-    <div id="results-ui" class="bg-white rounded-xl shadow-lg p-6 sm:p-8 mt-8 text-center dark:bg-slate-800 dark:text-gray-100" style="display: none;">
-      <h2 class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-4">Hasil Kuis</h2>
-      <p class="text-lg mb-2">Skor Akhir Anda:</p>
-      <p id="final-score" class="font-bold text-6xl text-green-600 dark:text-green-400">0</p>
-      <p id="score-message" class="mt-4 text-lg"></p>
-      <!-- Ditambahkan: Elemen status untuk notifikasi penyimpanan skor -->
-      <div id="save-status-message" class="mt-4 p-3 rounded-lg text-sm font-semibold text-center hidden"></div>
-      <button onclick="location.replace('../../1/')" 
-  class="mt-8 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">
-  Kembali ke Kelas
-</button>
-  </main>
+    <!-- QUIZ 3 -->
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Bab 1 - huruf Pegon</h2>
+      <a href="bab3/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
+    </div>
 
-  <!-- Diubah: Footer disamakan -->
-  <footer class="bg-gray-200 text-center py-6 dark:bg-slate-950 dark:text-gray-500 mt-10">
-    <p>&copy; 2025 Belajar Ngaji - Semua Hak Dilindungi</p>
+    <!-- Quiz 4 -->
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Bab 2 - huruf Pegon</h2>
+      <a href="bab4/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 text-center py-6">
+    <p>© 2025 Terminal Gabut - Semua Hak Dilindungi</p>
   </footer>
 
-  <!-- Diubah: Seluruh script dirombak agar sesuai dengan standar Bab 1 -->
-  <script type="module">
-    // --- KONEKSI SUPABASE (CARA MODERN) ---
-    const { createClient } = supabase; 
-
-    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
-
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // --- 1. DATA KUIS (REVISI) ---
-const quizData = [
-  {
-    question: "Bacaan huruf با dalam Pegon adalah…",
-    options: ["bi", "ba", "bu", "be"],
-    answer: "ba"
-  },
-  {
-    question: "Semua huruf berikut dibaca dengan awal “ng” kecuali…",
-    options: ["عٓ", "نَا", "عي", "عا"],
-    answer: "نَا"
-  },
-  {
-    question: "Tuliskan cara baca dari kata Pegon افا.",
-    options: ["afa", "ipa", "epa", "apa"],
-    answer: "apa"
-  },
-  {
-    question: "Kata چافي dibaca…",
-    options: ["cepi", "copi", "capi", "cipi"],
-    answer: "capi"
-  },
-  {
-    question: "Tuliskan kata 'bapa' dengan huruf Pegon.",
-    options: ["باڤا", "بفا", "بافا", "بپا"],
-    answer: "باڤا" 
-  },
-  {
-    question: "Huruf Pegon dengan ( ٓ ) dibaca dengan vokal…",
-    options: ["i", "a", "u", "e"],
-    answer: "e"
-  },
-  {
-    question: "Kata ڠاجي dibaca…",
-    options: ["ngaji", "nguju", "ngiri", "ngora"],
-    answer: "ngaji"
-  },
-  {
-    question: "Tuliskan bacaan kata ڮاجا.",
-    options: ["gaja", "gajaʰ", "gaji", "gajae"],
-    answer: "gaja"
-  },
-  {
-    question: "Huruf Pegon yang digunakan untuk bunyi “ca” adalah…",
-    options: ["ڬ", "چا", "ج", "غ"],
-    answer: "چا"
-  },
-  {
-    question: "Tuliskan kata 'caca' dengan huruf Pegon.",
-    options: ["چاچا", "چوچو", "چيچا", "چوكا"],
-    answer: "چاچا"
-  }
-];
-
-    // --- ELEMEN UI (DISESUAIKAN) ---
-    const quizUI = document.getElementById('quiz-ui');
-    const resultsUI = document.getElementById('results-ui');
-    const questionText = document.getElementById('question-text');
-    const optionsList = document.getElementById('options-list');
-    const nextButton = document.getElementById('next-button');
-    const finalScoreSpan = document.getElementById('final-score');
-    const scoreMessage = document.getElementById('score-message');
-    const statusMessage = document.getElementById('status-message');
-    const saveStatusMessage = document.getElementById('save-status-message');
-
-    // --- STATE KUIS ---
-    let currentQuestionIndex = 0;
-    let score = 0;
-    let selectedOption = null;
-
-    // --- FUNGSI-FUNGSI (DISAMAKAN DENGAN BAB 1) ---
-    function loadQuestion() {
-      selectedOption = null;
-      hideStatusMessage();
-
-      if (currentQuestionIndex >= quizData.length) {
-        showResults();
-        return;
-      }
-
-      const currentQuestion = quizData[currentQuestionIndex];
-      questionText.textContent = `${currentQuestionIndex + 1}. ${currentQuestion.question}`;
-      optionsList.innerHTML = '';
-
-      currentQuestion.options.forEach(option => {
-        const li = document.createElement('li');
-        li.textContent = option;
-        li.className = 'option-item border-2 border-gray-200 dark:border-slate-600 font-semibold py-3 px-4 rounded-lg cursor-pointer transition hover:bg-blue-100 dark:hover:bg-slate-700';
-        li.addEventListener('click', () => {
-          document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
-          li.classList.add('selected');
-          selectedOption = option;
-        });
-        optionsList.appendChild(li);
-      });
-
-      nextButton.textContent = currentQuestionIndex === quizData.length - 1 ? 'Selesai' : 'Selanjutnya';
-    }
-
-    function giveFeedback() {
-      optionsList.classList.add('no-pointer-events');
-      nextButton.disabled = true;
-      const currentQuestion = quizData[currentQuestionIndex];
-      const selectedLi = document.querySelector('.option-item.selected');
-
-      if (selectedOption === currentQuestion.answer) {
-        score++;
-        selectedLi.classList.add('correct');
-        showStatusMessage('Jawaban Benar! Bagus sekali!', 'text-green-800 dark:text-green-300', 'bg-green-100 dark:bg-green-900/50');
-      } else {
-        selectedLi.classList.add('incorrect');
-        showStatusMessage('Jawaban kurang tepat.', 'text-orange-800 dark:text-orange-300', 'bg-orange-100 dark:bg-orange-900/50');
-      }
-
-      setTimeout(() => {
-        currentQuestionIndex++;
-        loadQuestion();
-        optionsList.classList.remove('no-pointer-events');
-        nextButton.disabled = false;
-      }, 1500);
-    }
-
-    async function showResults() {
-      quizUI.style.display = 'none';
-      resultsUI.style.display = 'block';
-      const finalScore = score * 10; // Skor diubah jadi skala 100
-      finalScoreSpan.textContent = finalScore;
-
-      if (finalScore === 100) {
-        scoreMessage.textContent = 'Masya Allah! Anda mendapatkan skor sempurna!';
-      } else if (finalScore >= 70) {
-        scoreMessage.textContent = 'Kerja bagus! Anda berhasil melewati kuis ini.';
-      } else {
-        scoreMessage.textContent = 'Terus semangat belajar, ya! Anda bisa coba lagi.';
-      }
-      await saveScoreToSupabase(finalScore);
-    }
-
-    async function saveScoreToSupabase(finalScore) {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-
-      if (!user) {
-        showSaveStatusMessage('Anda belum masuk untuk menyimpan skor.', 'text-orange-800 dark:text-orange-300', 'bg-orange-100 dark:bg-orange-900/50');
-        return;
-      }
-
-      // Diubah: quiz_id dibuat statis untuk bab ini, menggantikan fungsi getQuizIdFromUrl()
-      const quiz_id = 'kelas01_bab02_pegon'; 
-
-      // Diubah: Menyimpan ke tabel 'quiz_attempts' agar konsisten dengan Bab 1
-      const { error } = await supabaseClient
-        .from('quiz_attempts')
-        .insert([{ user_id: user.id, quiz_id: quiz_id, score: finalScore }]);
-
-      if (error) {
-        showSaveStatusMessage('Gagal menyimpan skor Anda.', 'text-red-800 dark:text-red-300', 'bg-red-100 dark:bg-red-900/50');
-      } else {
-        showSaveStatusMessage('Skor Anda berhasil dicatat!', 'text-green-800 dark:text-green-300', 'bg-green-100 dark:bg-green-900/50');
-      }
-    }
-
-    function showStatusMessage(message, textColor, bgColor) {
-      statusMessage.textContent = message;
-      statusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
-      statusMessage.classList.remove('hidden');
-    }
-
-    function hideStatusMessage() { statusMessage.classList.add('hidden'); }
-
-    function showSaveStatusMessage(message, textColor, bgColor) {
-      saveStatusMessage.textContent = message;
-      saveStatusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
-      saveStatusMessage.classList.remove('hidden');
-    }
-
-    // --- EVENT LISTENERS & INISIALISASI (DISAMAKAN) ---
-    nextButton.addEventListener('click', () => {
-      if (selectedOption === null) {
-        showStatusMessage('Silakan pilih jawaban terlebih dahulu.', 'text-red-800 dark:text-red-300', 'bg-red-100 dark:bg-red-900/50');
-        return;
-      }
-      giveFeedback();
+  <!-- Dark Mode Script -->
+  <script>
+    const toggleBtn = document.getElementById("darkToggle");
+    toggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+      localStorage.setItem("dark-mode", document.body.classList.contains("dark-mode"));
     });
-
-    document.addEventListener('DOMContentLoaded', loadQuestion);
-
+    if(localStorage.getItem("dark-mode") === "true") {
+      document.body.classList.add("dark-mode");
+    }
   </script>
 </body>
 </html>
