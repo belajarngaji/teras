@@ -81,19 +81,59 @@
     // Inisialisasi client
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- DATA KUIS ---
-    const quizData = [
-      { question: "Huruf apakah yang memiliki titik satu di bawahnya?", options: ["ب", "ن", "ي", "ت"], answer: "ب" },
-      { question: "Huruf hijaiyah berikut yang memiliki tiga titik di atasnya adalah...", options: ["ف", "ث", "خ", "ج"], answer: "ث" },
-      { question: "Huruf apakah yang bentuknya mirip 'Ba' (ب) namun memiliki dua titik di atas?", options: ["ت", "ث", "ن", "ي"], answer: "ت" },
-      { question: "Manakah urutan huruf hijaiyah yang benar?", options: ["ي, ك, ل, م", "ش, ص, ض, ط", "ع, غ, ف, ق", "ا, ب, د, ت"], answer: "ع, غ, ف, ق" },
-      { question: "Bentuk huruf 'Ain' (ع) di awal kata adalah...", options: ["Terbuka di atas", "Seperti kepala kecil", "Garis lurus dengan ekor", "Lingkaran penuh"], answer: "Seperti kepala kecil" },
-      { question: "Di antara huruf berikut, yang tidak memiliki titik adalah...", options: ["خ", "ص", "ض", "ق"], answer: "ص" },
-      { question: "Bentuk akhir dari huruf 'Sin' (س) di ujung kata adalah...", options: ["س", "سـ", "ـس", "ـسـ"], answer: "س" },
-      { question: "Huruf 'Kha' (خ) memiliki ciri khas yaitu...", options: ["Titik satu di atas", "Titik satu di bawah", "Dua titik di atas", "Tidak bertitik"], answer: "Titik satu di atas" },
-      { question: "Huruf yang berbentuk seperti kepala 'Fa' (ف) namun memiliki dua titik adalah...", options: ["ع", "غ", "و", "ق"], answer: "ق" },
-      { question: "Huruf 'Lam' (ل) jika disambung dengan 'Alif' (ا) akan membentuk...", options: ["ل", "ا", "لا", "ى"], answer: "لا" }
-    ];
+    // --- DATA KUIS (REVISI) ---
+const quizData = [
+  { 
+    question: "Huruf apakah yang memiliki titik satu di bawahnya?", 
+    options: ["ب", "ن", "ي", "ت"], 
+    answer: "ب" 
+  },
+  { 
+    question: "Huruf hijaiyah berikut yang memiliki tiga titik di atasnya adalah...", 
+    options: ["ف", "ث", "خ", "ج"], 
+    answer: "ث" 
+  },
+  { 
+    question: "Huruf apakah yang bentuknya mirip 'Ba' (ب) namun memiliki dua titik di atas?", 
+    options: ["ت", "ث", "ن", "ي"], 
+    answer: "ت" 
+  },
+  { 
+    question: "Manakah urutan huruf hijaiyah yang benar?", 
+    options: ["ا, ب, ت, ث", "ش, ص, ض, ط", "ع, غ, ف, ق", "ي, ك, ل, م"], 
+    answer: "ا, ب, ت, ث" 
+  },
+  { 
+    question: "Bentuk huruf 'Ain' (ع) di awal kata adalah...", 
+    options: ["Terbuka di atas", "Seperti cekungan kecil", "Garis lurus dengan ekor", "Lingkaran penuh"], 
+    answer: "Seperti cekungan kecil" 
+  },
+  { 
+    question: "Di antara huruf berikut, yang tidak memiliki titik adalah...", 
+    options: ["خ", "ص", "ق", "ح"], 
+    answer: "ص" 
+  },
+  { 
+    question: "Bentuk akhir dari huruf 'Sin' (س) di ujung kata adalah...", 
+    options: ["س", "سـ", "ـس", "ـسـ"], 
+    answer: "ـس" 
+  },
+  { 
+    question: "Huruf 'Kha' (خ) memiliki ciri khas yaitu...", 
+    options: ["Titik satu di atas", "Titik satu di bawah", "Dua titik di atas", "Tidak bertitik"], 
+    answer: "Titik satu di atas" 
+  },
+  { 
+    question: "Huruf yang berbentuk seperti kepala 'Fa' (ف) namun memiliki dua titik adalah...", 
+    options: ["ع", "غ", "و", "ق"], 
+    answer: "ق" 
+  },
+  { 
+    question: "Huruf 'Lam' (ل) jika disambung dengan 'Alif' (ا) akan membentuk...", 
+    options: ["ل", "ا", "لا", "ى"], 
+    answer: "لا" 
+  }
+];
 
     // --- ELEMEN UI ---
     const quizUI = document.getElementById('quiz-ui');
