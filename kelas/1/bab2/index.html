@@ -89,19 +89,59 @@
 
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- DATA KUIS BAB 2 ---
-    const quizData = [
-      { question: "Huruf apakah yang berubah bentuk paling banyak antara posisi awal, tengah, dan akhir?", options: ["ع", "م", "هـ", "ك"], answer: "هـ" },
-      { question: "Huruf hijaiyah yang berbentuk seperti cangkir bila di posisi akhir kata adalah...", options: ["م", "س", "ش", "ي"], answer: "م" },
-      { question: "Dalam kata مُحَمَّد, huruf م terletak di posisi…", options: ["Awal dan Tengah", "Awal dan Akhir", "Tengah dan Akhir", "Hanya Tengah"], answer: "Awal dan Tengah" },
-      { question: "Huruf apa saja yang tidak dapat disambung dengan huruf sesudahnya?", options: ["ا، د، ذ، ر", "ب، ت، ث، ج", "ف، ق، ك، ل"], answer: "ا، د، ذ، ر" },
-      { question: "Huruf apakah yang selalu berdiri sendiri meskipun berada di tengah kata?", options: ["د", "س", "ع", "م"], answer: "د" },
-      { question: "Bentuk huruf 'هـ' dalam keempat posisi (berdiri sendiri, awal, tengah, akhir) adalah...", options: ["هـ, هـ‍, ‍هـ‍, ‍هـ", "هـ, ه‍, ـهـ, ـه", "هـ, ـهـ, ه‍, ـه"], answer: "هـ, هـ‍, ‍هـ‍, ‍هـ" },
-      { question: "Pada kata اللّٰه, berapa huruf yang memiliki titik?", options: ["0", "1", "2", "3"], answer: "0" },
-      { question: "Huruf hijaiyah yang sering digunakan untuk memulai kata tetapi jarang digunakan di akhir kata adalah...", options: ["ا", "م", "س", "ك"], answer: "ا" },
-      { question: "Huruf apakah yang memiliki bentuk paling mirip dengan angka 7 jika ditulis di posisi awal?", options: ["ح", "ل", "ك", "ن"], answer: "ك" },
-      { question: "Huruf yang berbentuk seperti 'Waw' namun tanpa titik adalah...", options: ["ع", "ل", "و", "ق"], answer: "و" }
-    ];
+    // --- DATA KUIS BAB 2 (REVISI) ---
+const quizData = [
+  { 
+    question: "Huruf apakah yang berubah bentuk paling banyak antara posisi awal, tengah, dan akhir?", 
+    options: ["ع", "م", "ه", "ك"], 
+    answer: "ه" 
+  },
+  { 
+    question: "Huruf hijaiyah yang berbentuk seperti cangkir bila di posisi akhir kata adalah...", 
+    options: ["م", "س", "ش", "ي"], 
+    answer: "م" 
+  },
+  { 
+    question: "Dalam kata مُحَمَّد, huruf م terletak di posisi…", 
+    options: ["Awal dan Tengah", "Awal dan Akhir", "Tengah dan Akhir", "Hanya Tengah"], 
+    answer: "Awal dan Tengah" 
+  },
+  { 
+    question: "Huruf apa saja yang tidak dapat disambung dengan huruf sesudahnya?", 
+    options: ["ا، د، ذ، ر، ز، و", "ب، ت، ث، ج", "ف، ق، ك، ل"], 
+    answer: "ا، د، ذ، ر، ز، و" 
+  },
+  { 
+    question: "Huruf apakah yang selalu berdiri sendiri meskipun berada di tengah kata?", 
+    options: ["د", "س", "ع", "م"], 
+    answer: "د" 
+  },
+  { 
+    question: "Bentuk huruf 'ه' dalam keempat posisi (berdiri sendiri, awal, tengah, akhir) adalah...", 
+    options: ["ه, هـ‍, ـهـ‍, ـه", "هـ, ه‍, ـهـ‍, ـه", "ه, هـ‍, ـه, ـهـ"], 
+    answer: "ه, هـ‍, ـهـ‍, ـه" 
+  },
+  { 
+    question: "Pada kata اللّٰه, berapa huruf yang memiliki titik?", 
+    options: ["0", "1", "2", "3"], 
+    answer: "0" 
+  },
+  { 
+    question: "Huruf hijaiyah yang sering digunakan untuk memulai kata tetapi jarang digunakan di akhir kata adalah...", 
+    options: ["ا", "م", "س", "ك"], 
+    answer: "ا" 
+  },
+  { 
+    question: "Huruf apakah yang memiliki bentuk paling mirip dengan angka 7 jika ditulis di posisi awal?", 
+    options: ["ح", "ل", "ك", "ن"], 
+    answer: "ك" 
+  },
+  { 
+    question: "Huruf yang berbentuk seperti 'Waw' namun tanpa titik adalah...", 
+    options: ["ع", "ل", "و", "ق"], 
+    answer: "و" 
+  }
+];
 
     // --- ELEMEN UI (DISESUAIKAN) ---
     const quizUI = document.getElementById('quiz-ui');
