@@ -1,3 +1,4 @@
+  // --- assets/js/profil.js ---
 
     import { supabaseclient } from "./supabaseclient.js";
 
