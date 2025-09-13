@@ -1,4 +1,4 @@
-// --- DATA KUIS (URUTAN DIMENSI) ---
+  // --- DATA KUIS (URUTAN DIMENSI) ---
 const quizData = [
   { 
     question: "Di antara huruf berikut, yang BUKAN huruf bertitik adalah...", 
