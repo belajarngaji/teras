@@ -1,29 +1,45 @@
 // /assets/js/skorKelas.js
-
 import { supabase } from '/teras/assets/js/supabase.js';
 
-async function updateTotalScore(classId) {
+// Ambil classId dari URL (contoh: /kelas/2/ -> kelas02)
+function getClassIdFromUrl() {
+  const path = window.location.pathname;
+  const segments = path.split('/');
+
+  const kelasIndex = segments.indexOf('kelas');
+  if (kelasIndex !== -1 && segments.length > kelasIndex + 1) {
+    const numberId = segments[kelasIndex + 1]; // contoh "2"
+    if (numberId && !isNaN(numberId)) {
+      return `kelas${numberId.padStart(2, '0')}`; // hasil: kelas02
+    }
+  }
+  return null;
+}
+
+async function updateTotalScore() {
   const totalScoreElement = document.getElementById("total-score");
+  const classId = getClassIdFromUrl();
 
   if (!classId) {
     totalScoreElement.textContent = "Skor Kelas: ID Salah";
     return;
   }
 
-  // Ambil hanya angka dari classId (contoh: "kelas01" -> "1")
+  // Ambil hanya angka untuk ditampilkan
   const classNumber = parseInt(classId.replace("kelas", ""), 10);
 
-  // Tampilkan judul skor saat sedang memuat
+  // Tampilkan placeholder loading
   totalScoreElement.textContent = `Skor Kelas ${classNumber}: Memuat...`;
 
+  // Ambil user login
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    // REVISI: Tampilkan skor 0 dengan format baru jika user tidak login
     totalScoreElement.textContent = `Skor Kelas ${classNumber}: 0`;
     return;
   }
 
+  // Ambil skor berdasarkan user + classId
   const { data, error } = await supabase
     .from("quiz_attempts")
     .select("score")
@@ -36,24 +52,11 @@ async function updateTotalScore(classId) {
     return;
   }
 
-  const totalSkor = data.reduce((sum, row) => sum + (row.score || 0), 0);
-  
-  // REVISI: Tampilkan skor total dengan format baru
+  // Hitung total skor
+  const totalSkor = (data || []).reduce((sum, row) => sum + (row.score || 0), 0);
+
   totalScoreElement.textContent = `Skor Kelas ${classNumber}: ${totalSkor}`;
 }
 
-// Event listener (tidak ada perubahan)
-document.addEventListener("DOMContentLoaded", () => {
-  const path = window.location.pathname;
-  const segments = path.split('/');
-  const classIndex = segments.indexOf('kelas');
-  let classId = null;
-
-  if (classIndex !== -1 && segments.length > classIndex + 1) {
-    const numberId = segments[classIndex + 1];
-    if (numberId) {
-      classId = `kelas${numberId.padStart(2, '0')}`;
-    }
-  }
-  updateTotalScore(classId);
-});
+// Jalankan setelah halaman siap
+document.addEventListener("DOMContentLoaded", updateTotalScore);
