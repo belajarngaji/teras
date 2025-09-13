@@ -99,7 +99,7 @@
       authButtons.innerHTML = `<button id="logout-button" class="w-full bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition">Keluar</button>`;
       document.getElementById("logout-button").addEventListener("click", async () => {
         await supabaseclient.auth.signOut();
-        window.location.href = "../../masuk/";
+        window.location.href = "/teras/masuk/";
       });
     }
 
@@ -109,8 +109,8 @@
       profileInitial.textContent = "?";
       historyTableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">Masuk untuk melihat riwayat.</td></tr>`;
       authButtons.innerHTML = `
-        <a href="../daftar/" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition text-center">Daftar</a>
-        <a href="../masuk/" class="w-full bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition text-center">Masuk</a>
+        <a href="/teras/daftar/" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition text-center">Daftar</a>
+        <a href="/teras/masuk/" class="w-full bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition text-center">Masuk</a>
       `;
     }
 
