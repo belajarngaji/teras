@@ -59,10 +59,16 @@
       <p id="final-score" class="font-bold text-6xl text-green-600 dark:text-green-400">0</p>
       <p id="score-message" class="mt-4 text-lg"></p>
       <div id="save-status-message" class="mt-4 p-3 rounded-lg text-sm font-semibold text-center hidden"></div>
-<button onclick="location.replace('../../1/')" 
-  class="mt-8 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">
-  Kembali ke Kelas
-</button>
+      <button onclick="location.replace('../../1/')" 
+        class="mt-8 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">
+        Kembali ke Kelas
+      </button>
   </main>
+
+  <script type="module">
+    import { initQuiz } from '/teras/assets/js/kuis-engine.js';
+    import { quizId, quizData } from '/teras/assets/quizData/11h.js';
+    initQuiz(quizId, quizData);
+  </script>
 </body>
 </html>
