@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuis - Huruf Pegon</title>
+  <meta name="description" content="Kuis Huruf Sambung untuk Belajar Ngaji.">
+  <link rel="icon" href="https://placehold.co/32x32/3B82F6/FFFFFF?text=BN" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Diubah: Menggunakan CDN Supabase langsung di head -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* Diubah: Style disamakan sepenuhnya dengan Bab 1 */
+    body { 
+      font-family: 'Poppins', sans-serif; 
+    }
+    .option-item.selected {
+      background-color: #3b82f6; /* bg-blue-600 */
+      color: #ffffff;
+      border-color: #2563eb; /* border-blue-700 */
+    }
+    .option-item.correct {
+      background-color: #22c55e; /* bg-green-500 */
+      color: #ffffff;
+      border-color: #16a34a; /* border-green-600 */
+    }
+    .option-item.incorrect {
+      background-color: #ef4444; /* bg-red-500 */
+      color: #ffffff;
+      border-color: #dc2626; /* border-red-600 */
+    }
+    .no-pointer-events {
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 dark:bg-slate-900">
+
+  <!-- Diubah: Navbar disamakan dengan Bab 1 -->
+  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md sticky top-0 z-10">
+    <div>
+      <a href=".">
+        <span class="text-xl font-bold">Huruf Sambung</span>
+      </a>
+    </div>
+    <button class="bg-white text-blue-600 px-3 py-1.5 rounded-full hover:bg-gray-200 text-lg font-bold">
+      🔔
+    </button>
+  </nav>
+
+  <!-- Diubah: Layout main container disamakan -->
+  <main class="mx-auto px-4 py-10 w-full max-w-2xl">
+    <!-- Diubah: UI Kuis disamakan (padding, font, dll) -->
+    <div id="quiz-ui" class="bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center dark:bg-slate-800 dark:text-gray-100">
+      <h2 id="question-text" class="text-2xl font-semibold mb-6">Memuat pertanyaan...</h2>
+      <ul id="options-list" class="flex flex-col gap-4 text-xl"></ul>
+      <!-- Ditambahkan: Elemen status message untuk feedback -->
+      <div id="status-message" class="mt-4 p-3 rounded-lg text-sm font-semibold text-center hidden"></div>
+      <button id="next-button" class="mt-6 w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">Selanjutnya</button>
+    </div>
+
+    <!-- Diubah: UI Hasil Kuis disamakan (skor besar, pesan, tombol) -->
+    <div id="results-ui" class="bg-white rounded-xl shadow-lg p-6 sm:p-8 mt-8 text-center dark:bg-slate-800 dark:text-gray-100" style="display: none;">
+      <h2 class="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-4">Hasil Kuis</h2>
+      <p class="text-lg mb-2">Skor Akhir Anda:</p>
+      <p id="final-score" class="font-bold text-6xl text-green-600 dark:text-green-400">0</p>
+      <p id="score-message" class="mt-4 text-lg"></p>
+      <!-- Ditambahkan: Elemen status untuk notifikasi penyimpanan skor -->
+      <div id="save-status-message" class="mt-4 p-3 rounded-lg text-sm font-semibold text-center hidden"></div>
+      <button onclick="location.replace('../../1/')" 
+  class="mt-8 inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition">
+  Kembali ke Kelas
+</button>
+  </main>
+
+  <!-- Diubah: Seluruh script dirombak agar sesuai dengan standar Bab 1 -->
+  <script type="module">
+    // --- KONEKSI SUPABASE (CARA MODERN) ---
+    const { createClient } = supabase; 
+
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // --- 1. DATA KUIS ---
+const quizData = [
+  {
+    question: "Awalan 'e' ing Pegon ditulis nganggo…",
+    options: ["اي", "او", "آ", "و"],
+    answer: "آ"
+  },
+  {
+    question: "Tulisan sing bener kanggo 'eling' (eling, kelingan) yaiku…",
+    options: ["آليع", "آلينع", "ايليع", "آلع"],
+    answer: "آليع"
+  },
+  {
+    question: "Tulisen 'ngasta pakarti' nganggo Pegon.",
+    options: ["عاستا ڤاكارتي", "عست ڤكرتي", "عستة ڤكرتي", "عاستا ڤاكرتى"],
+    answer: "عاستا ڤاكارتي"
+  },
+  {
+    question: "Kabeh tembung iki bener, kajaba…",
+    options: ["اوريب", "آسان", "باڤا", "بپ"],
+    answer: "بپ"
+  },
+  {
+    question: "Bacaan saka tembung آbudi yaiku…",
+    options: ["ebudi", "ibudi", "obudi", "abudi"],
+    answer: "ebudi"
+  },
+  {
+    question: "Tulisen 'mlampah-mlampah' nganggo Pegon.",
+    options: ["ملامڤاه ملامڤاه", "ملمڤه ملامڤه", "ملاڤه ملاڤه", "ملاڤه ملاڤا"],
+    answer: "ملامڤاه ملامڤاه"
+  },
+  {
+    question: "Kabeh tembung iki ana vokal 'i' kajaba…",
+    options: ["سيجي", "عاجي", "اورا", "ايبو"],
+    answer: "اورا"
+  },
+  {
+    question: "Tulisan sing bener nganggo vokal 'u' yaiku…",
+    options: ["سوسو", "سورو", "سورا", "ساري"],
+    answer: "سوسو"
+  },
+  {
+    question: "Tulisen 'setya tuhu' nganggo Pegon.",
+    options: ["سيتيا توهو", "سيتيا توحو", "ستيا توهو", "سيتيا تْهُ"],
+    answer: "ستيا توهو"
+  },
+  {
+    question: "Bacaan kanggo عونا yaiku…",
+    options: ["nguna", "ngune", "guna", "ngona"],
+    answer: "nguna"
+  },
+  {
+    question: "Tembung sing nganggo awalan 'i' yaiku…",
+    options: ["ايبو", "آرا", "اورا", "آسا"],
+    answer: "ايبو"
+  },
+  {
+    question: "Tulisen 'ndeleng prabu' nganggo Pegon.",
+    options: ["ندليع ڤرابوا", "ندلع ڤرابوا", "ندلع ڤرابو", "ندلينع ڤرابوا"],
+    answer: "ندلع ڤرابو"
+  },
+  {
+    question: "Kabeh tembung iki bener, kajaba…",
+    options: ["عونا", "باڤا", "آسا", "بپ"],
+    answer: "بپ"
+  },
+  {
+    question: "Bacaan saka tembung آsastra yaiku…",
+    options: ["Isastra", "Esastra", "Asastra", "Iesastra"],
+    answer: "Esastra"
+  },
+  {
+    question: "Tulisen 'ngrasuk rasa' nganggo Pegon.",
+    options: ["عراسوق راسا", "عراسق راسا", "عراسوك راسا", "عراسوق راسه"],
+    answer: "عراسوك راسا"
+  },
+  {
+    question: "Gabungan huruf ع + ا + ري dibaca…",
+    options: ["ngere", "ngiri", "ngari", "ngore"],
+    answer: "ngari"
+  },
+  {
+    question: "Tembung sing tegesé 'ageng' yaiku…",
+    options: ["باڤا", "آاكي", "آسان", "اگڠ"],
+    answer: "اگڠ"
+  },
+  {
+    question: "Tulisen 'arep tindak' nganggo Pegon.",
+    options: ["آرڤ تيندق", "ارف تينداك", "آرڤ تندك", "آرڤ تينداق"],
+    answer: "ارف تينداك"
+  }
+];
+
+    // --- ELEMEN UI (DISESUAIKAN) ---
+    const quizUI = document.getElementById('quiz-ui');
+    const resultsUI = document.getElementById('results-ui');
+    const questionText = document.getElementById('question-text');
+    const optionsList = document.getElementById('options-list');
+    const nextButton = document.getElementById('next-button');
+    const finalScoreSpan = document.getElementById('final-score');
+    const scoreMessage = document.getElementById('score-message');
+    const statusMessage = document.getElementById('status-message');
+    const saveStatusMessage = document.getElementById('save-status-message');
+
+    // --- STATE KUIS ---
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let selectedOption = null;
+
+    // --- FUNGSI-FUNGSI (DISAMAKAN DENGAN BAB 1) ---
+    function loadQuestion() {
+      selectedOption = null;
+      hideStatusMessage();
+
+      if (currentQuestionIndex >= quizData.length) {
+        showResults();
+        return;
+      }
+
+      const currentQuestion = quizData[currentQuestionIndex];
+      questionText.textContent = `${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+      optionsList.innerHTML = '';
+
+      currentQuestion.options.forEach(option => {
+        const li = document.createElement('li');
+        li.textContent = option;
+        li.className = 'option-item border-2 border-gray-200 dark:border-slate-600 font-semibold py-3 px-4 rounded-lg cursor-pointer transition hover:bg-blue-100 dark:hover:bg-slate-700';
+        li.addEventListener('click', () => {
+          document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
+          li.classList.add('selected');
+          selectedOption = option;
+        });
+        optionsList.appendChild(li);
+      });
+
+      nextButton.textContent = currentQuestionIndex === quizData.length - 1 ? 'Selesai' : 'Selanjutnya';
+    }
+
+    function giveFeedback() {
+      optionsList.classList.add('no-pointer-events');
+      nextButton.disabled = true;
+      const currentQuestion = quizData[currentQuestionIndex];
+      const selectedLi = document.querySelector('.option-item.selected');
+
+      if (selectedOption === currentQuestion.answer) {
+        score++;
+        selectedLi.classList.add('correct');
+        showStatusMessage('Jawaban Benar! Bagus sekali!', 'text-green-800 dark:text-green-300', 'bg-green-100 dark:bg-green-900/50');
+      } else {
+        selectedLi.classList.add('incorrect');
+        showStatusMessage('Jawaban kurang tepat.', 'text-orange-800 dark:text-orange-300', 'bg-orange-100 dark:bg-orange-900/50');
+      }
+
+      setTimeout(() => {
+        currentQuestionIndex++;
+        loadQuestion();
+        optionsList.classList.remove('no-pointer-events');
+        nextButton.disabled = false;
+      }, 1500);
+    }
+
+    async function showResults() {
+      quizUI.style.display = 'none';
+      resultsUI.style.display = 'block';
+      const finalScore = score * 10; // Skor diubah jadi skala 100
+      finalScoreSpan.textContent = finalScore;
+
+      if (finalScore === 100) {
+        scoreMessage.textContent = 'Masya Allah! Anda mendapatkan skor sempurna!';
+      } else if (finalScore >= 70) {
+        scoreMessage.textContent = 'Kerja bagus! Anda berhasil melewati kuis ini.';
+      } else {
+        scoreMessage.textContent = 'Terus semangat belajar, ya! Anda bisa coba lagi.';
+      }
+      await saveScoreToSupabase(finalScore);
+    }
+
+    async function saveScoreToSupabase(finalScore) {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+
+      if (!user) {
+        showSaveStatusMessage('Anda belum masuk untuk menyimpan skor.', 'text-orange-800 dark:text-orange-300', 'bg-orange-100 dark:bg-orange-900/50');
+        return;
+      }
+
+      // Diubah: quiz_id dibuat statis untuk bab ini, menggantikan fungsi getQuizIdFromUrl()
+      const quiz_id = 'kelas03_bab01_pegon'; 
+
+      // Diubah: Menyimpan ke tabel 'quiz_attempts' agar konsisten dengan Bab 1
+      const { error } = await supabaseClient
+        .from('quiz_attempts')
+        .insert([{ user_id: user.id, quiz_id: quiz_id, score: finalScore }]);
+
+      if (error) {
+        showSaveStatusMessage('Gagal menyimpan skor Anda.', 'text-red-800 dark:text-red-300', 'bg-red-100 dark:bg-red-900/50');
+      } else {
+        showSaveStatusMessage('Skor Anda berhasil dicatat!', 'text-green-800 dark:text-green-300', 'bg-green-100 dark:bg-green-900/50');
+      }
+    }
+
+    function showStatusMessage(message, textColor, bgColor) {
+      statusMessage.textContent = message;
+      statusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
+      statusMessage.classList.remove('hidden');
+    }
+
+    function hideStatusMessage() { statusMessage.classList.add('hidden'); }
+
+    function showSaveStatusMessage(message, textColor, bgColor) {
+      saveStatusMessage.textContent = message;
+      saveStatusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
+      saveStatusMessage.classList.remove('hidden');
+    }
+
+    // --- EVENT LISTENERS & INISIALISASI (DISAMAKAN) ---
+    nextButton.addEventListener('click', () => {
+      if (selectedOption === null) {
+        showStatusMessage('Silakan pilih jawaban terlebih dahulu.', 'text-red-800 dark:text-red-300', 'bg-red-100 dark:bg-red-900/50');
+        return;
+      }
+      giveFeedback();
+    });
+
+    document.addEventListener('DOMContentLoaded', loadQuestion);
+
+  </script>
+</body>
+</html>
