@@ -132,7 +132,7 @@
         return;
       }
 
-      const { data } = supabaseClient.storage.from("avatars").getPublicUrl(fileName);
+      const { data } = supabaseclient.storage.from("avatars").getPublicUrl(fileName);
       const publicUrl = data.publicUrl;
 
       const { error: updateError } = await supabaseclient
