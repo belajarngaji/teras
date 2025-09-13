@@ -98,7 +98,7 @@
     function setupLogoutButton() {
       authButtons.innerHTML = `<button id="logout-button" class="w-full bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition">Keluar</button>`;
       document.getElementById("logout-button").addEventListener("click", async () => {
-        await supabaseClient.auth.signOut();
+        await supabaseclient.auth.signOut();
         window.location.href = "../../masuk/";
       });
     }
