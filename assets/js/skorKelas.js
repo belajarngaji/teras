@@ -20,7 +20,7 @@ async function updateTotalScore(classId) {
 
   if (!user) {
     // REVISI: Tampilkan skor 0 dengan format baru jika user tidak login
-    totalScoreElement.textContent = `Skor Kelas ${classNumber}: 0/400`;
+    totalScoreElement.textContent = `Skor Kelas ${classNumber}: 0`;
     return;
   }
 
@@ -39,7 +39,7 @@ async function updateTotalScore(classId) {
   const totalSkor = data.reduce((sum, row) => sum + (row.score || 0), 0);
   
   // REVISI: Tampilkan skor total dengan format baru
-  totalScoreElement.textContent = `Skor Kelas ${classNumber}: ${totalSkor}/400`;
+  totalScoreElement.textContent = `Skor Kelas ${classNumber}: ${totalSkor}`;
 }
 
 // Event listener (tidak ada perubahan)
