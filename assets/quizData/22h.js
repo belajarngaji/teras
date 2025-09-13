@@ -1,7 +1,8 @@
 // /assets/quizData/22h.js
 
-export const quizId = 'kelas01_bab02_hijaiyah'; // Ganti
+export const quizId = 'kelas02_bab02_hijaiyah';
 export const quizData = [
+  // 1. Analisa
   {
     question: "Harakat yang berbentuk garis miring di atas huruf disebut…",
     options: ["Kasrah", "Fathah", "Dhammah", "Tanwin"],
@@ -29,25 +30,25 @@ export const quizData = [
     answer: "مٍ – مُن",
     dimension: "Konsentrasi"
   },
-  // 5. Pemecahan Masalah
+  // 5. Pemecahan Masalah (cerita)
   {
-    question: "Dalam kata كِتَابٌ, huruf mana yang memakai dhammah?",
-    options: ["ك", "ت", "ب", "Semua"],
-    answer: "ب",
+    question: "Ali menulis kata كِتَاب. Jika diberi dhammah pada huruf terakhir, hasilnya menjadi…",
+    options: ["كِتَابَ", "كِتَابِ", "كِتَابُ", "كِتَابٌ"],
+    answer: "كِتَابُ",
     dimension: "Pemecahan Masalah"
   },
-  // 6. Analisa
+  // 6. Analisa (kecuali)
   {
-    question: "Kata Arab sederhana dengan tanwin fathah pada huruf terakhirnya adalah...",
-    options: ["قلم", "قلمًا", "قلمٌ", "قلمٍ"],
-    answer: "قلمًا",
+    question: "Semua kata berikut memiliki tanwin, kecuali…",
+    options: ["قلمًا", "بيتٍ", "قمرٌ", "كتاب"],
+    answer: "كتاب",
     dimension: "Analisa"
   },
-  // 7. Logika
+  // 7. Logika (yang bukan)
   {
-    question: "Harakat apakah yang memberi bunyi “u” pada sebuah huruf?",
+    question: "Yang bukan termasuk harakat dasar adalah…",
     options: ["Fathah", "Kasrah", "Dhammah", "Tanwin"],
-    answer: "Dhammah",
+    answer: "Tanwin",
     dimension: "Logika"
   },
   // 8. Memori
@@ -71,4 +72,4 @@ export const quizData = [
     answer: "غُرْفَة",
     dimension: "Pemecahan Masalah"
   }
-]; 
+];
