@@ -68,32 +68,51 @@
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-async function updateTotalScore() {
+// Fungsi ini sekarang menerima classId sebagai parameter (contoh: "kelas01")
+async function updateTotalScore(classId) {
+  if (!classId) {
+    console.error("Class ID tidak ditemukan!");
+    document.getElementById("total-score").textContent = "Skor: -/400";
+    return;
+  }
+
   // Ambil user dari Supabase
   const result = await supabase.auth.getUser();
   const user = result?.data?.user;
 
   if (!user) {
-    // User anonim → tampilkan 0/400
     document.getElementById("total-score").textContent = "Skor: 0/400";
     return;
   }
 
-  // Ambil skor user dari DB
+  // Ambil skor user menggunakan pencarian pola (pattern matching)
   const { data, error } = await supabase
     .from("quiz_attempts")
     .select("score")
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    // --- PERUBAHAN DI SINI ---
+    // Cari quiz_id yang diawali dengan classId diikuti karakter apa pun ('_')
+    .like("quiz_id", `${classId}_%`); 
 
   if (error) {
     console.error("Supabase error:", error);
     return;
   }
 
-  // Hitung total skor
+  // Sisa kode sama
   const totalSkor = data?.reduce((sum, row) => sum + (row.score || 0), 0) || 0;
   document.getElementById("total-score").textContent = `Skor: ${totalSkor}/400`;
 }
+
+// Jalankan saat halaman siap
+document.addEventListener("DOMContentLoaded", () => {
+  // Pastikan URL Anda memiliki parameter, contoh: .../kelas.html?class_id=kelas01
+  const urlParams = new URLSearchParams(window.location.search);
+  const classId = urlParams.get('class_id'); 
+
+  // Panggil fungsi dengan classId yang didapat
+  updateTotalScore(classId); 
+});
 
 document.addEventListener("DOMContentLoaded", updateTotalScore);
 </script>
