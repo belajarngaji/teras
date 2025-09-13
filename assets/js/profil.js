@@ -21,7 +21,7 @@
 
     // --- Profil Initialization ---
     async function initializeProfilePage() {
-      const { data: { user } } = await supabaseclient.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         currentUser = user;
         loadingContainer.style.display = "block";
@@ -37,7 +37,7 @@
     }
 
     async function loadUserProfile(userId) {
-      const { data: profile, error } = await supabaseclient
+      const { data: profile, error } = await supabase
         .from("profiles")
         .select("username, dashboard_score_total, avatar_url")
         .eq("id", userId)
@@ -64,7 +64,7 @@
     }
 
     async function loadQuizHistory(userId) {
-      const { data: history, error } = await supabaseclient
+      const { data: history, error } = await supabase
         .from("quiz_attempts")
         .select("quiz_id, score, submitted_at")
         .eq("user_id", userId)
@@ -98,7 +98,7 @@
     function setupLogoutButton() {
       authButtons.innerHTML = `<button id="logout-button" class="w-full bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition">Keluar</button>`;
       document.getElementById("logout-button").addEventListener("click", async () => {
-        await supabaseclient.auth.signOut();
+        await supabase.auth.signOut();
         window.location.href = "/teras/masuk/";
       });
     }
@@ -129,7 +129,7 @@ async function uploadAvatar(file, userId) {
     success: async (compressedFile) => {
       const fileName = `${userId}_${Date.now()}.${compressedFile.name.split(".").pop()}`;
 
-      const { error } = await supabaseclient.storage
+      const { error } = await supabase.storage
         .from("avatars")
         .upload(fileName, compressedFile, { upsert: true });
 
@@ -139,10 +139,10 @@ async function uploadAvatar(file, userId) {
         return;
       }
 
-      const { data } = supabaseclient.storage.from("avatars").getPublicUrl(fileName);
+      const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
       const publicUrl = data.publicUrl;
 
-      const { error: updateError } = await supabaseclient
+      const { error: updateError } = await supabase
         .from("profiles")
         .update({ avatar_url: publicUrl })
         .eq("id", userId);
