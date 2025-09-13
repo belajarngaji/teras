@@ -69,14 +69,17 @@
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function updateTotalScore() {
-  const { data: { user } } = await supabase.auth.getUser();
+  // Ambil user dari Supabase
+  const result = await supabase.auth.getUser();
+  const user = result?.data?.user;
 
   if (!user) {
-    // user anonim → tampilkan 0/400
+    // User anonim → tampilkan 0/400
     document.getElementById("total-score").textContent = "Skor: 0/400";
     return;
   }
 
+  // Ambil skor user dari DB
   const { data, error } = await supabase
     .from("quiz_attempts")
     .select("score")
@@ -87,7 +90,8 @@ async function updateTotalScore() {
     return;
   }
 
-  const totalSkor = data.reduce((sum, row) => sum + (row.score || 0), 0);
+  // Hitung total skor
+  const totalSkor = data?.reduce((sum, row) => sum + (row.score || 0), 0) || 0;
   document.getElementById("total-score").textContent = `Skor: ${totalSkor}/400`;
 }
 
