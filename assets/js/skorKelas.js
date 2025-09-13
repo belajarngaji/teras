@@ -10,14 +10,14 @@ async function updateTotalScore(classId) {
     return;
   }
 
-  const { data: { user } } = await supabaseclient.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     document.getElementById("total-score").textContent = "Skor: 0/400";
     return;
   }
 
-  const { data, error } = await supabaseclient
+  const { data, error } = await supabase
     .from("quiz_attempts")
     .select("score")
     .eq("user_id", user.id)
