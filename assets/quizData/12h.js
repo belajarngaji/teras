@@ -1,5 +1,7 @@
-// --- DATA KUIS KELAS 1 BAB 2 (URUTAN DIMENSI) ---
-const quizData = [
+// /assets/quizData/12.js
+
+export const quizId = 'kelas01_bab02_hijaiyah'; // Ganti
+export const quizData = [
   { 
     question: "Huruf apakah yang berubah bentuk paling banyak antara posisi awal, tengah, dan akhir?", 
     options: ["ع", "م", "ه", "ك"], 
