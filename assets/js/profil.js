@@ -1,7 +1,7 @@
 // --- assets/js/profil.js ---
 
 // UBAH NAMA VARIABEL DI SINI
-import { supabase } from "./supabase.js";
+import { supabase } from "/teras/assets/js/supabase.js";
 
 const profileInitial = document.getElementById("profile-initial");
 const profilePhoto = document.getElementById("profile-photo");
