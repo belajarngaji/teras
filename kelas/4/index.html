@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Altar | Belajar Ngaji</title>
-  <meta name="description" content="Jelajahi semua fitur seru Terminal Gabut seperti Puisi, Chat AI, Spin Wheel, Quiz, dan lainnya.">
+  <title>Teras | Belajar Ngaji</title>
+  <meta name="description" content="Jelajahi semua fitur seru">
   <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -15,64 +15,42 @@
     .container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-}
+    }
   </style>
 </head>
 <body class="bg-gray-50">
-  <!-- NAVBAR -->
-  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
-  <!-- Brand / Logo -->
-  <div>
-    <a href="..">
-      <img src="..png" alt="Belajar Ngaji" class="h-7 w-auto">
-    </a>
+  <nav class="fixed top-0 w-full z-50 flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+  <div id="total-score" class="text-lg font-bold">Memuat...
   </div>
 
-  <!-- Tombol Dark Mode -->
-  <button id="darkToggle" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
-    🌙
+  <button onclick="window.history.back()" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
+    <i class="fa-solid fa-arrow-left"></i>
   </button>
-</nav>
+  </nav>
 
-  <!-- Grid Fitur -->
-  <div class="container mx-auto px-4 py-10 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+  <div class="pt-20 container mx-auto px-4 py-10 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 
-    <!-- QUIZ 1 -->
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
-      <h2 class="text-xl font-semibold mb-2">Bab 1 - bacaan huruf Hijaiyah</h2>
+      <h2 class="text-xl font-semibold mb-2">Bab 1 - huruf Hijaiyah</h2>
       <a href="bab1/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
     </div>
 
-    <!-- QUIZ 2 -->
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
-      <h2 class="text-xl font-semibold mb-2">Bab 2 - bacaan huruf Hijaiyah</h2>
+      <h2 class="text-xl font-semibold mb-2">Bab 2 - huruf Hijaiyah</h2>
       <a href="bab2/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
     </div>
 
-    <!-- QUIZ 3 -->
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
-      <h2 class="text-xl font-semibold mb-2">Bab 1 - bacaan huruf Pegon</h2>
+      <h2 class="text-xl font-semibold mb-2">Bab 1 - huruf Pegon</h2>
       <a href="bab3/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
     </div>
 
-    <!-- Quiz 4 -->
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
-      <h2 class="text-xl font-semibold mb-2">Bab 2 - bacaan huruf Pegon</h2>
+      <h2 class="text-xl font-semibold mb-2">Bab 2 - huruf Pegon</h2>
       <a href="bab4/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
     </div>
 
   </div>
-
-  <!-- Dark Mode Script -->
-  <script>
-    const toggleBtn = document.getElementById("darkToggle");
-    toggleBtn.addEventListener("click", () => {
-      document.body.classList.toggle("dark-mode");
-      localStorage.setItem("dark-mode", document.body.classList.contains("dark-mode"));
-    });
-    if(localStorage.getItem("dark-mode") === "true") {
-      document.body.classList.add("dark-mode");
-    }
-  </script>
+<script type="module" src="/teras/assets/js/skorKelas.js"></script>
 </body>
 </html>
