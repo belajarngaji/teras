@@ -67,79 +67,8 @@
   </main>
 
   <script type="module">
-    // --- KONEKSI SUPABASE (CARA MODERN) ---
-    // Impor fungsi createClient dari Supabase
-    const { createClient } = supabase; 
-
-    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
-    
-    // Inisialisasi client
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // --- DATA KUIS (URUTAN DIMENSI) ---
-const quizData = [
-  { 
-    question: "Di antara huruf berikut, yang BUKAN huruf bertitik adalah...", 
-    options: ["خ", "ص", "ق", "ح"], 
-    answer: "ص", 
-    dimension: "Analisa"
-  },
-  { 
-    question: "Manakah urutan huruf hijaiyah yang benar?", 
-    options: ["ا, ب, ت, ث", "ش, ص, ض, ط", "ع, غ, ف, ق", "ي, ك, ل, م"], 
-    answer: "ا, ب, ت, ث", 
-    dimension: "Logika"
-  },
-  { 
-    question: "Huruf apakah yang memiliki titik satu di bawahnya?", 
-    options: ["ب", "ن", "ي", "ت"], 
-    answer: "ب", 
-    dimension: "Memori"
-  },
-  { 
-    question: "Huruf apakah yang bentuknya mirip 'Ba' (ب) namun memiliki dua titik di atas?", 
-    options: ["ت", "ث", "ن", "ي"], 
-    answer: "ت", 
-    dimension: "Konsentrasi"
-  },
-  { 
-    question: "Huruf yang berbentuk seperti kepala 'Fa' (ف) namun memiliki dua titik adalah...", 
-    options: ["ع", "غ", "و", "ق"], 
-    answer: "ق", 
-    dimension: "Pemecahan Masalah"
-  },
-  { 
-    question: "Jika 'Lam' (ل) disambung dengan 'Alif' (ا), maka akan terbentuk huruf gabungan...", 
-    options: ["ل", "ا", "لا", "ى"], 
-    answer: "لا", 
-    dimension: "Analisa"
-  },
-  { 
-    question: "Semua huruf berikut memiliki titik, kecuali...", 
-    options: ["ب", "ت", "ث", "ح"], 
-    answer: "ح", 
-    dimension: "Logika"
-  },
-  { 
-    question: "Huruf hijaiyah berikut yang memiliki tiga titik di atasnya adalah...", 
-    options: ["ف", "ث", "خ", "ج"], 
-    answer: "ث", 
-    dimension: "Memori"
-  },
-  { 
-    question: "Huruf manakah yang bentuk akhirnya adalah 'ـس' ?", 
-    options: ["س", "سـ", "ـس", "ـسـ"], 
-    answer: "ـس", 
-    dimension: "Konsentrasi"
-  },
-  { 
-    question: "Ali menulis huruf dengan titik satu di bawah. Huruf apakah yang ditulis Ali?", 
-    options: ["ي", "ب", "ن", "ت"], 
-    answer: "ب", 
-    dimension: "Pemecahan Masalah"
-  }
-];
+    import { supabase } from '/teras/assets/js/supabase.js'; 
+    import { quizId, quizData } from '/teras/assets/quizData/11h.js';
 
     // --- ELEMEN UI ---
     const quizUI = document.getElementById('quiz-ui');
