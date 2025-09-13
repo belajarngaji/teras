@@ -1,7 +1,10 @@
+// /assets/quizData/11h.js
 
-// --- assets/quizData/11h.js ---
-// --- DATA KUIS KELAS 1 BAB 1 HIJAIYAH ---
-const quizData = [
+// 1. Tambahkan 'export' untuk ID kuis ini
+export const quizId = 'kelas01_bab01_hijaiyah'; // Ganti jika ini untuk bab atau kelas lain
+
+// 2. Tambahkan 'export' untuk data pertanyaan
+export const quizData = [
   { 
     question: "Di antara huruf berikut, yang BUKAN huruf bertitik adalah...", 
     options: ["خ", "ص", "ق", "ح"], 
