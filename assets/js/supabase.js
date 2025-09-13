@@ -1,4 +1,4 @@
-  // --- assets/js/supabaseclient.js
+  // --- assets/js/supabase.js
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
