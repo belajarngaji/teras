@@ -37,7 +37,7 @@
     }
 
     async function loadUserProfile(userId) {
-      const { data: profile, error } = await supabaseClient
+      const { data: profile, error } = await supabaseclient
         .from("profiles")
         .select("username, dashboard_score_total, avatar_url")
         .eq("id", userId)
@@ -64,7 +64,7 @@
     }
 
     async function loadQuizHistory(userId) {
-      const { data: history, error } = await supabaseClient
+      const { data: history, error } = await supabaseclient
         .from("quiz_attempts")
         .select("quiz_id, score, submitted_at")
         .eq("user_id", userId)
@@ -122,7 +122,7 @@
       }
 
       const fileName = `${userId}_${Date.now()}_${file.name}`;
-      const { error } = await supabaseClient.storage
+      const { error } = await supabaseclient.storage
         .from("avatars")
         .upload(fileName, file, { upsert: true });
 
@@ -135,7 +135,7 @@
       const { data } = supabaseClient.storage.from("avatars").getPublicUrl(fileName);
       const publicUrl = data.publicUrl;
 
-      const { error: updateError } = await supabaseClient
+      const { error: updateError } = await supabaseclient
         .from("profiles")
         .update({ avatar_url: publicUrl })
         .eq("id", userId);
