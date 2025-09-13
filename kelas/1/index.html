@@ -79,24 +79,28 @@
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
 
   const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+  const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // ambil user aktif
-  const { data: { user } } = await supabase.auth.getUser();
+  async function updateTotalScore() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-  if (user) {
     const { data, error } = await supabase
       .from("quiz_attempts")
       .select("score")
       .eq("user_id", user.id);
 
     if (!error && data) {
-      const totalSkor = data.reduce((sum, row) => sum + row.score, 0); // jumlah semua skor (0–100 per bab)
+      const totalSkor = data.reduce((sum, row) => sum + row.score, 0);
       document.getElementById("total-score").textContent = `Skor: ${totalSkor}/400`;
+    } else if (error) {
+      console.error("Supabase error:", error);
     }
   }
-  </script>
+
+  document.addEventListener("DOMContentLoaded", updateTotalScore);
+</script>
 </body>
 </html>
