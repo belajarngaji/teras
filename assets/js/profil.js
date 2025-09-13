@@ -21,7 +21,7 @@
 
     // --- Profil Initialization ---
     async function initializeProfilePage() {
-      const { data: { user } } = await supabaseClient.auth.getUser();
+      const { data: { user } } = await supabaseclient.auth.getUser();
       if (user) {
         currentUser = user;
         loadingContainer.style.display = "block";
