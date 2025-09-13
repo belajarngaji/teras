@@ -1,19 +1,26 @@
 // /assets/js/skorKelas.js
 
-// Impor client supabase dari file eksternal
 import { supabase } from '/teras/assets/js/supabase.js';
 
-// Fungsi untuk mengambil dan menampilkan skor
 async function updateTotalScore(classId) {
+  const totalScoreElement = document.getElementById("total-score");
+
   if (!classId) {
-    document.getElementById("total-score").textContent = "Skor: ID Kelas Salah";
+    totalScoreElement.textContent = "Skor Kelas: ID Salah";
     return;
   }
+
+  // Ambil hanya angka dari classId (contoh: "kelas01" -> "1")
+  const classNumber = parseInt(classId.replace("kelas", ""), 10);
+
+  // Tampilkan judul skor saat sedang memuat
+  totalScoreElement.textContent = `Skor Kelas ${classNumber}: Memuat...`;
 
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    document.getElementById("total-score").textContent = "Skor: 0/400";
+    // REVISI: Tampilkan skor 0 dengan format baru jika user tidak login
+    totalScoreElement.textContent = `Skor Kelas ${classNumber}: 0/400`;
     return;
   }
 
@@ -25,15 +32,17 @@ async function updateTotalScore(classId) {
 
   if (error) {
     console.error("Supabase error:", error);
-    document.getElementById("total-score").textContent = "Gagal Memuat Skor";
+    totalScoreElement.textContent = `Skor Kelas ${classNumber}: Gagal Muat`;
     return;
   }
 
   const totalSkor = data.reduce((sum, row) => sum + (row.score || 0), 0);
-  document.getElementById("total-score").textContent = `Skor: ${totalSkor}/400`;
+  
+  // REVISI: Tampilkan skor total dengan format baru
+  totalScoreElement.textContent = `Skor Kelas ${classNumber}: ${totalSkor}/400`;
 }
 
-// Event listener untuk menjalankan fungsi saat halaman dimuat
+// Event listener (tidak ada perubahan)
 document.addEventListener("DOMContentLoaded", () => {
   const path = window.location.pathname;
   const segments = path.split('/');
