@@ -9,30 +9,29 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: 'Poppins', sans-serif; transition: background 0.3s, color 0.3s; }
     .dark-mode { background: #1e293b; color: #f1f5f9; }
     .container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-}
+    }
   </style>
 </head>
 <body class="bg-gray-50">
   <!-- NAVBAR -->
   <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
-  <!-- Brand / Logo -->
-  <div>
-    <a href="..">
-      <img src="..png" alt="Belajar Ngaji" class="h-7 w-auto">
-    </a>
-  </div>
+    <!-- Total Skor -->
+    <div id="total-score" class="text-lg font-bold">
+      Skor: 0/40
+    </div>
 
-  <!-- Tombol Dark Mode -->
-  <button id="darkToggle" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
-    🌙
-  </button>
-</nav>
+    <!-- Tombol Dark Mode -->
+    <button id="darkToggle" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
+      🌙
+    </button>
+  </nav>
 
   <!-- Grid Fitur -->
   <div class="container mx-auto px-4 py-10 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -55,7 +54,7 @@
       <a href="bab3/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
     </div>
 
-    <!-- Quiz 4 -->
+    <!-- QUIZ 4 -->
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
       <h2 class="text-xl font-semibold mb-2">Bab 2 - huruf Pegon</h2>
       <a href="bab4/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
@@ -72,6 +71,31 @@
     });
     if(localStorage.getItem("dark-mode") === "true") {
       document.body.classList.add("dark-mode");
+    }
+  </script>
+
+  <!-- Supabase Script -->
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+
+    const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ambil user aktif
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      const { data, error } = await supabase
+        .from("quiz_attempts")
+        .select("score")
+        .eq("user_id", user.id);
+
+      if (!error && data) {
+        const totalBenar = data.reduce((sum, row) => sum + row.score, 0);
+        document.getElementById("total-score").textContent = `Skor: ${totalBenar}/40`;
+      }
     }
   </script>
 </body>
