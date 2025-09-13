@@ -1,7 +1,7 @@
 // /assets/js/skorKelas.js
 
 // Impor client supabase dari file eksternal
-import { supabase } from '/teras/assets/js/supabaseclient.js';
+import { supabase } from '/teras/assets/js/supabase.js';
 
 // Fungsi untuk mengambil dan menampilkan skor
 async function updateTotalScore(classId) {
