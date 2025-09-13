@@ -68,66 +68,65 @@
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Fungsi updateTotalScore tetap sama, tidak perlu diubah
+// KODE DEBUGGING: Salin dan ganti kode lama Anda dengan ini
 async function updateTotalScore(classId) {
+  console.log("1. Fungsi updateTotalScore dimulai."); // LOG 1
+
   if (!classId) {
-    console.error("Class ID tidak valid!");
-    document.getElementById("total-score").textContent = "Skor: -/400";
+    console.error("GAGAL: Class ID tidak ditemukan dari URL!");
+    document.getElementById("total-score").textContent = "Skor: ID Kelas Salah";
     return;
   }
+  console.log(`2. Class ID berhasil didapat: ${classId}`); // LOG 2
 
-  // Ambil user dari Supabase
   const result = await supabase.auth.getUser();
   const user = result?.data?.user;
 
   if (!user) {
+    console.log("3. Pengguna tidak login (anonim). Menampilkan skor 0."); // LOG 3
     document.getElementById("total-score").textContent = "Skor: 0/400";
     return;
   }
+  console.log(`4. Pengguna ditemukan: ${user.email}`); // LOG 4
 
-  // Ambil skor user menggunakan pencarian pola (pattern matching)
+  const pattern = `${classId}_%`;
+  console.log(`5. Mencari data di Supabase dengan pola: ${pattern}`); // LOG 5
+
   const { data, error } = await supabase
     .from("quiz_attempts")
     .select("score")
     .eq("user_id", user.id)
-    .like("quiz_id", `${classId}_%`); 
+    .like("quiz_id", pattern);
 
   if (error) {
-    console.error("Supabase error:", error);
+    console.error("GAGAL: Terjadi error saat mengambil data dari Supabase:", error); // LOG ERROR
+    document.getElementById("total-score").textContent = "Gagal Memuat Skor";
     return;
   }
 
+  console.log("6. Kueri Supabase berhasil. Data yang diterima:", data); // LOG 6
+
   const totalSkor = data?.reduce((sum, row) => sum + (row.score || 0), 0) || 0;
+  console.log(`7. Perhitungan selesai. Total Skor: ${totalSkor}`); // LOG 7
+
   document.getElementById("total-score").textContent = `Skor: ${totalSkor}/400`;
+  console.log("8. Tampilan skor berhasil diperbarui."); // LOG 8
 }
 
-// --- PERUBAHAN UTAMA ADA DI SINI ---
-// Jalankan saat halaman siap
+// Bagian event listener tetap sama
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Ambil path dari URL (contoh: "/teras/kelas/1/")
   const path = window.location.pathname;
-  
-  // 2. Pecah path menjadi beberapa bagian berdasarkan '/'
-  // hasilnya akan menjadi array: ["", "teras", "kelas", "1", ""]
   const segments = path.split('/');
-  
-  // 3. Cari posisi "kelas" dalam array
   const classIndex = segments.indexOf('kelas');
-  
   let classId = null;
-  // 4. Jika "kelas" ditemukan, ambil segmen berikutnya sebagai ID
+
   if (classIndex !== -1 && segments.length > classIndex + 1) {
-    const numberId = segments[classIndex + 1]; // -> hasilnya "1"
-    
-    // 5. Format ID agar sesuai dengan database (dari "1" menjadi "kelas01")
+    const numberId = segments[classIndex + 1];
     if (numberId) {
-       // 'padStart' menambahkan '0' di depan jika angkanya kurang dari 2 digit
-       classId = `kelas${numberId.padStart(2, '0')}`; // -> hasilnya "kelas01"
+       classId = `kelas${numberId.padStart(2, '0')}`;
     }
   }
-
-  // 6. Panggil fungsi dengan classId yang sudah diformat
-  updateTotalScore(classId); 
+  updateTotalScore(classId);
 });
 
 document.addEventListener("DOMContentLoaded", updateTotalScore);
