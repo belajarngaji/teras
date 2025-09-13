@@ -84,97 +84,106 @@
 
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- 1. DATA KUIS ---
-const quizData = [
+    const quizData = [
   {
-    question: "Awalan 'e' ing Pegon ditulis nganggo…",
-    options: ["اي", "او", "آ", "و"],
-    answer: "آ"
+    question: "Dalam Pegon, kata omah anyar ditulis…",
+    options: ["اومه انيير", "اومه اڽر", "اومه انيار", "اومه آنيا"],
+    answer: "اومه اڽر",
   },
   {
-    question: "Tulisan sing bener kanggo 'eling' (eling, kelingan) yaiku…",
-    options: ["آليع", "آلينع", "ايليع", "آلع"],
-    answer: "آليع"
+    question: "Semua kata berikut berarti pergi kecuali …",
+    options: ["lunga", "mlaku", "dolan", "mangan"],
+    answer: "mangan",
   },
   {
-    question: "Tulisen 'ngasta pakarti' nganggo Pegon.",
-    options: ["عاستا ڤاكارتي", "عست ڤكرتي", "عستة ڤكرتي", "عاستا ڤاكرتى"],
-    answer: "عاستا ڤاكارتي"
+    question: "Tulis kalimat “Bocah loro dolan neng kebon” (Dua anak bermain di kebun) dengan Pegon.",
+    options: ["بوچاه لورو دولان نڠ كبون", "بوچاه لورو دولن نڠ كبون", "بوچاه لورو دولن نڠ كبون", "بُوعَاه لُورُو دُولَن نَڠ كِبُون"],
+    answer: "بوچاه لورو دولن نڠ كبون",
   },
   {
-    question: "Kabeh tembung iki bener, kajaba…",
-    options: ["اوريب", "آسان", "باڤا", "بپ"],
-    answer: "بپ"
+    question: "Bacaan kata اوريڤ iku artinya …",
+    options: ["hidup", "pergi", "makan", "tidur"],
+    answer: "hidup",
   },
   {
-    question: "Bacaan saka tembung آbudi yaiku…",
-    options: ["ebudi", "ibudi", "obudi", "abudi"],
-    answer: "ebudi"
+    question: "Kata yang mengandung vokal e adalah …",
+    options: ["اورا", "آران", "ايبو", "مانݢا"],
+    answer: "آران",
   },
   {
-    question: "Tulisen 'mlampah-mlampah' nganggo Pegon.",
-    options: ["ملامڤاه ملامڤاه", "ملمڤه ملامڤه", "ملاڤه ملاڤه", "ملاڤه ملاڤا"],
-    answer: "ملامڤاه ملامڤاه"
+    question: "Tulis kalimat “Aku arep tuku roti” dengan Pegon.",
+    options: ["اكو آرڤ توكو روتى", "اَكُو اَرِڤ تۇكُ رُوتِي", "اكو آرڤ توكو روتي", "اكو آرف توكو روتي"],
+    answer: "اكو ارڤ توكو روتى",
   },
   {
-    question: "Kabeh tembung iki ana vokal 'i' kajaba…",
-    options: ["سيجي", "عاجي", "اورا", "ايبو"],
-    answer: "اورا"
+    question: "Soal analisis: Kata آسا memiliki huruf vokal …",
+    options: ["i", "e", "o", "a"],
+    answer: "e",
   },
   {
-    question: "Tulisan sing bener nganggo vokal 'u' yaiku…",
-    options: ["سوسو", "سورو", "سورا", "ساري"],
-    answer: "سوسو"
+    question: "Kalimat yang berarti “Hari ini mendung” adalah …",
+    options: ["دينا ايكى مندع", "دينا ايكى مندوع", "دينا ايكى مندون", "دينا ايكى مندنگ"],
+    answer: "دينا ايكى مندوع"
   },
   {
-    question: "Tulisen 'setya tuhu' nganggo Pegon.",
-    options: ["سيتيا توهو", "سيتيا توحو", "ستيا توهو", "سيتيا تْهُ"],
-    answer: "ستيا توهو"
+    question: "Tulis kalimat “Wong akeh mangan sega” dengan Pegon.",
+    options: ["واع اكي ماعان سڮا", "وَڠ اَكِه مَانْݢَان سِݢَا", "وع آاكي مانݢان سيݢا", "وَڠ اَكِه مَانْݢَان سِݢَا"],
+    answer: "واع اكي ماعان سڮا",
   },
   {
-    question: "Bacaan kanggo عونا yaiku…",
-    options: ["nguna", "ngune", "guna", "ngona"],
-    answer: "nguna"
+    question: "Semua kata berikut benar kecuali …",
+    options: ["ڮاوى", "آبو", "اوريب", "بڤ"],
+    answer: "بڤ",
   },
   {
-    question: "Tembung sing nganggo awalan 'i' yaiku…",
-    options: ["ايبو", "آرا", "اورا", "آسا"],
-    answer: "ايبو"
+    question: "Dalam kalimat “Bapak lunga menyang pasar”, kata menyang dalam Pegon adalah …",
+    options: ["مڽڠ", "ميسڠ", "ميسڠ", "مڽڠ"],
+    answer: "مڽڠ",
   },
   {
-    question: "Tulisen 'ndeleng prabu' nganggo Pegon.",
-    options: ["ندليع ڤرابوا", "ندلع ڤرابوا", "ندلع ڤرابو", "ندلينع ڤرابوا"],
-    answer: "ندلع ڤرابو"
+    question: "Tulis kalimat “Saka omah menyang sekolah” dengan Pegon.",
+    options: ["ساكا اوماه مڽڠ سكوله", "ساك اوماه مڽڠ سكوله", "سَاكَا اَومَه مَنياڠ سِكُولَه", "ساكا اومه مڽڠ سكوله"],
+    answer: "ساكا اومه مڽڠ سكوله",
   },
   {
-    question: "Kabeh tembung iki bener, kajaba…",
-    options: ["عونا", "باڤا", "آسا", "بپ"],
-    answer: "بپ"
+    question: "Bacaan kata آكي adalah …",
+    options: ["Aki", "Eki", "Iki", "Aeki"],
+    answer: "Eki",
   },
   {
-    question: "Bacaan saka tembung آsastra yaiku…",
-    options: ["Isastra", "Esastra", "Asastra", "Iesastra"],
-    answer: "Esastra"
+    question: "Kata yang berarti bermain adalah …",
+    options: ["dolan", "lunga", "mangan", "turu"],
+    answer: "dolan",
   },
   {
-    question: "Tulisen 'ngrasuk rasa' nganggo Pegon.",
-    options: ["عراسوق راسا", "عراسق راسا", "عراسوك راسا", "عراسوق راسه"],
-    answer: "عراسوك راسا"
+    question: "Tulis kalimat “Mlaku-mlaku neng alun-alun” dengan Pegon.",
+    options: ["ملاكو ملاكو نڠ الون الون", "مَلاكُ مَلاكُ نَڠ اَلُن اَلُن", "ملاكو ملاكو نڠ الون-الون", "ملاكو-ملاكو نڠ الون-الون"],
+    answer: "ملاكو ملاكو نڠ الون الون",
   },
   {
-    question: "Gabungan huruf ع + ا + ري dibaca…",
-    options: ["ngere", "ngiri", "ngari", "ngore"],
-    answer: "ngari"
+    question: "Semua kata berikut mengandung vokal i kecuali …",
+    options: ["ايبو", "سىجى", "عاجى", "اورا"],
+    answer: "اورا",
   },
   {
-    question: "Tembung sing tegesé 'ageng' yaiku…",
-    options: ["باڤا", "آاكي", "آسان", "اگڠ"],
-    answer: "اگڠ"
+    question: "Bacaan kata اودان berarti …",
+    options: ["hujan", "panas", "angin", "mendung"],
+    answer: "hujan",
   },
   {
-    question: "Tulisen 'arep tindak' nganggo Pegon.",
-    options: ["آرڤ تيندق", "ارف تينداك", "آرڤ تندك", "آرڤ تينداق"],
-    answer: "ارف تينداك"
+    question: "Tulis kalimat “Esuk-esuk pasar rame banget” dengan Pegon.",
+    options: ["آسوك آسوك ڤاسار رامى باعت", "اَسُك اَسُك فَاسَر رَامِي بَݢَت", "آسوك-آسوك ڤاسار رامى بݢت", "ايسوك ايسوك ڤاسار رامى بݢت"],
+    answer: "آسوك آسوك ڤاسار رامى باعت",
+  },
+  {
+    question: "Dalam kalimat “Wong loro mangan sega bareng”, kata bareng ditulis …",
+    options: ["بارع", "بارنڠ", "بارنج", "بارڽا"],
+    answer: "بارع",
+  },
+  {
+    question: "Tulis kalimat “Kabeh padha dolan neng sawah” dengan Pegon.",
+    options: ["كابيه ڤادها دولن نڠ ساواه", "كابى ڤادا دولن نڠ ساواه", "كابى ڤادا دولن نڠ ساواه", "كابِه ڤادَه دولَن نڠ ساواه"],
+    answer: "كابى ڤادا دولن نڠ ساواه",
   }
 ];
 
