@@ -68,24 +68,30 @@
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  async function updateTotalScore() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+async function updateTotalScore() {
+  const { data: { user } } = await supabase.auth.getUser();
 
-    const { data, error } = await supabase
-      .from("quiz_attempts")
-      .select("score")
-      .eq("user_id", user.id);
-
-    if (!error && data) {
-      const totalSkor = data.reduce((sum, row) => sum + row.score, 0);
-      document.getElementById("total-score").textContent = `Skor: ${totalSkor}/400`;
-    } else if (error) {
-      console.error("Supabase error:", error);
-    }
+  if (!user) {
+    // user anonim → tampilkan 0/400
+    document.getElementById("total-score").textContent = "Skor: 0/400";
+    return;
   }
 
-  document.addEventListener("DOMContentLoaded", updateTotalScore);
+  const { data, error } = await supabase
+    .from("quiz_attempts")
+    .select("score")
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("Supabase error:", error);
+    return;
+  }
+
+  const totalSkor = data.reduce((sum, row) => sum + (row.score || 0), 0);
+  document.getElementById("total-score").textContent = `Skor: ${totalSkor}/400`;
+}
+
+document.addEventListener("DOMContentLoaded", updateTotalScore);
 </script>
 </body>
 </html>
