@@ -1,7 +1,8 @@
 // /assets/quizData/21h.js
 
-export const quizId = 'kelas01_bab01_hijaiyah'; // Ganti
+export const quizId = 'kelas02_bab01_hijaiyah';
 export const quizData = [
+  // 1. Analisa
   {
     question: "Perhatikan kata 'عَلَم'. Huruf 'ل' berada pada posisi…",
     options: ["Awal", "Tengah", "Akhir", "Sendiri"],
@@ -29,25 +30,25 @@ export const quizData = [
     answer: "Tengah",
     dimension: "Konsentrasi"
   },
-  // 5. Pemecahan Masalah
+  // 5. Pemecahan Masalah (cerita)
   {
-    question: "Jika huruf-huruf ب + س + م digabungkan, maka terbentuk kata…",
-    options: ["بـسـم", "بـسـمـ", "بسم"],
-    answer: "بسم",
+    question: "Ahmad menulis kata 'بسم'. Jika ia menambahkan huruf 'ا' di awal, kata tersebut menjadi…",
+    options: ["بسم", "ابسم", "اسم", "أسم"],
+    answer: "اسم",
     dimension: "Pemecahan Masalah"
   },
-  // 6. Analisa
+  // 6. Analisa (kecuali)
   {
-    question: "Pada kata 'مَكْتَب', huruf 'ت' memiliki bentuk…",
-    options: ["Awal", "Tengah", "Akhir", "Sendiri"],
-    answer: "Tengah",
+    question: "Semua huruf berikut memiliki titik, kecuali…",
+    options: ["خ", "ح", "ث", "ف"],
+    answer: "ح",
     dimension: "Analisa"
   },
-  // 7. Logika
+  // 7. Logika (yang bukan)
   {
-    question: "Huruf manakah yang tidak berubah bentuk meskipun di awal atau tengah kata?",
-    options: ["ر", "ب", "م", "ك"],
-    answer: "ر",
+    question: "Yang bukan termasuk huruf tanpa titik adalah…",
+    options: ["ا", "ل", "د", "ق"],
+    answer: "ق",
     dimension: "Logika"
   },
   // 8. Memori
@@ -64,9 +65,9 @@ export const quizData = [
     answer: "كتب",
     dimension: "Konsentrasi"
   },
-  // 10. Pemecahan Masalah
+  // 10. Pemecahan Masalah (cerita)
   {
-    question: "Dalam kata 'مَغْرِب', huruf 'غ' berada di posisi…",
+    question: "Seorang siswa menulis kata 'مغرب'. Huruf 'غ' dalam kata itu menempati posisi…",
     options: ["Awal", "Tengah", "Akhir", "Sendiri"],
     answer: "Tengah",
     dimension: "Pemecahan Masalah"
