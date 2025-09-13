@@ -1,0 +1,63 @@
+// --- DATA KUIS KELAS 1 BAB 1 HIJAIYAH ---
+const quizData = [
+  { 
+    question: "Di antara huruf berikut, yang BUKAN huruf bertitik adalah...", 
+    options: ["خ", "ص", "ق", "ح"], 
+    answer: "ص", 
+    dimension: "Analisa"
+  },
+  { 
+    question: "Manakah urutan huruf hijaiyah yang benar?", 
+    options: ["ا, ب, ت, ث", "ش, ص, ض, ط", "ع, غ, ف, ق", "ي, ك, ل, م"], 
+    answer: "ا, ب, ت, ث", 
+    dimension: "Logika"
+  },
+  { 
+    question: "Huruf apakah yang memiliki titik satu di bawahnya?", 
+    options: ["ب", "ن", "ي", "ت"], 
+    answer: "ب", 
+    dimension: "Memori"
+  },
+  { 
+    question: "Huruf apakah yang bentuknya mirip 'Ba' (ب) namun memiliki dua titik di atas?", 
+    options: ["ت", "ث", "ن", "ي"], 
+    answer: "ت", 
+    dimension: "Konsentrasi"
+  },
+  { 
+    question: "Huruf yang berbentuk seperti kepala 'Fa' (ف) namun memiliki dua titik adalah...", 
+    options: ["ع", "غ", "و", "ق"], 
+    answer: "ق", 
+    dimension: "Pemecahan Masalah"
+  },
+  { 
+    question: "Jika 'Lam' (ل) disambung dengan 'Alif' (ا), maka akan terbentuk huruf gabungan...", 
+    options: ["ل", "ا", "لا", "ى"], 
+    answer: "لا", 
+    dimension: "Analisa"
+  },
+  { 
+    question: "Semua huruf berikut memiliki titik, kecuali...", 
+    options: ["ب", "ت", "ث", "ح"], 
+    answer: "ح", 
+    dimension: "Logika"
+  },
+  { 
+    question: "Huruf hijaiyah berikut yang memiliki tiga titik di atasnya adalah...", 
+    options: ["ف", "ث", "خ", "ج"], 
+    answer: "ث", 
+    dimension: "Memori"
+  },
+  { 
+    question: "Huruf manakah yang bentuk akhirnya adalah 'ـس' ?", 
+    options: ["س", "سـ", "ـس", "ـسـ"], 
+    answer: "ـس", 
+    dimension: "Konsentrasi"
+  },
+  { 
+    question: "Ali menulis huruf dengan titik satu di bawah. Huruf apakah yang ditulis Ali?", 
+    options: ["ي", "ب", "ن", "ت"], 
+    answer: "ب", 
+    dimension: "Pemecahan Masalah"
+  }
+];
