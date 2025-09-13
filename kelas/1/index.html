@@ -68,10 +68,10 @@
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Fungsi ini sekarang menerima classId sebagai parameter (contoh: "kelas01")
+// Fungsi updateTotalScore tetap sama, tidak perlu diubah
 async function updateTotalScore(classId) {
   if (!classId) {
-    console.error("Class ID tidak ditemukan!");
+    console.error("Class ID tidak valid!");
     document.getElementById("total-score").textContent = "Skor: -/400";
     return;
   }
@@ -90,8 +90,6 @@ async function updateTotalScore(classId) {
     .from("quiz_attempts")
     .select("score")
     .eq("user_id", user.id)
-    // --- PERUBAHAN DI SINI ---
-    // Cari quiz_id yang diawali dengan classId diikuti karakter apa pun ('_')
     .like("quiz_id", `${classId}_%`); 
 
   if (error) {
@@ -99,18 +97,36 @@ async function updateTotalScore(classId) {
     return;
   }
 
-  // Sisa kode sama
   const totalSkor = data?.reduce((sum, row) => sum + (row.score || 0), 0) || 0;
   document.getElementById("total-score").textContent = `Skor: ${totalSkor}/400`;
 }
 
+// --- PERUBAHAN UTAMA ADA DI SINI ---
 // Jalankan saat halaman siap
 document.addEventListener("DOMContentLoaded", () => {
-  // Pastikan URL Anda memiliki parameter, contoh: .../kelas.html?class_id=kelas01
-  const urlParams = new URLSearchParams(window.location.search);
-  const classId = urlParams.get('class_id'); 
+  // 1. Ambil path dari URL (contoh: "/teras/kelas/1/")
+  const path = window.location.pathname;
+  
+  // 2. Pecah path menjadi beberapa bagian berdasarkan '/'
+  // hasilnya akan menjadi array: ["", "teras", "kelas", "1", ""]
+  const segments = path.split('/');
+  
+  // 3. Cari posisi "kelas" dalam array
+  const classIndex = segments.indexOf('kelas');
+  
+  let classId = null;
+  // 4. Jika "kelas" ditemukan, ambil segmen berikutnya sebagai ID
+  if (classIndex !== -1 && segments.length > classIndex + 1) {
+    const numberId = segments[classIndex + 1]; // -> hasilnya "1"
+    
+    // 5. Format ID agar sesuai dengan database (dari "1" menjadi "kelas01")
+    if (numberId) {
+       // 'padStart' menambahkan '0' di depan jika angkanya kurang dari 2 digit
+       classId = `kelas${numberId.padStart(2, '0')}`; // -> hasilnya "kelas01"
+    }
+  }
 
-  // Panggil fungsi dengan classId yang didapat
+  // 6. Panggil fungsi dengan classId yang sudah diformat
   updateTotalScore(classId); 
 });
 
