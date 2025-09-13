@@ -1,4 +1,4 @@
-// /assets/quizData/12.js
+// /assets/quizData/12h.js
 
 export const quizId = 'kelas01_bab02_hijaiyah'; // Ganti
 export const quizData = [
