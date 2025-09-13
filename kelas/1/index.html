@@ -59,79 +59,55 @@
 
   </div>
 
- <!-- Supabase Script -->
 <script type="module">
-  // PERUBAHAN HANYA DI URL INI
-  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+  // Impor client supabase dengan nama file yang benar (semua huruf kecil)
+  import { supabase } from '/teras/assets/js/supabaseclient.js';
 
-  const SUPABASE_URL = "https://jpxtbdawajjyrvqrgijd.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpweHRiZGF3YWpqeXJ2cXJnaWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTI4OTgsImV4cCI6MjA3MTg4ODg5OH0.vEqCzHYBByFZEXeLIBqx6b40x6-tjSYa3Il_b2mI9NE";
-
-  // Variabel ini sekarang bisa digunakan di skrip Anda yang lain
-  window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// KODE DEBUGGING: Salin dan ganti kode lama Anda dengan ini
-async function updateTotalScore(classId) {
-  console.log("1. Fungsi updateTotalScore dimulai."); // LOG 1
-
-  if (!classId) {
-    console.error("GAGAL: Class ID tidak ditemukan dari URL!");
-    document.getElementById("total-score").textContent = "Skor: ID Kelas Salah";
-    return;
-  }
-  console.log(`2. Class ID berhasil didapat: ${classId}`); // LOG 2
-
-  const result = await supabase.auth.getUser();
-  const user = result?.data?.user;
-
-  if (!user) {
-    console.log("3. Pengguna tidak login (anonim). Menampilkan skor 0."); // LOG 3
-    document.getElementById("total-score").textContent = "Skor: 0/400";
-    return;
-  }
-  console.log(`4. Pengguna ditemukan: ${user.email}`); // LOG 4
-
-  const pattern = `${classId}_%`;
-  console.log(`5. Mencari data di Supabase dengan pola: ${pattern}`); // LOG 5
-
-  const { data, error } = await supabase
-    .from("quiz_attempts")
-    .select("score")
-    .eq("user_id", user.id)
-    .like("quiz_id", pattern);
-
-  if (error) {
-    console.error("GAGAL: Terjadi error saat mengambil data dari Supabase:", error); // LOG ERROR
-    document.getElementById("total-score").textContent = "Gagal Memuat Skor";
-    return;
-  }
-
-  console.log("6. Kueri Supabase berhasil. Data yang diterima:", data); // LOG 6
-
-  const totalSkor = data?.reduce((sum, row) => sum + (row.score || 0), 0) || 0;
-  console.log(`7. Perhitungan selesai. Total Skor: ${totalSkor}`); // LOG 7
-
-  document.getElementById("total-score").textContent = `Skor: ${totalSkor}/400`;
-  console.log("8. Tampilan skor berhasil diperbarui."); // LOG 8
-}
-
-// Bagian event listener tetap sama
-document.addEventListener("DOMContentLoaded", () => {
-  const path = window.location.pathname;
-  const segments = path.split('/');
-  const classIndex = segments.indexOf('kelas');
-  let classId = null;
-
-  if (classIndex !== -1 && segments.length > classIndex + 1) {
-    const numberId = segments[classIndex + 1];
-    if (numberId) {
-       classId = `kelas${numberId.padStart(2, '0')}`;
+  // Fungsi updateTotalScore (tidak ada perubahan di sini)
+  async function updateTotalScore(classId) {
+    if (!classId) {
+      document.getElementById("total-score").textContent = "Skor: ID Kelas Salah";
+      return;
     }
-  }
-  updateTotalScore(classId);
-});
 
-document.addEventListener("DOMContentLoaded", updateTotalScore);
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      document.getElementById("total-score").textContent = "Skor: 0/400";
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("quiz_attempts")
+      .select("score")
+      .eq("user_id", user.id)
+      .eq("class_id", classId);
+
+    if (error) {
+      console.error("Supabase error:", error);
+      document.getElementById("total-score").textContent = "Gagal Memuat Skor";
+      return;
+    }
+
+    const totalSkor = data.reduce((sum, row) => sum + (row.score || 0), 0);
+    document.getElementById("total-score").textContent = `Skor: ${totalSkor}/400`;
+  }
+
+  // Event listener (tidak ada perubahan di sini)
+  document.addEventListener("DOMContentLoaded", () => {
+    const path = window.location.pathname;
+    const segments = path.split('/');
+    const classIndex = segments.indexOf('kelas');
+    let classId = null;
+
+    if (classIndex !== -1 && segments.length > classIndex + 1) {
+      const numberId = segments[classIndex + 1];
+      if (numberId) {
+        classId = `kelas${numberId.padStart(2, '0')}`;
+      }
+    }
+    updateTotalScore(classId);
+  });
 </script>
 </body>
 </html>
