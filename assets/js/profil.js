@@ -1,5 +1,5 @@
 
-    import { supabaseClient } from "teras/assets/js/supabaseClient.js";
+    import { supabaseclient } from "teras/assets/js/supabaseClient.js";
 
     const profileInitial = document.getElementById("profile-initial");
     const profilePhoto = document.getElementById("profile-photo");
