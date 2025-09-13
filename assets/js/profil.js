@@ -1,5 +1,5 @@
 
-    import { supabaseclient } from "./supabaseClient.js";
+    import { supabaseclient } from "./supabaseclient.js";
 
     const profileInitial = document.getElementById("profile-initial");
     const profilePhoto = document.getElementById("profile-photo");
