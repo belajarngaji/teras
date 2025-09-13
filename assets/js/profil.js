@@ -114,17 +114,24 @@
       `;
     }
 
-    // --- Upload Avatar ---
-    async function uploadAvatar(file, userId) {
-      if (!file) {
-        alert("Pilih file dulu!");
-        return;
-      }
+    // --- Upload Avatar dengan kompres ---
+async function uploadAvatar(file, userId) {
+  if (!file) {
+    alert("Pilih file dulu!");
+    return;
+  }
 
-      const fileName = `${userId}_${Date.now()}_${file.name}`;
+  // kompres dulu sebelum upload
+  new Compressor(file, {
+    width: 200,   // maksimal lebar px
+    height: 200,  // maksimal tinggi px
+    quality: 0.8, // kualitas (0-1)
+    success: async (compressedFile) => {
+      const fileName = `${userId}_${Date.now()}.${compressedFile.name.split(".").pop()}`;
+
       const { error } = await supabaseclient.storage
         .from("avatars")
-        .upload(fileName, file, { upsert: true });
+        .upload(fileName, compressedFile, { upsert: true });
 
       if (error) {
         console.error(error);
@@ -151,7 +158,13 @@
         modal.classList.add("hidden");
         alert("Foto profil berhasil diperbarui!");
       }
-    }
+    },
+    error(err) {
+      console.error(err);
+      alert("Gagal kompres gambar: " + err.message);
+    },
+  });
+}
 
     // --- Modal Events ---
     document.getElementById("profile-photo-wrapper").addEventListener("click", () => {
