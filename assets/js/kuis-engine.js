@@ -1,25 +1,16 @@
- // --- assets/js/kuis-engine.js ---
-
 import { supabase } from '/teras/assets/js/supabase.js';
 
-// Semua logika kuis dibungkus dalam satu fungsi yang diekspor
 export function initQuiz(quizId, quizData) {
   
   // --- ELEMEN UI ---
   const quizUI = document.getElementById('quiz-ui');
-  const resultsUI = document.getElementById('results-ui');
-  const questionText = document.getElementById('question-text');
-  const optionsList = document.getElementById('options-list');
-  const nextButton = document.getElementById('next-button');
-  const finalScoreSpan = document.getElementById('final-score');
-  const scoreMessage = document.getElementById('score-message');
-  const statusMessage = document.getElementById('status-message');
-  const saveStatusMessage = document.getElementById('save-status-message');
+  // ... sisa elemen UI ...
 
-  // --- STATE KUIS ---
+  // --- STATE KUIS & TIMER ---
   let currentQuestionIndex = 0;
   let score = 0;
   let selectedOption = null;
+  let questionTimer; // 1. Variabel untuk menyimpan timer
 
   // --- FUNGSI-FUNGSI ---
   function loadQuestion() {
@@ -34,6 +25,8 @@ export function initQuiz(quizId, quizData) {
     const currentQuestion = quizData[currentQuestionIndex];
     questionText.textContent = `${currentQuestionIndex + 1}. ${currentQuestion.question}`;
     optionsList.innerHTML = '';
+    optionsList.classList.remove('no-pointer-events');
+    nextButton.disabled = false;
 
     currentQuestion.options.forEach(option => {
       const li = document.createElement('li');
@@ -48,9 +41,30 @@ export function initQuiz(quizId, quizData) {
     });
 
     nextButton.textContent = currentQuestionIndex === quizData.length - 1 ? 'Selesai' : 'Selanjutnya';
+    
+    startTimer(); // 3. Mulai timer untuk pertanyaan baru
+  }
+
+  // 2. FUNGSI BARU UNTUK TIMER
+  function startTimer() {
+    clearTimeout(questionTimer); // Hapus timer sebelumnya jika ada
+    questionTimer = setTimeout(() => {
+      handleTimeOut();
+    }, 30000); // 30000 milidetik = 30 detik
+  }
+
+  function handleTimeOut() {
+    selectedOption = null; // Pastikan tidak ada jawaban yang terpilih
+    showStatusMessage('❌ TIME OUT', 'text-red-800 dark:text-red-300', 'bg-red-100 dark:bg-red-900/50');
+    
+    // Tunda sebentar sebelum lanjut agar pesan timeout terbaca
+    setTimeout(() => {
+      giveFeedback(); 
+    }, 1000);
   }
 
   function giveFeedback() {
+    clearTimeout(questionTimer); // 4. Hentikan timer karena sudah dijawab
     optionsList.classList.add('no-pointer-events');
     nextButton.disabled = true;
     const currentQuestion = quizData[currentQuestionIndex];
@@ -61,91 +75,33 @@ export function initQuiz(quizId, quizData) {
       selectedLi.classList.add('correct');
       showStatusMessage('Jawaban Benar! Bagus sekali!', 'text-green-800 dark:text-green-300', 'bg-green-100 dark:bg-green-900/50');
     } else {
-      selectedLi.classList.add('incorrect');
-      showStatusMessage('Jawaban kurang tepat.', 'text-orange-800 dark:text-orange-300', 'bg-orange-100 dark:bg-orange-900/50');
+      // Jika ada jawaban terpilih tapi salah
+      if (selectedLi) {
+        selectedLi.classList.add('incorrect');
+      }
+      // Jika tidak ada jawaban terpilih (karena timeout), status message sudah diatur oleh handleTimeOut()
+      if (selectedOption !== null) {
+        showStatusMessage('Jawaban kurang tepat.', 'text-orange-800 dark:text-orange-300', 'bg-orange-100 dark:bg-orange-900/50');
+      }
     }
 
     setTimeout(() => {
       currentQuestionIndex++;
       loadQuestion();
-      optionsList.classList.remove('no-pointer-events');
-      nextButton.disabled = false;
     }, 1500);
   }
 
   async function showResults() {
+    clearTimeout(questionTimer); // Pastikan timer berhenti saat kuis selesai
     quizUI.style.display = 'none';
-    resultsUI.style.display = 'block';
-
-    const finalScore = score * 10;
-    finalScoreSpan.textContent = finalScore;
-
-    if (finalScore === 100) {
-      scoreMessage.textContent = 'Masya Allah! Anda mendapatkan skor sempurna!';
-    } else if (finalScore >= 70) {
-      scoreMessage.textContent = 'Kerja bagus! Anda berhasil melewati kuis ini.';
-    } else {
-      scoreMessage.textContent = 'Terus semangat belajar, ya! Anda bisa coba lagi.';
-    }
-
-    await saveScoreToSupabase(finalScore);
+    // ... sisa fungsi showResults ...
   }
 
-  // --- GANTI FUNGSI LAMA ANDA DENGAN YANG INI ---
-
-async function saveScoreToSupabase(finalScore) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        showSaveStatusMessage('Anda belum masuk untuk menyimpan skor.', 'text-orange-800 dark:text-orange-300', 'bg-orange-100 dark:bg-orange-900/50');
-        return;
-    }
-
-    // =====================================================================
-    // --- PERUBAHAN UTAMA DI SINI ---
-
-    // 1. Ekstrak class_id dari quizId (misal: "kelas01_bab01" -> "kelas01")
-    const classId = quizId.split('_')[0];
-
-    // 2. Siapkan objek data yang LENGKAP untuk dikirim ke Supabase
-    const attemptData = {
-        user_id: user.id,
-        quiz_id: quizId,
-        score: finalScore,
-        class_id: classId // <-- Tambahkan properti class_id di sini
-    };
-    
-    // --- AKHIR DARI PERUBAHAN ---
-    // =====================================================================
-
-    // Gunakan objek 'attemptData' yang sudah lengkap untuk operasi upsert
-    // 'onConflict' memastikan satu user hanya punya satu entri per kuis.
-    const { error } = await supabase
-        .from('quiz_attempts')
-        .upsert(attemptData, { onConflict: ['user_id', 'quiz_id'] });
-
-    if (error) {
-        console.error("Supabase Error:", error);
-        showSaveStatusMessage('Gagal menyimpan skor Anda.', 'text-red-800 dark:text-red-300', 'bg-red-100 dark:bg-red-900/50');
-    } else {
-        showSaveStatusMessage('Skor Anda berhasil dicatat!', 'text-green-800 dark:text-green-300', 'bg-green-100 dark:bg-green-900/50');
-    }
-}
-
-  function showStatusMessage(message, textColor, bgColor) {
-    statusMessage.textContent = message;
-    statusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
-    statusMessage.classList.remove('hidden');
+  async function saveScoreToSupabase(finalScore) {
+    // ... sisa fungsi saveScoreToSupabase ...
   }
-
-  function hideStatusMessage() {
-    statusMessage.classList.add('hidden');
-  }
-
-  function showSaveStatusMessage(message, textColor, bgColor) {
-    saveStatusMessage.textContent = message;
-    saveStatusMessage.className = `mt-4 p-3 rounded-lg text-sm font-semibold text-center ${textColor} ${bgColor}`;
-    saveStatusMessage.classList.remove('hidden');
-  }
+  
+  // ... sisa fungsi-fungsi lainnya ...
 
   // --- EVENT LISTENERS & INISIALISASI ---
   nextButton.addEventListener('click', () => {
@@ -156,6 +112,5 @@ async function saveScoreToSupabase(finalScore) {
     giveFeedback();
   });
 
-  // Memulai kuis pertama kali
   loadQuestion();
 }
