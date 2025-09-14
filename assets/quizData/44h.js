@@ -33,7 +33,7 @@ export const quizData = [
   // 5. Pemecahan Masalah
   {
     question: "Seorang guru menulis huruf ك + ت + ب di papan tulis. Jika digabung, kata yang terbentuk adalah…",
-    options: ["كـتـب", "كتب", "كـتب", "كـتـبـ"],
+    options: ["كـتـاب", "كتب", "كـ تب", "كـتـبـ"],
     answer: "كتب",
     dimension: "Pemecahan Masalah"
   },
@@ -46,7 +46,7 @@ export const quizData = [
   },
   // 7. Logika
   {
-    question: "Yang **bukan** termasuk huruf yang tidak bisa disambung setelahnya adalah…",
+    question: "Yang bukan termasuk huruf yang tidak bisa disambung setelahnya adalah…",
     options: ["ا", "ر", "د", "م"],
     answer: "م",
     dimension: "Logika"
@@ -68,7 +68,7 @@ export const quizData = [
   // 10. Pemecahan Masalah
   {
     question: "Jika huruf-huruf ب + ي + ت digabungkan, terbentuk kata…",
-    options: ["بيت", "بـيـت", "بـيت", "بيـت"],
+    options: ["بيت", "بـايـت", "بـ يت", "ب يـ ت"],
     answer: "بيت",
     dimension: "Pemecahan Masalah"
   }
