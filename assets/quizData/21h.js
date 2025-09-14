@@ -1,75 +1,68 @@
 // /assets/quizData/21h.js
 
+// 1. Tambahkan 'export' untuk ID kuis ini
 export const quizId = 'kelas02_bab01_hijaiyah';
+
+// 2. Tambahkan 'export' untuk data pertanyaan
 export const quizData = [
-  // 1. Analisa
-  {
-    question: "Perhatikan kata 'عَلَم'. Huruf 'ل' berada pada posisi…",
-    options: ["Awal", "Tengah", "Akhir", "Sendiri"],
-    answer: "Tengah",
-    dimension: "Analisa"
-  },
-  // 2. Logika
-  {
-    question: "Huruf apakah yang bentuknya mirip 'ع' tetapi memiliki titik di atas?",
-    options: ["غ", "ف", "ق", "ح"],
-    answer: "غ",
-    dimension: "Logika"
-  },
-  // 3. Memori
-  {
-    question: "Bentuk sambung huruf 'غ' di tengah kata adalah…",
-    options: ["غ", "ـغـ", "ـغ", "غـ"],
-    answer: "ـغـ",
+  { 
+    question: "Tanda baca (harakat) yang diletakkan di bawah huruf dan menghasilkan bunyi 'i' disebut...", 
+    options: ["Fathah", "Kasrah", "Dammah", "Sukun"], 
+    answer: "Kasrah", 
     dimension: "Memori"
   },
-  // 4. Konsentrasi
-  {
-    question: "Dalam kata 'وَرَقَة', huruf 'ق' berada di posisi…",
-    options: ["Awal", "Tengah", "Akhir", "Sendiri"],
-    answer: "Tengah",
+  { 
+    question: "Bagaimana cara membaca huruf ini: تِ", 
+    options: ["Ta", "Ti", "Tu", "At"], 
+    answer: "Ti", 
     dimension: "Konsentrasi"
   },
-  // 5. Pemecahan Masalah (cerita)
-  {
-    question: "Ahmad menulis kata 'بسم'. Jika ia menambahkan huruf 'ا' di awal, kata tersebut menjadi…",
-    options: ["بسم", "ابسم", "اسم", "أسم"],
-    answer: "اسم",
+  { 
+    question: "Jika بَ dibaca 'ba', maka بِ dibaca...", 
+    options: ["Bi", "Bu", "Ba", "Ab"], 
+    answer: "Bi", 
+    dimension: "Logika"
+  },
+  { 
+    question: "Apa perbedaan utama antara Fathah (بَ) dan Kasrah (بِ)?", 
+    options: ["Posisi tanda baca dan bunyinya", "Bentuk hurufnya", "Jumlah titiknya", "Ukurannya"], 
+    answer: "Posisi tanda baca dan bunyinya", 
+    dimension: "Analisa"
+  },
+  { 
+    question: "Bagaimana cara membaca kata ini: كَتِبَ", 
+    options: ["Ka-ta-ba", "Ka-ti-ba", "Ku-ti-ba", "Ka-ta-bi"], 
+    answer: "Ka-ti-ba", 
     dimension: "Pemecahan Masalah"
   },
-  // 6. Analisa (kecuali)
-  {
-    question: "Semua huruf berikut memiliki titik, kecuali…",
-    options: ["خ", "ح", "ث", "ف"],
-    answer: "ح",
-    dimension: "Analisa"
-  },
-  // 7. Logika (yang bukan)
-  {
-    question: "Yang bukan termasuk huruf tanpa titik adalah…",
-    options: ["ا", "ل", "د", "ق"],
-    answer: "ق",
-    dimension: "Logika"
-  },
-  // 8. Memori
-  {
-    question: "Huruf-huruf berikut tidak bisa menyambung dengan huruf setelahnya…",
-    options: ["ا، د، ذ، ر", "ب، ت، ث، ج", "ف، ق، ك، ل"],
-    answer: "ا، د، ذ، ر",
+  { 
+    question: "Posisi harakat Kasrah selalu berada di...", 
+    options: ["Atas huruf", "Bawah huruf", "Tengah huruf", "Samping huruf"], 
+    answer: "Bawah huruf", 
     dimension: "Memori"
   },
-  // 9. Konsentrasi
-  {
-    question: "Sambungan huruf ك + ت + ب menjadi…",
-    options: ["كـتـب", "كتب"],
-    answer: "كتب",
+  { 
+    question: "Manakah yang dibaca 'syi'?", 
+    options: ["سِ", "شِ", "صِ", "ثِ"], 
+    answer: "شِ", 
     dimension: "Konsentrasi"
   },
-  // 10. Pemecahan Masalah (cerita)
-  {
-    question: "Seorang siswa menulis kata 'مغرب'. Huruf 'غ' dalam kata itu menempati posisi…",
-    options: ["Awal", "Tengah", "Akhir", "Sendiri"],
-    answer: "Tengah",
+  { 
+    question: "Semua huruf ini memiliki harakat Kasrah, KECUALI...", 
+    options: ["حِ", "خِ", "جَ", "عِ"], 
+    answer: "جَ", 
+    dimension: "Logika"
+  },
+  { 
+    question: "Pada kata 'عَمِلَ', harakat pada huruf tengah (Mim) adalah...", 
+    options: ["Fathah", "Kasrah", "Dammah", "Sukun"], 
+    answer: "Kasrah", 
+    dimension: "Analisa"
+  },
+  { 
+    question: "Seorang siswa ingin menulis 'fariha'. Tulisan manakah yang benar?", 
+    options: ["فَرِحَ", "فَرَحَ", "فَرُحَ", "قَرِحَ"], 
+    answer: "فَرِحَ", 
     dimension: "Pemecahan Masalah"
   }
 ];
