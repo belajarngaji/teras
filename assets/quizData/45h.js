@@ -11,7 +11,7 @@ export const quizData = [
   },
   // 2. Logika
   {
-    question: "Teka-teki: Huruf ini mirip dengan 'ف' tetapi punya dua titik di atas. Huruf apakah itu?",
+    question: "Huruf ini mirip dengan 'ف' tetapi punya dua titik di atas. Huruf apakah itu?",
     options: ["ق", "ث", "غ", "ت"],
     answer: "ق",
     dimension: "Logika"
@@ -20,7 +20,7 @@ export const quizData = [
   {
     question: "Ingat kembali: Kata 'مدرسة' terdiri dari…",
     options: ["4 huruf", "5 huruf", "6 huruf", "7 huruf"],
-    answer: "6 huruf",
+    answer: "5 huruf",
     dimension: "Memori"
   },
   // 4. Konsentrasi
@@ -32,8 +32,8 @@ export const quizData = [
   },
   // 5. Pemecahan Masalah
   {
-    question: "Seorang siswa ingin menulis kata 'مدينة'. Ia menulis huruf: م + د + ي + ن + ة. Jika disambung, hasil yang benar adalah…",
-    options: ["مديـنـة", "مدينـة", "مدينة", "مديـنة"],
+    question: "Seorang siswa ingin menulis kata 'Madina'. Ia menulis huruf: م + د + ي + ن + ة. Jika disambung, hasil yang benar adalah…",
+    options: ["مادي نـة", "مدينة", "مدي نة", "مديـناة"],
     answer: "مدينة",
     dimension: "Pemecahan Masalah"
   },
@@ -46,8 +46,8 @@ export const quizData = [
   },
   // 7. Logika
   {
-    question: "Yang **bukan** pasangan huruf kembar titik adalah…",
-    options: ["ت – ب", "ن – ي", "ف – ق", "ص – ض"],
+    question: "Yang bukan pasangan huruf kembar titik adalah…",
+    options: ["ت – ب", "ط – ظ", "ف – ق", "ص – ض"],
     answer: "ت – ب",
     dimension: "Logika"
   },
@@ -60,7 +60,7 @@ export const quizData = [
   },
   // 9. Konsentrasi
   {
-    question: "Teka-teki cepat: Pilih kata yang mengandung huruf 'غ'.",
+    question: "Pilih kata yang mengandung huruf 'غ'.",
     options: ["باب", "غرفة", "كتاب", "مدرسة"],
     answer: "غرفة",
     dimension: "Konsentrasi"
@@ -68,8 +68,8 @@ export const quizData = [
   // 10. Pemecahan Masalah
   {
     question: "Seorang guru menulis huruf: ك + ت + ب + ة. Jika disambung, kata yang benar adalah…",
-    options: ["كتبـة", "كـتبة", "كتبة", "كتابة"],
-    answer: "كتابة",
+    options: ["كاتابـاة", "كـت بة", "كتابة", "كتبة"],
+    answer: "كتبة",
     dimension: "Pemecahan Masalah"
   }
 ];
