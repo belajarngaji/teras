@@ -1,8 +1,10 @@
+ // --- assets/js/kelas.js ---
 
+import { supabase } from '/teras/assets/js/supabase.js';
 
     // --- LEADERBOARD UMUM ---
     async function getLeaderboardData() {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabase
         .from('leaderboard')
         .select('rank, username, total_score')
         .limit(3);
@@ -41,7 +43,7 @@
 
     // --- LEADERBOARD TANTANGAN TOP 1 ---
 async function loadTopDashboardUser() {
-  const { data: leaderboard, error } = await supabaseClient
+  const { data: leaderboard, error } = await supabase
     .from('profiles')
     .select('username, dashboard_score_total')
     .order('dashboard_score_total', { ascending: false })
