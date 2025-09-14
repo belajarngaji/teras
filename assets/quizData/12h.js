@@ -1,65 +1,68 @@
 // /assets/quizData/12h.js
 
-export const quizId = 'kelas01_bab02_hijaiyah'; // Ganti
+// 1. Tambahkan 'export' untuk ID kuis ini
+export const quizId = 'kelas01_bab02_hijaiyah';
+
+// 2. Tambahkan 'export' untuk data pertanyaan
 export const quizData = [
   { 
-    question: "Huruf apakah yang berubah bentuk paling banyak antara posisi awal, tengah, dan akhir?", 
-    options: ["ع", "م", "ه", "ك"], 
-    answer: "ه", 
+    question: "Apa perbedaan utama antara huruf 'Dal' (د) dan 'Dzal' (ذ)?", 
+    options: ["'Dzal' punya satu titik di atas", "Bentuknya sangat berbeda", "'Dal' punya satu titik di bawah", "Ukurannya lebih besar"], 
+    answer: "'Dzal' punya satu titik di atas", 
     dimension: "Analisa"
   },
   { 
-    question: "Huruf apakah yang selalu berdiri sendiri meskipun berada di tengah kata?", 
-    options: ["د", "س", "ع", "م"], 
-    answer: "د", 
-    dimension: "Logika"
-  },
-  { 
-    question: "Bentuk huruf 'ه' dalam keempat posisi (berdiri sendiri, awal, tengah, akhir) adalah...", 
-    options: ["ه, هـ‍, ـهـ‍, ـه", "هـ, ه‍, ـهـ‍, ـه", "ه, هـ‍, ـه, ـهـ"], 
-    answer: "ه, هـ‍, ـهـ‍, ـه", 
+    question: "Huruf apakah ini: ر", 
+    options: ["د", "ذ", "ر", "ز"], 
+    answer: "ر", 
     dimension: "Memori"
   },
   { 
-    question: "Huruf apakah yang bentuknya mirip angka 7 jika ditulis di posisi awal?", 
-    options: ["ح", "ل", "ك", "ن"], 
-    answer: "ك", 
+    question: "Jika 'Ra' (ر) tidak bertitik, maka huruf yang bentuknya mirip dan memiliki satu titik di atas adalah...", 
+    options: ["ذ", "ز", "ش", "ض"], 
+    answer: "ز", 
+    dimension: "Logika"
+  },
+  { 
+    question: "Huruf yang memiliki tiga titik di atas dalam kelompok ini adalah...", 
+    options: ["س", "ش", "ص", "ض"], 
+    answer: "ش", 
+    dimension: "Memori"
+  },
+  { 
+    question: "Huruf manakah yang disebut 'Shad'?", 
+    options: ["س", "ش", "ص", "ض"], 
+    answer: "ص", 
     dimension: "Konsentrasi"
   },
   { 
-    question: "Dalam kata مُحَمَّد, huruf م terletak di posisi…", 
-    options: ["Awal dan Tengah", "Awal dan Akhir", "Tengah dan Akhir", "Hanya Tengah"], 
-    answer: "Awal dan Tengah", 
+    question: "Budi menggambar huruf 'Sin' (س), lalu menambahkan tiga titik di atasnya. Huruf baru apakah yang terbentuk?", 
+    options: ["ص", "ض", "ش", "ث"], 
+    answer: "ش", 
     dimension: "Pemecahan Masalah"
   },
   { 
-    question: "Huruf hijaiyah yang berbentuk seperti cangkir bila di posisi akhir kata adalah...", 
-    options: ["م", "س", "ش", "ي"], 
-    answer: "م", 
+    question: "Semua huruf berikut memiliki titik, KECUALI...", 
+    options: ["ذ", "ز", "ش", "س"], 
+    answer: "س", 
     dimension: "Analisa"
   },
   { 
-    question: "Semua huruf berikut dapat disambung dengan sesudahnya, kecuali...", 
-    options: ["ا، د، ذ، ر، ز، و", "ب، ت، ث، ج", "ف، ق, ك, ل"], 
-    answer: "ا، د، ذ، ر، ز، و", 
-    dimension: "Logika"
-  },
-  { 
-    question: "Pada kata اللّٰه, berapa huruf yang memiliki titik?", 
-    options: ["0", "1", "2", "3"], 
-    answer: "0", 
+    question: "Huruf apakah yang berada setelah 'Ra' (ر) dalam urutan hijaiyah?", 
+    options: ["د", "ذ", "ز", "س"], 
+    answer: "ز", 
     dimension: "Memori"
   },
   { 
-    question: "Huruf hijaiyah yang sering digunakan untuk memulai kata tetapi jarang digunakan di akhir kata adalah...", 
-    options: ["ا", "م", "س", "ك"], 
-    answer: "ا", 
+    question: "Huruf 'Dhad' (ض) dan 'Shad' (ص) memiliki bentuk dasar yang sama. Apa yang membedakannya?", 
+    options: ["'Dhad' memiliki satu titik di atas", "'Shad' memiliki satu titik di bawah", "Ukuran kepalanya berbeda", "Panjang ekornya berbeda"], 
+    answer: "'Dhad' memiliki satu titik di atas", 
     dimension: "Konsentrasi"
   },
   { 
-    question: "Huruf yang berbentuk seperti 'Waw' namun tanpa titik adalah...", 
-    options: ["ع", "ل", "و", "ق"], 
-    answer: "و", 
-    dimension: "Pemecahan Masalah"
+    question: "Manakah urutan huruf yang benar?", 
+    options: ["ر, د, ذ, ز", "س, ش, ص, ض", "د, ذ, ص, س", "ز, ر, ش, س"], 
+    answer: "س, ش, ص, ض", 
+    dimension: "Logika"
   }
 ];
