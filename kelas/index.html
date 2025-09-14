@@ -29,22 +29,20 @@
   </style>
 </head>
 <body class="bg-gray-50">
-  <nav class="flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+  <nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
     <div>
       <a href="."><img src="..png" alt="Belajar Ngaji" class="h-7 w-auto"></a>
     </div>
     <a href="../profil/" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">👤</a>
   </nav>
 
-  <div class="container mx-auto px-4 py-10 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+  <div class="container mx-auto px-4 pt-28 pb-10 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 
-    <!-- LEADERBOARD TANTANGAN TOP 1 -->
     <div id="leaderboard-dashboard" class="card bg-amber-200 dark:bg-amber-800 rounded-xl shadow-lg p-4 text-center col-span-1 md:col-span-2 lg:col-span-3">
       <h2 class="text-xl font-bold text-amber-900 dark:text-amber-200 mb-2 uppercase tracking-wide">TOP 1 TANTANGAN</h2>
       <div id="leaderboard-dashboard-single" class="text-lg font-semibold text-amber-800 dark:text-amber-200 tracking-wide">Memuat...</div>
     </div>
 
-    <!-- LEADERBOARD UMUM TOP 3 -->
     <div class="card bg-white rounded-xl shadow-lg p-6 text-center col-span-1 md:col-span-2 lg:col-span-3">
       <h2 class="text-2xl font-semibold text-gray-800 mb-4">Papan Peringkat</h2>
       <div id="leaderboard-loading" class="flex justify-center py-4">
