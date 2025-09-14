@@ -1,75 +1,68 @@
 // /assets/quizData/22h.js
 
-export const quizId = 'kelas02_bab02_hijaiyah';
+// 1. Tambahkan 'export' untuk ID kuis ini
+export const quizId = 'kelas02_bab02_hiyaiyah';
+
+// 2. Tambahkan 'export' untuk data pertanyaan
 export const quizData = [
-  // 1. Analisa
-  {
-    question: "Harakat yang berbentuk garis miring di atas huruf disebut…",
-    options: ["Kasrah", "Fathah", "Dhammah", "Tanwin"],
-    answer: "Fathah",
-    dimension: "Analisa"
-  },
-  // 2. Logika
-  {
-    question: "Huruf ب dengan harakat fathah, kasrah, dan dhammah adalah...",
-    options: ["بَ – بِ – بُ", "بِ – بُ – بَ", "بُ – بِ – بَ"],
-    answer: "بَ – بِ – بُ",
-    dimension: "Logika"
-  },
-  // 3. Memori
-  {
-    question: "Tanwin yang berbunyi 'an' ditulis dengan...",
-    options: ["Dua fathah di atas huruf", "Dua kasrah di bawah huruf", "Dua dhammah di atas huruf", "Sukun"],
-    answer: "Dua fathah di atas huruf",
+  { 
+    question: "Tanda baca yang bentuknya seperti 'waw' kecil di atas huruf dan menghasilkan bunyi 'u' disebut...", 
+    options: ["Fathah", "Kasrah", "Dammah", "Sukun"], 
+    answer: "Dammah", 
     dimension: "Memori"
   },
-  // 4. Konsentrasi
-  {
-    question: "Huruf م dengan tanwin kasrah dan tanwin dhammah adalah...",
-    options: ["مٍ – مُن", "مً – مُن", "مٍ – مً"],
-    answer: "مٍ – مُن",
+  { 
+    question: "Bagaimana cara membaca huruf ini: جُ", 
+    options: ["Ja", "Ji", "Ju", "Aj"], 
+    answer: "Ju", 
     dimension: "Konsentrasi"
   },
-  // 5. Pemecahan Masalah (cerita)
-  {
-    question: "Ali menulis kata كِتَاب. Jika diberi dhammah pada huruf terakhir, hasilnya menjadi…",
-    options: ["كِتَابَ", "كِتَابِ", "كِتَابُ", "كِتَابٌ"],
-    answer: "كِتَابُ",
+  { 
+    question: "Jika بَ dibaca 'ba' dan بِ dibaca 'bi', maka بُ dibaca...", 
+    options: ["Ba", "Bi", "Bu", "Ub"], 
+    answer: "Bu", 
+    dimension: "Logika"
+  },
+  { 
+    question: "Lihat kata ini: كُتِبَ. Harakat apa saja yang ada di sana secara berurutan?", 
+    options: ["Dammah, Kasrah, Fathah", "Fathah, Kasrah, Dammah", "Dammah, Fathah, Kasrah", "Kasrah, Dammah, Fathah"], 
+    answer: "Dammah, Kasrah, Fathah", 
+    dimension: "Analisa"
+  },
+  { 
+    question: "Bagaimana cara membaca kata ini: فُعِلَ", 
+    options: ["Fa-'i-la", "Fu-'a-la", "Fu-'i-la", "Fi-'u-la"], 
+    answer: "Fu-'i-la", 
     dimension: "Pemecahan Masalah"
   },
-  // 6. Analisa (kecuali)
-  {
-    question: "Semua kata berikut memiliki tanwin, kecuali…",
-    options: ["قلمًا", "بيتٍ", "قمرٌ", "كتاب"],
-    answer: "كتاب",
-    dimension: "Analisa"
-  },
-  // 7. Logika (yang bukan)
-  {
-    question: "Yang bukan termasuk harakat dasar adalah…",
-    options: ["Fathah", "Kasrah", "Dhammah", "Tanwin"],
-    answer: "Tanwin",
-    dimension: "Logika"
-  },
-  // 8. Memori
-  {
-    question: "Kombinasi huruf ن dengan semua harakat dasar dan tanwin adalah...",
-    options: ["نَ – نِ – نُ", "نَ – نِ – نُ – نً – نٍ – نٌ", "نَ – نً – نِ – نٍ – نُ – نٌ"],
-    answer: "نَ – نِ – نُ – نً – نٍ – نٌ",
+  { 
+    question: "Posisi harakat Dammah selalu berada di...", 
+    options: ["Atas huruf", "Bawah huruf", "Tengah huruf", "Samping huruf"], 
+    answer: "Atas huruf", 
     dimension: "Memori"
   },
-  // 9. Konsentrasi
-  {
-    question: "Dalam kata بُنْيَان, huruf ي memiliki harakat...",
-    options: ["Fathah", "Kasrah", "Sukun", "Tanwin"],
-    answer: "Fathah",
+  { 
+    question: "Manakah yang dibaca 'dhu'?", 
+    options: ["دُ", "ذُ", "صُ", "ضُ"], 
+    answer: "ضُ", 
     dimension: "Konsentrasi"
   },
-  // 10. Pemecahan Masalah
-  {
-    question: "Contoh kata yang mengandung huruf غ dengan dhammah adalah...",
-    options: ["مغفرة", "غُرْفَة", "غزال", "غبار"],
-    answer: "غُرْفَة",
+  { 
+    question: "Semua huruf ini memiliki harakat Dammah, KECUALI...", 
+    options: ["سُ", "شُ", "صِ", "ضُ"], 
+    answer: "صِ", 
+    dimension: "Logika"
+  },
+  { 
+    question: "Pada kata 'ذُكِرَ', harakat pada huruf pertama (Dzal) adalah...", 
+    options: ["Fathah", "Kasrah", "Dammah", "Sukun"], 
+    answer: "Dammah", 
+    dimension: "Analisa"
+  },
+  { 
+    question: "Seorang siswa ingin menulis 'rusuli'. Tulisan manakah yang benar?", 
+    options: ["رَسَلِ", "رُسُلِ", "رُسَلِ", "رَسُلِ"], 
+    answer: "رُسُلِ", 
     dimension: "Pemecahan Masalah"
   }
 ];
