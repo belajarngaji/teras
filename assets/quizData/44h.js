@@ -1,75 +1,68 @@
 // /assets/quizData/44h.js
 
+// 1. Tambahkan 'export' untuk ID kuis ini
 export const quizId = 'kelas04_bab04_hijaiyah';
+
+// 2. Tambahkan 'export' untuk data pertanyaan
 export const quizData = [
-  // 1. Analisa
-  {
-    question: "Dalam kata 'مَكْتُوب', huruf 'ب' berada di posisi…",
-    options: ["Awal", "Tengah", "Akhir", "Sendiri"],
-    answer: "Akhir",
-    dimension: "Analisa"
-  },
-  // 2. Logika
-  {
-    question: "Huruf berikut mirip dengan 'ص' tetapi memiliki titik di atasnya adalah…",
-    options: ["ض", "ط", "ظ", "ذ"],
-    answer: "ض",
-    dimension: "Logika"
-  },
-  // 3. Memori
-  {
-    question: "Bentuk sambung huruf 'هـ' di tengah kata adalah…",
-    options: ["هـ", "ـهـ", "ـه", "ه"],
-    answer: "ـهـ",
+  { 
+    question: "Mad yang terjadi ketika Mad Asli bertemu Hamzah (ء) di DUA KATA TERPISAH disebut...", 
+    options: ["Mad Asli", "Mad Wajib Muttasil", "Mad Ja'iz Munfasil", "Mad Lazim"], 
+    answer: "Mad Ja'iz Munfasil", 
     dimension: "Memori"
   },
-  // 4. Konsentrasi
-  {
-    question: "Pilih kata yang benar penulisannya:",
-    options: ["مُعَلِّم", "مُعَلَم", "مُعَلْم", "مُعْلِم"],
-    answer: "مُعَلِّم",
+  { 
+    question: "Kata 'Munfasil' dalam nama Mad Ja'iz Munfasil artinya...", 
+    options: ["Boleh", "Wajib", "Bersambung", "Terpisah"], 
+    answer: "Terpisah", 
+    dimension: "Memori"
+  },
+  { 
+    question: "Berapa pilihan panjang bacaan untuk Mad Ja'iz Munfasil?", 
+    options: ["Hanya 2 harakat", "Hanya 4 harakat", "Boleh 2, 4, atau 5 harakat", "Tepat 6 harakat"], 
+    answer: "Boleh 2, 4, atau 5 harakat", 
     dimension: "Konsentrasi"
   },
-  // 5. Pemecahan Masalah
-  {
-    question: "Seorang guru menulis huruf ك + ت + ب di papan tulis. Jika digabung, kata yang terbentuk adalah…",
-    options: ["كـتـاب", "كتب", "كـ تب", "كـتـبـ"],
-    answer: "كتب",
+  { 
+    question: "Pada potongan ayat 'إِنَّا أَعْطَيْنَاكَ', mengapa bacaan 'naa' dibaca panjang?", 
+    options: ["Karena itu Mad Asli biasa", "Karena Mad Asli (نَا) bertemu Hamzah (أَ) di lain kata", "Karena Mad Asli (نَا) bertemu Hamzah (أَ) dalam satu kata", "Karena ada huruf 'Ain setelahnya"], 
+    answer: "Karena Mad Asli (نَا) bertemu Hamzah (أَ) di lain kata", 
+    dimension: "Logika"
+  },
+  { 
+    question: "Manakah di antara contoh berikut yang mengandung hukum Mad Ja'iz Munfasil?", 
+    options: ["السَّمَاءِ", "يَقُوْلُ", "قُوْا أَنْفُسَكُمْ", "جَاءَ"], 
+    answer: "قُوْا أَنْفُسَكُمْ", 
+    dimension: "Analisa"
+  },
+  { 
+    question: "Apa perbedaan paling mendasar antara Mad Wajib Muttasil dan Mad Ja'iz Munfasil?", 
+    options: ["Panjang bacaannya berbeda", "Posisi pertemuan Mad Asli dan Hamzah (satu kata vs dua kata)", "Jenis huruf mad-nya", "Jenis harakatnya"], 
+    answer: "Posisi pertemuan Mad Asli dan Hamzah (satu kata vs dua kata)", 
+    dimension: "Analisa"
+  },
+  { 
+    question: "Kata 'Ja'iz' pada nama Mad ini berarti Anda ... memanjangkannya lebih dari 2 harakat.", 
+    options: ["Boleh", "Harus", "Dilarang", "Kadang-kadang"], 
+    answer: "Boleh", 
+    dimension: "Logika"
+  },
+  { 
+    question: "Contoh 'جَاءَ' adalah Mad Wajib Muttasil. Manakah contoh yang sejenis dengannya?", 
+    options: ["يَا آدَمُ", "شَاءَ", "فِي أُمَّةٍ", "قَالُوْا آمَنَّا"], 
+    answer: "شَاءَ", 
+    dimension: "Konsentrasi"
+  },
+  { 
+    question: "Mad Asli + Hamzah (di lain kata) = ...", 
+    options: ["Mad Asli", "Mad Wajib Muttasil", "Mad Ja'iz Munfasil", "Bacaan pendek"], 
+    answer: "Mad Ja'iz Munfasil", 
     dimension: "Pemecahan Masalah"
   },
-  // 6. Analisa
-  {
-    question: "Dalam kata 'قُرْآن', huruf 'ر' berada di posisi…",
-    options: ["Awal", "Tengah", "Akhir", "Sendiri"],
-    answer: "Tengah",
-    dimension: "Analisa"
-  },
-  // 7. Logika
-  {
-    question: "Yang bukan termasuk huruf yang tidak bisa disambung setelahnya adalah…",
-    options: ["ا", "ر", "د", "م"],
-    answer: "م",
-    dimension: "Logika"
-  },
-  // 8. Memori
-  {
-    question: "Huruf terakhir dari kata 'مَدْرَسَة' adalah…",
-    options: ["م", "ر", "س", "ة"],
-    answer: "ة",
-    dimension: "Memori"
-  },
-  // 9. Konsentrasi
-  {
-    question: "Manakah kata yang mengandung huruf 'ظ'?",
-    options: ["نور", "حفظ", "غرفة", "كتب"],
-    answer: "حفظ",
-    dimension: "Konsentrasi"
-  },
-  // 10. Pemecahan Masalah
-  {
-    question: "Jika huruf-huruf ب + ي + ت digabungkan, terbentuk kata…",
-    options: ["بيت", "بـايـت", "بـ يت", "ب يـ ت"],
-    answer: "بيت",
+  { 
+    question: "Lihat contoh ini: 'وَفِي أَنْفُسِكُمْ'. Hukum Mad Ja'iz Munfasil terjadi pada bacaan...", 
+    options: ["وَفِي", "أَنْفُسِكُمْ", "فِي أَنْ", "أَنْفُ"], 
+    answer: "وَفِي", 
     dimension: "Pemecahan Masalah"
   }
 ];
