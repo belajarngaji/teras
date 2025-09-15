@@ -1,75 +1,68 @@
 // /assets/quizData/45h.js
 
+// 1. Tambahkan 'export' untuk ID kuis ini
 export const quizId = 'kelas04_bab05_hijaiyah';
+
+// 2. Tambahkan 'export' untuk data pertanyaan
 export const quizData = [
-  // 1. Analisa
-  {
-    question: "Dalam kata 'مستشفى', huruf 'ش' berada di posisi…",
-    options: ["Awal", "Tengah", "Akhir", "Sendiri"],
-    answer: "Tengah",
+  { 
+    question: "Manakah dari berikut ini yang merupakan contoh Mad Asli (Thabi'i)?", 
+    options: ["جَاءَ", "يَا أَيُّهَا", "قَالَ", "السُّوْءُ"], 
+    answer: "قَالَ", 
     dimension: "Analisa"
   },
-  // 2. Logika
-  {
-    question: "Huruf ini mirip dengan 'ف' tetapi punya dua titik di atas. Huruf apakah itu?",
-    options: ["ق", "ث", "غ", "ت"],
-    answer: "ق",
+  { 
+    question: "Bacaan 'بِمَا أُنْزِلَ' mengandung hukum Mad Ja'iz Munfasil karena...", 
+    options: ["Mad Asli bertemu Hamzah dalam satu kata", "Mad Asli bertemu Hamzah di dua kata terpisah", "Hanya bacaan Mad Asli biasa", "Mad Asli bertemu huruf Sukun"], 
+    answer: "Mad Asli bertemu Hamzah di dua kata terpisah", 
     dimension: "Logika"
   },
-  // 3. Memori
-  {
-    question: "Ingat kembali: Kata 'مدرسة' terdiri dari…",
-    options: ["4 huruf", "5 huruf", "6 huruf", "7 huruf"],
-    answer: "5 huruf",
-    dimension: "Memori"
-  },
-  // 4. Konsentrasi
-  {
-    question: "Manakah bentuk kata yang salah penulisannya?",
-    options: ["كِتاب", "مُعلِّم", "قَلَم", "مَدرَس"],
-    answer: "مَدرَس",
-    dimension: "Konsentrasi"
-  },
-  // 5. Pemecahan Masalah
-  {
-    question: "Seorang siswa ingin menulis kata 'Madina'. Ia menulis huruf: م + د + ي + ن + ة. Jika disambung, hasil yang benar adalah…",
-    options: ["مادي نـة", "مدينة", "مدي نة", "مديـناة"],
-    answer: "مدينة",
+  { 
+    question: "Kata 'السَّمَاءِ' harus dibaca dengan panjang 4 atau 5 harakat. Apa nama hukum mad tersebut?", 
+    options: ["Mad Asli", "Mad Wajib Muttasil", "Mad Ja'iz Munfasil", "Mad Lazim"], 
+    answer: "Mad Wajib Muttasil", 
     dimension: "Pemecahan Masalah"
   },
-  // 6. Analisa
-  {
-    question: "Dalam kata 'مكتبة', huruf 'ت' adalah huruf ke…",
-    options: ["2", "3", "4", "5"],
-    answer: "3",
+  { 
+    question: "Perbedaan utama antara 'جَاءَ' dan 'قَالَ' dari sisi hukum mad adalah...", 
+    options: ["'جَاءَ' memiliki Hamzah setelah mad, 'قَالَ' tidak", "'قَالَ' lebih panjang dari 'جَاءَ'", "Tidak ada perbedaan", "'جَاءَ' adalah Mad Asli, 'قَالَ' adalah Mad Far'i"], 
+    answer: "'جَاءَ' memiliki Hamzah setelah mad, 'قَالَ' tidak", 
     dimension: "Analisa"
   },
-  // 7. Logika
-  {
-    question: "Yang bukan pasangan huruf kembar titik adalah…",
-    options: ["ت – ب", "ط – ظ", "ف – ق", "ص – ض"],
-    answer: "ت – ب",
-    dimension: "Logika"
-  },
-  // 8. Memori
-  {
-    question: "Ingat kata: 'قرآن'. Huruf ke-3 adalah…",
-    options: ["ق", "ر", "آ", "ن"],
-    answer: "آ",
+  { 
+    question: "Mad yang hukumnya 'Wajib' (harus) dipanjangkan 4/5 harakat adalah...", 
+    options: ["Mad Asli", "Mad Wajib Muttasil", "Mad Ja'iz Munfasil", "Semua Mad"], 
+    answer: "Mad Wajib Muttasil", 
     dimension: "Memori"
   },
-  // 9. Konsentrasi
-  {
-    question: "Pilih kata yang mengandung huruf 'غ'.",
-    options: ["باب", "غرفة", "كتاب", "مدرسة"],
-    answer: "غرفة",
+  { 
+    question: "Perhatikan: 1) شَاءَ 2) فِي أَنْفُسِهِمْ. Manakah pernyataan yang benar?", 
+    options: ["Keduanya Mad Wajib", "Keduanya Mad Ja'iz", "1 Mad Wajib, 2 Mad Ja'iz", "1 Mad Ja'iz, 2 Mad Wajib"], 
+    answer: "1 Mad Wajib, 2 Mad Ja'iz", 
     dimension: "Konsentrasi"
   },
-  // 10. Pemecahan Masalah
-  {
-    question: "Seorang guru menulis huruf: ك + ت + ب + ة. Jika disambung, kata yang benar adalah…",
-    options: ["كاتابـاة", "كـت بة", "كتابة", "كتبة"],
-    answer: "كتبة",
+  { 
+    question: "Mad yang hukumnya 'Ja'iz' (boleh) dibaca 2, 4, atau 5 harakat adalah...", 
+    options: ["Mad Asli", "Mad Wajib Muttasil", "Mad Ja'iz Munfasil", "Hanya Mad Asli"], 
+    answer: "Mad Ja'iz Munfasil", 
+    dimension: "Memori"
+  },
+  { 
+    question: "Pada kata 'يَقُوْلُ', bacaan 'quu' adalah Mad Asli. Mengapa ia tidak menjadi Mad Far'i?", 
+    options: ["Karena tidak bertemu Hamzah atau Sukun", "Karena berada di tengah kata", "Karena hurufnya tipis", "Karena harakatnya Dammah"], 
+    answer: "Karena tidak bertemu Hamzah atau Sukun", 
+    dimension: "Logika"
+  },
+  { 
+    question: "Seorang siswa membaca 'يَا' pada 'يَا بَنِيْ' dengan panjang 4 harakat. Hukum apa yang ia terapkan?", 
+    options: ["Mad Wajib Muttasil", "Mad Asli", "Mad Ja'iz Munfasil", "Bukan hukum mad"], 
+    answer: "Mad Ja'iz Munfasil", 
     dimension: "Pemecahan Masalah"
+  },
+  { 
+    question: "Manakah dari berikut ini yang BUKAN syarat terjadinya Mad Asli?", 
+    options: ["Fathah diikuti Alif", "Kasrah diikuti Ya sukun", "Dammah diikuti Waw sukun", "Fathah diikuti Hamzah"], 
+    answer: "Fathah diikuti Hamzah", 
+    dimension: "Analisa"
   }
 ];
