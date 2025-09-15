@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teras | Belajar Ngaji</title>
+  <meta name="description" content="Jelajahi semua fitur seru">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; transition: background 0.3s, color 0.3s; }
+    .dark-mode { background: #1e293b; color: #f1f5f9; }
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <nav class="fixed top-0 w-full z-50 flex justify-between items-center bg-blue-600 text-white px-6 py-4 shadow-md">
+  <div id="total-score" class="text-lg font-bold">Memuat...
+  </div>
+
+  <button onclick="window.history.back()" class="bg-white text-blue-600 px-3 py-1 rounded-md hover:bg-gray-200">
+    <i class="fa-solid fa-arrow-left"></i>
+  </button>
+  </nav>
+
+  <div class="pt-20 container mx-auto px-4 py-10 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Bab 1 - Hijaiyah</h2>
+      <p class="text-gray-600 mb-4">Bacaan Izhar</p>
+      <a href="bab1/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
+    </div>
+
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Bab 2 - Hijaiyah</h2>
+      <p class="text-gray-600 mb-4">Bacaan Idgham Bighunnah</p>
+      <a href="bab2/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
+    </div>
+
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Bab 3 - Hijaiyah</h2>
+      <p class="text-gray-600 mb-4">Bacaan Idgham Bilaghunnah</p>
+      <a href="bab5/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
+    </div>
+
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Bab 4 - Hijaiyah</h2>
+      <p class="text-gray-600 mb-4">Bacaan Iqlab</p>
+      <a href="bab6/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
+    </div>
+
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Bab 5 - Hijaiyah</h2>
+      <p class="text-gray-600 mb-4">Bacaan Ikhfa'</p>
+      <a href="bab5/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
+    </div>
+
+    <div class="card bg-white rounded-xl shadow-lg p-6 text-center hover:scale-105 transition">
+      <h2 class="text-xl font-semibold mb-2">Bab 6 - Hijaiyah</h2>
+      <p class="text-gray-600 mb-4">Ujian Akhir</p>
+      <a href="bab6/" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Mulai Quiz</a>
+    </div>
+
+  </div>
+<script type="module" src="/teras/assets/js/skorKelas.js"></script>
+</body>
+</html>
