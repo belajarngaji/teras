@@ -24,8 +24,8 @@ export const quizData = [
     dimension: "Memori"
   },
   { 
-    question: "Manakah huruf Pegon yang memiliki tiga titik di atasnya?", 
-    options: ["ث", "ت", "ب", "ز"], 
+    question: "Manakah yang bukan huruf Pegon memiliki tiga titik?", 
+    options: ["ث", "ڤ", "چ", "ز"], 
     answer: "ث", 
     dimension: "Konsentrasi"
   },
